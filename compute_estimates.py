@@ -6,6 +6,7 @@ import pathlib
 
 import UDLib as U
 import Estimation as E
+import argparse
 
 
 def conllu2trees(path):
@@ -24,26 +25,14 @@ def dump_estimates(est_dict, path):
     with open(path, 'w', encoding='utf-8') as out:
         json.dump(est_dict_str_keys, out, indent=2)
 
+if __name__ == '__main__':
+    argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
+    argparser.add_argument("-i", "--input-file", required=True)
+    argparser.add_argument("-o", "--output-dir", required=True)
 
-data_dir = pathlib.Path('data')
-estimates_dir = pathlib.Path(data_dir / 'estimates')
+    args = argparser.parse_args()
 
-# Japanese
-trees_ja = conllu2trees(data_dir / 'ja_pud-ud-test.conllu')
-estimates_ja = E.get_ml_directionality_estimates(trees_ja)
-dump_estimates(estimates_ja, estimates_dir / 'japanese_pud.json')
-
-# German
-trees_de = conllu2trees(data_dir / 'de_gsd-ud-train.conllu')
-estimates_de = E.get_ml_directionality_estimates(trees_de)
-dump_estimates(estimates_de, estimates_dir / 'german_gsd.json')
-
-# Arabic
-trees_ar = conllu2trees(data_dir / 'ar_pud-ud-test.conllu')
-estimates_ar = E.get_ml_directionality_estimates(trees_ar)
-dump_estimates(estimates_ar, estimates_dir / 'arabic_pud.json')
-
-# Irish
-trees_ga = conllu2trees(data_dir / 'ga_idt_all.conllu')
-estimates_ga = E.get_ml_directionality_estimates(trees_ga)
-dump_estimates(estimates_ga, estimates_dir / 'irish_idt.json')
+    trees = conllu2trees(args.input_file)
+    estimates = E.get_ml_directionality_estimates(trees)
+    file_name = args.input_file.split("/")[-1]
+    dump_estimates(estimates, f'{args.output_dir}/{file_name}.estimates.json')
