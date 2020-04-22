@@ -1,0 +1,22 @@
+{
+  "root": {
+    "advcl->root": 100,
+    "root->advcl": 20,
+    "nmod->nummod": 100,
+    "nummod->ccomp": 100
+  },
+  "advcl": {
+    "advcl->obl": 100,
+    "obl->advcl": 20,
+    "obl->nsubj": 100,
+    "nsubj->obl": 20,
+    "nsubj->mark": 100,
+    "mark->nsubj": 20,
+    "mark->punct": 100,
+    "punct->mark": 20
+  },
+  "obl": {
+    "case->obl": 100,
+    "obl->case": 20
+  }
+}

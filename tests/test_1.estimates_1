@@ -1,0 +1,16 @@
+{
+  "root": {
+    "advcl->root": 100,
+    "nmod->nummod": 100,
+    "nummod->ccomp": 100
+  },
+  "advcl": {
+    "advcl->obl": 100,
+    "obl->nsubj": 100,
+    "nsubj->mark": 100,
+    "mark->punct": 100
+  },
+  "obl": {
+    "case->obl": 100
+  }
+}
