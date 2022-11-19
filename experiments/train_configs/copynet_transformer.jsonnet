@@ -6,7 +6,7 @@ local metric_1 = std.extVar('metric_1');
 local metric_2 = std.extVar('metric_2');
 local validation_metric = std.extVar('validation_metric');
 local model_name = std.extVar('model_name');
-local pointer_vocab_size = std.parseInt(str.extVar("pointer_vocab_size"));
+local pointer_vocab_size = std.extVar('pointer_vocab_size');
 // ================================================================
 {
  "vocabulary": {
