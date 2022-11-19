@@ -19,8 +19,6 @@ export HOME
 
 . ../venv/bin/activate
 
-MODEL_IDX="$SLURM_ARRAY_TASK_ID
-
 MODEL_IDX="$SLURM_ARRAY_TASK_ID"
 
 export vocab_path="experiments/vocabs/mtop_pointers"
