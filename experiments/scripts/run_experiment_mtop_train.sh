@@ -25,7 +25,7 @@ datasets_dir=experiments/processed_datasets/mtop/pointers_format/
 languages=(hindi thai french spanish german)
 
 export vocab_path=vocab
-export metrics_list=(em_accuracy)
+export metrics_list="['em_accuracy']"
 export validation_metric="+em_accuracy"
 export model_name="xlm-roberta-large"
 
