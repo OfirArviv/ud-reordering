@@ -24,10 +24,11 @@ MODEL_IDX="$EXPERIMENT_NUM"
 datasets_dir=experiments/processed_datasets/mtop/pointers_format/
 languages=(hindi thai french spanish german)
 
-vocab_path=vocab
-metrics_list=(em_accuracy)
-validation_metric="+em_accuracy"
-model_name="xlm-roberta-large"
+export vocab_path=vocab
+export metrics_list=(em_accuracy)
+export validation_metric="+em_accuracy"
+export model_name="xlm-roberta-large"
+
 for lang in "${languages[@]}"
 do
    subdir=english_reordered_by_"$lang"
@@ -36,8 +37,8 @@ do
    algo_arr=(HUJI RASOOLINI)
    for algo in "${algo_arr[@]}"
    do
-     train_data_path="$dataset_dir"/english_train_decoupled_format_reordered_by_"$lang"_"$algo".tsv
-     valid_data_path="$dataset_dir"/english_eval_decoupled_format_reordered_by_"$lang"_"$algo".tsv
+     export train_data_path="$dataset_dir"/english_train_decoupled_format_reordered_by_"$lang"_"$algo".tsv
+     export valid_data_path="$dataset_dir"/english_eval_decoupled_format_reordered_by_"$lang"_"$algo".tsv
 
      serialization_dir="$DIR"/reordered_by_"$lang"_"$algo"/model_"$EXPERIMENT_NUM"/
 
