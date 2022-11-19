@@ -79,7 +79,7 @@ local model_name = std.extVar('model_name');
       "target_namespace": "target_tokens",
       "token_based_metric": metrics_list,
       "label_smoothing_ratio": 0.1,
-      "pointer_vocab_size": 200
+      "pointer_vocab_size": 100
     }
   },
   "data_loader": {
