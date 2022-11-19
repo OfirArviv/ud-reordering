@@ -21,17 +21,17 @@ export HOME
 
 MODEL_IDX="$SLURM_ARRAY_TASK_ID"
 
-export vocab_path="experiments/vocabs/mtop_pointers"
+export vocab_path="experiments/vocabs/rebel_pointers"
 export metric_1="em_accuracy"
-export metric_2=null
-export validation_metric="+em_accuracy"
+export metric_2="re_fscore"
+export validation_metric="+f1"
 export model_name="xlm-roberta-large"
-export pointer_vocab_size=100
+export pointer_vocab_size=300
 
-dataset_dir=experiments/processed_datasets/mtop/pointers_format/
+dataset_dir=experiments/processed_datasets/rebel/
 # Standard Order Model
-export train_data_path="$dataset_dir"/standard/english_train_decoupled_format.tsv
-export valid_data_path="$dataset_dir"/standard/english_eval_decoupled_format.tsv
+export train_data_path="$dataset_dir"/seq2seq_standard/english_train_50000.tsv
+export valid_data_path="$dataset_dir"/seq2seq_standard/english_dev_10000.tsv
 
 serialization_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
 if [ ! -d "$serialization_dir" ]; then
@@ -43,15 +43,15 @@ allennlp train "$PWD"/experiments/train_configs/copynet_transformer.jsonnet --se
 
 
 # Reordered Models
-languages=(hindi thai french spanish german)
+languages=(hindi koean vietnamese)
 for lang in "${languages[@]}"
-subdir=english_reordered_by_"$lang"
+subdir=seq2seq_english_reordered_by_"$lang"
 do
    algo_arr=(HUJI RASOOLINI)
    for algo in "${algo_arr[@]}"
    do
-     export train_data_path="$dataset_dir"/"$subdir"/english_train_decoupled_format_reordered_by_"$lang"_"$algo".tsv
-     export valid_data_path="$dataset_dir"/"$subdir"/english_eval_decoupled_format_reordered_by_"$lang"_"$algo".tsv
+     export train_data_path="$dataset_dir"/$subdir/english_train_50000_reordered_by_"$lang"_"$algo".tsv
+     export valid_data_path="$dataset_dir"/$subdir/english_dev_10000_reordered_by_"$lang"_"$algo".tsv
 
      serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo"/model_"$EXPERIMENT_NUM"/
 

@@ -247,7 +247,7 @@ def create_mtop_seq2seq_dataset_legacy(input_file_path: str,
                 if reorder_by_lang:
                     reordered_parse_tree = reorder_mtop(parse_tree, ud_reorder_algo, reorder_by_lang)
             except Exception as e:
-                #print(f'error:{str(e)}')
+                # print(f'error:{str(e)}')
                 error += 1
                 continue
 
@@ -789,8 +789,6 @@ def create_reordered_datasets_scripts_multilingual_top(use_pointers: bool):
                                             reorder_algo,
                                             lang)
 
-# endregion
-
 
 def create_vocab_from_seq2seq_file(file_path_list: List[str], output_dir: str) -> None:
     ontology_tokens = ['@@UNKNOWN@@', '@@PADDING@@', '@start@', '@end@']
@@ -806,7 +804,7 @@ def create_vocab_from_seq2seq_file(file_path_list: List[str], output_dir: str) -
                 target_seq = target_seq.strip('\n')
                 target_tokens: List[str] = target_seq.split()
                 for token in target_tokens:
-                    if token.startswith('[') or token.startswith(']') or  token.endswith(']'):
+                    if token.startswith('[') or token.startswith(']') or token.endswith(']'):
                         if token not in ontology_tokens:
                             ontology_tokens.append(token)
                     elif token.startswith('@ptr'):
@@ -827,19 +825,17 @@ def create_vocab_from_seq2seq_file(file_path_list: List[str], output_dir: str) -
         for token in ["*tags", "*labels"]:
             f.write(f'{token}\n')
 
-if __name__ == "__main__":
-    create_vocab_from_seq2seq_file([
-        "experiments/processed_datasets/mtop/pointers_format/standard/english_train_decoupled_format.tsv",
-        "experiments/processed_datasets/mtop/pointers_format/standard/english_eval_decoupled_format.tsv",
-        "experiments/processed_datasets/mtop/pointers_format/standard/english_test_decoupled_format.tsv"
-    ],
-        "experiments/vocabs/mtop_pointers/"
-    )
 
-    exit()
+# endregion
+
+
+
+
+if __name__ == "__main__":
     # TODO: Also run the experiments of the non-decoupled mode to measure if it really help to generalize over
     #  word-order
 
+    ### MTOP Dataset Creation ###
     # Create English standard dataset
     create_english_dataset_script_mtop(True)
 
@@ -848,3 +844,12 @@ if __name__ == "__main__":
 
     # Create Test Dataset
     create_test_datasets_script_mtop(True)
+
+    # Create vocab
+    create_vocab_from_seq2seq_file([
+        "experiments/processed_datasets/mtop/pointers_format/standard/english_train_decoupled_format.tsv",
+        "experiments/processed_datasets/mtop/pointers_format/standard/english_eval_decoupled_format.tsv",
+        "experiments/processed_datasets/mtop/pointers_format/standard/english_test_decoupled_format.tsv"
+    ],
+        "experiments/vocabs/mtop_pointers/"
+    )

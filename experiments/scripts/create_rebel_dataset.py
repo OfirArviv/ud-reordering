@@ -533,8 +533,8 @@ def split_dataset_to_train_dev_test(triples_by_subject_by_sentence_list: List[Tr
     return {"train": train_split, "dev": dev_split, "test": test_split}
 
 
-def create_vocab_from_seq2seq_file(file_path_list: List[str], output_vocab_file_path: str) -> None:
-    ontology_tokens = {'@@UNKNOWN@@', '@@PADDING@@', '@start@', '@end@', '<triplet>', '<subj>', '<obj>'}
+def create_vocab_from_seq2seq_file(file_path_list: List[str], output_dir: str) -> None:
+    ontology_tokens = ['@@UNKNOWN@@', '@@PADDING@@', '@start@', '@end@', '<triplet>', '<subj>', '<obj>']
     pointers_tokens = set()
     rel_tokens = set()
 
@@ -555,15 +555,19 @@ def create_vocab_from_seq2seq_file(file_path_list: List[str], output_vocab_file_
                     else:
                         rel_tokens.add(token)
 
-    with open(output_vocab_file_path, 'w', encoding='utf-8') as f:
+    with open(f'{output_dir}/target_tokens.txt', 'w', encoding='utf-8') as f:
         for token in ontology_tokens:
             f.write(f'{token}\n')
         for token in sorted(list(rel_tokens)):
             f.write(f'{token}\n')
 
-        pointer_tokens_size = len(pointers_tokens) + 100
+        pointer_tokens_size = round((len(pointers_tokens)+100)/100)*100
         for i in range(pointer_tokens_size):
             f.write(f'@ptr{i}\n')
+
+    with open(f'{output_dir}/non_padded_namespaces.txt', 'w', encoding='utf-8') as f:
+        for token in ["*tags", "*labels"]:
+            f.write(f'{token}\n')
 
 
 # endregion
@@ -893,7 +897,7 @@ def create_standard_seq2seq_datasets_script():
 
 
 def create_reordered_seq2seq_datasets_script():
-    for split in ["train_50000", "dev_10000", "test_1000"]:
+    for split in ["train_50000", "dev_10000"]:
         file_path = f'experiments/processed_datasets/rebel/json_format_small/english_{split}.jsonl'
         for lang in ["hindi", "korean", "vietnamese"]:
             output_dir = f'experiments/processed_datasets/rebel/seq2seq_english_reordered_by_{lang}/'
@@ -914,17 +918,10 @@ def create_reordered_seq2seq_datasets_script():
 # create_json_datasets_script()
 # create_json_datasets_small_script()
 # create_standard_seq2seq_datasets_script()
-create_reordered_seq2seq_datasets_script()
-exit()
+# create_reordered_seq2seq_datasets_script()
 
-
-# add test to rasoolini
-# check if all dev set rel in validation test and hindi sets
-# reorder to json and not seq2seq
-
-
-# create_vocab_from_seq2seq_file(["relation_extraction/datasets/relex/dataset_seq2seq/english_train.tsv",
-#                                 "relation_extraction/datasets/relex/dataset_seq2seq/english_dev.tsv",
-#                                 "relation_extraction/datasets/relex/dataset_seq2seq/english_test.tsv"],
-#                                "relation_extraction/datasets/relex/dataset_json/vocab_en.txt")
+create_vocab_from_seq2seq_file(["experiments/processed_datasets/rebel/seq2seq_standard/english_train_50000.tsv",
+                                "experiments/processed_datasets/rebel/seq2seq_standard/english_dev_10000.tsv",
+                                "experiments/processed_datasets/rebel/seq2seq_standard/english_test_10000.tsv"],
+                               "experiments/vocabs/rebel_pointers")
 

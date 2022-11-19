@@ -3,8 +3,10 @@ local vocab_path = std.extVar('vocab_path');
 local train_data_path = std.extVar('train_data_path');
 local valid_data_path = std.extVar('valid_data_path');
 local metric_1 = std.extVar('metric_1');
+local metric_2 = std.extVar('metric_2');
 local validation_metric = std.extVar('validation_metric');
 local model_name = std.extVar('model_name');
+local pointer_vocab_size = str.extVar("pointer_vocab_size");
 // ================================================================
 {
  "vocabulary": {
@@ -76,9 +78,10 @@ local model_name = std.extVar('model_name');
         "vocab_namespace": "target_tokens"
       },
       "target_namespace": "target_tokens",
-      "token_based_metric": [metric_1],
+      [if metric_2 == null then 'token_based_metric' else null]: [metric_1],
+      [if metric_2 != null then 'token_based_metric' else null]: [metric_1, metric_2],
       "label_smoothing_ratio": 0.1,
-      "pointer_vocab_size": 100
+      "pointer_vocab_size": pointer_vocab_size
     }
   },
   "data_loader": {
