@@ -17,18 +17,31 @@ TMP=$TMPDIR
 TEMP=$TMPDIR
 export HOME
 
-. ./venv/bin/activate
+. ../venv/bin/activate
 
 MODEL_IDX="$EXPERIMENT_NUM"
 
-datasets_dir=experiments/processed_datasets/mtop/pointers_format/
-languages=(hindi thai french spanish german)
-
 export vocab_path="experiments/vocabs/mtop_pointers"
-export metrics_list="['em_accuracy']"
+export metrics_list=('em_accuracy')
 export validation_metric="+em_accuracy"
 export model_name="xlm-roberta-large"
 
+datasets_dir=experiments/processed_datasets/mtop/pointers_format/
+# Standard Order Model
+export train_data_path="$dataset_dir"/standard/english_train_decoupled_format.tsv
+export valid_data_path="$dataset_dir"/standard/english_eval_decoupled_format.tsv
+
+serialization_dir="$DIR"/english_standard/model_"$EXPERIMENT_NUM"/
+if [ ! -d "$serialization_dir" ]; then
+ echo "$serialization_dir" does not exists. Creating...
+ mkdir -p "$serialization_dir"
+fi
+
+allennlp train "$PWD"/experiments/train_configs/copynet_transformer.jsonnet --serialization-dir "$serialization_dir" --include-package experiments --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
+
+
+# Reordered Models
+languages=(hindi thai french spanish german)
 for lang in "${languages[@]}"
 do
    subdir=english_reordered_by_"$lang"
