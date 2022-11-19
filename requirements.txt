@@ -1,3 +1,4 @@
+torch==1.11.0+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
 allennlp==2.10.0
 allennlp-models==2.10.0
 overrides==6.2.0

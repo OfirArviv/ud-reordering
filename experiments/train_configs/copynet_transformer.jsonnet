@@ -40,7 +40,6 @@ local model_name = std.extVar('model_name');
     }
   },
   "train_data_path": train_data_path,
-  "validation_data_path": valid_data_path,
   "model": {
     "type": "composed_seq2seq",
     "source_text_embedder": {
@@ -90,7 +89,7 @@ local model_name = std.extVar('model_name');
     }
   },
   "trainer": {
-    "num_epochs": 100,
+    "num_epochs": 50,
     "grad_norm": 5.0,
     "validation_metric": validation_metric,
     "optimizer": {
@@ -117,7 +116,7 @@ local model_name = std.extVar('model_name');
     },
     "learning_rate_scheduler": {
       "type": "slanted_triangular",
-      "num_epochs": 100,
+      "num_epochs": 50,
       "gradual_unfreezing": true
     },
     "checkpointer": {

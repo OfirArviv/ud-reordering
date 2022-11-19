@@ -7,8 +7,8 @@
 ARGPARSE_DESCRIPTION="Sample script description"      # this is optional
 source /cs/labs/oabend/ofir.arviv/argparse.bash || exit 1
 argparse "$@" <<EOF || exit 1
-parser.add_argument('-m', '--dir', required=True)
-parser.add_argument('-i', '--experiment_num', required=False)
+parser.add_argument('-d', '--dir', required=True)
+parser.add_argument('-i', '--experiment-num', required=False)
 
 EOF
 
@@ -19,7 +19,15 @@ export HOME
 
 . ../venv/bin/activate
 
-MODEL_IDX="$SLURM_ARRAY_TASK_ID"/
+if [ -z ${$EXPERIMENT_NUM+x} ]; then
+  echo using input param experiment_num: $$EXPERIMENT_NUM
+  MODEL_IDX="$EXPERIMENT_NUM";
+else
+  echo using input param slrum_array_tak_id: $SLURM_ARRAY_TASK_ID
+  MODEL_IDX="$SLURM_ARRAY_TASK_ID";
+fi
+
+MODEL_IDX="$SLURM_ARRAY_TASK_ID"
 
 export vocab_path="experiments/vocabs/mtop_pointers"
 export metric_1="em_accuracy"
@@ -53,7 +61,7 @@ do
      export train_data_path="$dataset_dir"/english_train_decoupled_format_reordered_by_"$lang"_"$algo".tsv
      export valid_data_path="$dataset_dir"/english_eval_decoupled_format_reordered_by_"$lang"_"$algo".tsv
 
-     serialization_dir="$DIR"/reordered_by_"$lang"_"$algo"/model_"$EXPERIMENT_NUM"/
+     serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo"/model_"$EXPERIMENT_NUM"/
 
      if [ ! -d "$serialization_dir" ]; then
        echo "$serialization_dir" does not exists. Creating...
