@@ -40,6 +40,7 @@ local model_name = std.extVar('model_name');
     }
   },
   "train_data_path": train_data_path,
+   "validation_data_path": valid_data_path,
   "model": {
     "type": "composed_seq2seq",
     "source_text_embedder": {
