@@ -22,7 +22,7 @@ export HOME
 MODEL_IDX="$EXPERIMENT_NUM"
 
 export vocab_path="experiments/vocabs/mtop_pointers"
-export metrics_list=('em_accuracy')
+export metrics_list=['em_accuracy']
 export validation_metric="+em_accuracy"
 export model_name="xlm-roberta-large"
 
