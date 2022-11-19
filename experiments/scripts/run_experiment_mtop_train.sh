@@ -31,7 +31,7 @@ datasets_dir=experiments/processed_datasets/mtop/pointers_format/
 export train_data_path="$dataset_dir"/standard/english_train_decoupled_format.tsv
 export valid_data_path="$dataset_dir"/standard/english_eval_decoupled_format.tsv
 
-serialization_dir="$DIR"/english_standard/model_"$EXPERIMENT_NUM"/
+serialization_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
 if [ ! -d "$serialization_dir" ]; then
  echo "$serialization_dir" does not exists. Creating...
  mkdir -p "$serialization_dir"
