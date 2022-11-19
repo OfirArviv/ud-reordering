@@ -45,7 +45,7 @@ do
 
      if [ ! -d "$serialization_dir" ]; then
        echo "$serialization_dir" does not exists. Creating...
-       mkdir "$serialization_dir"
+       mkdir -p "$serialization_dir"
      fi
 
      allennlp train experiments/train_configs/copynet_transformer.jsonnet --serialization-dir "$serialization_dir" --include-package experiments.allennlp_extensions --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
