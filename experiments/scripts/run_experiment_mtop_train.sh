@@ -17,8 +17,6 @@ TMP=$TMPDIR
 TEMP=$TMPDIR
 export HOME
 
-cd /cs/labs/oabend/ofir.arviv/experiment_reordering_evaluation/
-
 . ./venv/bin/activate
 
 MODEL_IDX="$EXPERIMENT_NUM"
@@ -48,7 +46,7 @@ do
        mkdir -p "$serialization_dir"
      fi
 
-     allennlp train "$PWD"/experiments/train_configs/copynet_transformer.jsonnet --serialization-dir "$serialization_dir" --include-package allennlp_extensions --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
+     allennlp train "$PWD"/experiments/train_configs/copynet_transformer.jsonnet --serialization-dir "$serialization_dir" --include-package ud-reordering.experiments.allennlp_extensions --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
 
    done
 done
