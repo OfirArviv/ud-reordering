@@ -120,7 +120,7 @@ local model_name = std.extVar('model_name');
       "gradual_unfreezing": true
     },
     "checkpointer": {
-      "keep_most_recent_by_count": 0
+      "keep_most_recent_by_count": 1
     }
   }
 }
