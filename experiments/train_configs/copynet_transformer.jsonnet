@@ -78,8 +78,8 @@ local pointer_vocab_size = str.extVar("pointer_vocab_size");
         "vocab_namespace": "target_tokens"
       },
       "target_namespace": "target_tokens",
-      [if metric_2 == null then 'token_based_metric' else null]: [metric_1],
-      [if metric_2 != null then 'token_based_metric' else null]: [metric_1, metric_2],
+      [if metric_2 == null then "token_based_metric" else null]: [metric_1],
+      [if metric_2 != null then "token_based_metric" else null]: [metric_1, metric_2],
       "label_smoothing_ratio": 0.1,
       "pointer_vocab_size": pointer_vocab_size
     }

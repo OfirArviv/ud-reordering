@@ -45,8 +45,8 @@ allennlp train "$PWD"/experiments/train_configs/copynet_transformer.jsonnet --se
 # Reordered Models
 languages=(hindi thai french spanish german)
 for lang in "${languages[@]}"
-subdir=english_reordered_by_"$lang"
 do
+   subdir=english_reordered_by_"$lang"
    algo_arr=(HUJI RASOOLINI)
    for algo in "${algo_arr[@]}"
    do
