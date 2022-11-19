@@ -6,7 +6,6 @@ local metric_1 = std.extVar('metric_1');
 local metric_2 = std.extVar('metric_2');
 local validation_metric = std.extVar('validation_metric');
 local model_name = std.extVar('model_name');
-local pointer_vocab_size = str.extVar('pointer_vocab_size');
 // ================================================================
 {
  "vocabulary": {
@@ -80,7 +79,7 @@ local pointer_vocab_size = str.extVar('pointer_vocab_size');
       "target_namespace": "target_tokens",
       "token_based_metric": [metric_1, metric_2],
       "label_smoothing_ratio": 0.1,
-      "pointer_vocab_size": pointer_vocab_size
+      "pointer_vocab_size": 100
     }
   },
   "data_loader": {
