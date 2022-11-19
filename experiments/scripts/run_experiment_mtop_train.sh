@@ -8,7 +8,7 @@ ARGPARSE_DESCRIPTION="Sample script description"      # this is optional
 source /cs/labs/oabend/ofir.arviv/argparse.bash || exit 1
 argparse "$@" <<EOF || exit 1
 parser.add_argument('-m', '--dir', required=True)
-parser.add_argument('-i', '--experiment_num', required=True)
+parser.add_argument('-i', '--experiment_num', required=False)
 
 EOF
 
@@ -19,7 +19,7 @@ export HOME
 
 . ../venv/bin/activate
 
-MODEL_IDX="$EXPERIMENT_NUM"
+MODEL_IDX="$SLURM_ARRAY_TASK_ID"/
 
 export vocab_path="experiments/vocabs/mtop_pointers"
 export metric_1="em_accuracy"
