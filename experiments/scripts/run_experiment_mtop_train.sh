@@ -19,13 +19,7 @@ export HOME
 
 . ../venv/bin/activate
 
-if [ -z ${$EXPERIMENT_NUM+x} ]; then
-  echo using input param experiment_num: $$EXPERIMENT_NUM
-  MODEL_IDX="$EXPERIMENT_NUM";
-else
-  echo using input param slrum_array_tak_id: $SLURM_ARRAY_TASK_ID
-  MODEL_IDX="$SLURM_ARRAY_TASK_ID";
-fi
+MODEL_IDX="$SLURM_ARRAY_TASK_ID
 
 MODEL_IDX="$SLURM_ARRAY_TASK_ID"
 
