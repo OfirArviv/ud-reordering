@@ -23,7 +23,7 @@ MODEL_IDX="$SLURM_ARRAY_TASK_ID"
 
 export vocab_path="experiments/vocabs/mtop_pointers"
 export metric_1="em_accuracy"
-export metric_2="em_accuracy"
+export metric_2=null
 export validation_metric="+em_accuracy"
 export model_name="xlm-roberta-large"
 export pointer_vocab_size=100
