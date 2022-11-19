@@ -3,7 +3,7 @@
 local vocab_path = std.extVar('vocab_path');
 local train_data_path = std.extVar('train_data_path');
 local valid_data_path = std.extVar('valid_data_path');
-local metrics_list = std.extVar('metrics_list');
+local metrics_list = [std.extVar('metric_1')];
 local validation_metric = std.extVar('validation_metric');
 local model_name = std.extVar('model_name');
 // ================================================================
