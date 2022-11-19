@@ -1,5 +1,4 @@
 // =================== Configurable Settings ======================
-
 local vocab_path = std.extVar('vocab_path');
 local train_data_path = std.extVar('train_data_path');
 local valid_data_path = std.extVar('valid_data_path');
@@ -40,7 +39,7 @@ local model_name = std.extVar('model_name');
     }
   },
   "train_data_path": train_data_path,
-   "validation_data_path": valid_data_path,
+  "validation_data_path": valid_data_path,
   "model": {
     "type": "composed_seq2seq",
     "source_text_embedder": {
