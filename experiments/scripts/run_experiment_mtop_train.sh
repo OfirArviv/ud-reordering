@@ -26,7 +26,7 @@ export metric_1="em_accuracy"
 export validation_metric="+em_accuracy"
 export model_name="xlm-roberta-large"
 
-datasets_dir=experiments/processed_datasets/mtop/pointers_format/
+dataset_dir=experiments/processed_datasets/mtop/pointers_format/
 # Standard Order Model
 export train_data_path="$dataset_dir"/standard/english_train_decoupled_format.tsv
 export valid_data_path="$dataset_dir"/standard/english_eval_decoupled_format.tsv
@@ -44,14 +44,11 @@ allennlp train "$PWD"/experiments/train_configs/copynet_transformer.jsonnet --se
 languages=(hindi thai french spanish german)
 for lang in "${languages[@]}"
 do
-   subdir=english_reordered_by_"$lang"
-   dataset_dir="$datasets_dir"/"$subdir"
-
    algo_arr=(HUJI RASOOLINI)
    for algo in "${algo_arr[@]}"
    do
-     export train_data_path="$dataset_dir"/english_train_decoupled_format_reordered_by_"$lang"_"$algo".tsv
-     export valid_data_path="$dataset_dir"/english_eval_decoupled_format_reordered_by_"$lang"_"$algo".tsv
+     export train_data_path="$dataset_dir"/"$subdir"/english_train_decoupled_format_reordered_by_"$lang"_"$algo".tsv
+     export valid_data_path="$dataset_dir"/"$subdir"/english_eval_decoupled_format_reordered_by_"$lang"_"$algo".tsv
 
      serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo"/model_"$EXPERIMENT_NUM"/
 
