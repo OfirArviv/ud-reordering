@@ -4,6 +4,7 @@ import glob
 import json
 import os.path
 import random
+import sys
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Iterator, Optional
@@ -732,7 +733,8 @@ def creat_json_dataset_subset(json_dataset_path: str, output_dir: str, size: int
 
     basename, ext = os.path.basename(json_dataset_path).split(".")
 
-    with open(f'{output_dir}/{basename}_{size}.{ext}', 'x', encoding='utf-8') as f:
+    actual_size = len(selected_instances)
+    with open(f'{output_dir}/{basename}_{actual_size}.{ext}', 'x', encoding='utf-8') as f:
         for instance in tqdm.tqdm(selected_instances, "writing json"):
             json_str = triples_by_subject_by_sentence_to_json(instance)
             f.write(f'{json_str}\n')
@@ -874,15 +876,13 @@ def create_json_datasets_small_script():
 
     english_train_json_file = "experiments/processed_datasets/rebel/json_format/english_train.jsonl"
 
-    # top 100 in English train will give > 200 instances per rel
-    top_rel = get_rel_with_min_occurrence_json_file(english_train_json_file, 200)
-    print(len(top_rel))
+    # > 250 instance per relationship, means top 118 rel
+    top_rel = get_rel_with_min_occurrence_json_file(english_train_json_file, 250)
+    print(f'rel count: {len(top_rel)}')
 
     for file_path in glob.glob(f'{input_dir}/*.jsonl'):
         basename = os.path.basename(file_path)
-        dataset_size = 50000 if "train" in basename else 2000 if "dev" in basename else 10000
-        print(basename)
-        print(dataset_size)
+        dataset_size = sys.maxsize if "train" in basename else 2000 if "dev" in basename else 10000
         creat_json_dataset_subset(file_path, output_dir, dataset_size, top_rel)
 
 
@@ -892,36 +892,36 @@ def create_standard_seq2seq_datasets_script():
     os.makedirs(output_dir, exist_ok=True)
 
     for file_path in glob.glob(f'{input_dir}/*.jsonl'):
-        create_seq2seq_rebel_dataset(file_path,
-                                     output_dir)
+        create_seq2seq_rebel_dataset(file_path, output_dir)
 
 
 def create_reordered_seq2seq_datasets_script():
-    for split in ["dev_2000"]: #"train_50000",
-        file_path = f'experiments/processed_datasets/rebel/json_format_small/english_{split}.jsonl'
+    file_path_regex = f'experiments/processed_datasets/rebel/json_format_small/english_*.jsonl'
+    for file_path in glob.glob(file_path_regex):
         for lang in ["hindi", "korean", "vietnamese"]:
             output_dir = f'experiments/processed_datasets/rebel/seq2seq_english_reordered_by_{lang}/'
             os.makedirs(output_dir, exist_ok=True)
 
             for reorder_algo in [UdReorderingAlgo.ReorderAlgo.HUJI, UdReorderingAlgo.ReorderAlgo.RASOOLINI]:
-                print(f'Creating seq2seq dataset. lang: {lang}, split: {split}, algorithm: {reorder_algo.name}')
+                print(f'Creating seq2seq dataset. lang: {lang}, file: {os.path.basename(file_path)}, algorithm: {reorder_algo.name}')
                 create_seq2seq_rebel_dataset(file_path,
                                              output_dir,
                                              "english",
                                              reorder_algo=reorder_algo,
                                              reorder_by_lang=lang)
 
-
 # endregion
 
-# Example Usage
-# create_json_datasets_script()
-# create_json_datasets_small_script()
-# create_standard_seq2seq_datasets_script()
-# create_reordered_seq2seq_datasets_script()
+if __name__ == "__main__":
+    # Example Usage
+    print("Creating datasets:")
+    # create_json_datasets_script()
+    # create_json_datasets_small_script()
+    # create_standard_seq2seq_datasets_script()
+    # create_reordered_seq2seq_datasets_script()
 
-# create_vocab_from_seq2seq_file(["experiments/processed_datasets/rebel/seq2seq_standard/english_train_50000.tsv",
-#                                 "experiments/processed_datasets/rebel/seq2seq_standard/english_dev_10000.tsv",
-#                                 "experiments/processed_datasets/rebel/seq2seq_standard/english_test_10000.tsv"],
-#                                "experiments/vocabs/rebel_pointers")
+    # create_vocab_from_seq2seq_file(["experiments/processed_datasets/rebel/seq2seq_standard/english_train_144976.tsv",
+    #                                 "experiments/processed_datasets/rebel/seq2seq_standard/english_dev_2001.tsv",
+    #                                 "experiments/processed_datasets/rebel/seq2seq_standard/english_test_10000.tsv"],
+    #                                "experiments/vocabs/rebel_pointers")
 
