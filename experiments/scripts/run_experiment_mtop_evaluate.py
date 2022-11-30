@@ -40,7 +40,7 @@ def main():
             dataset_path = f'{test_files_dir}/{test_file}'
             output_file_path = f'{output_dir}/{model_basename}/{dataset_path}.json'
 
-            for model_idx_path in glob.glob(f'{model}/*')
+            for model_idx_path in glob.glob(f'{model}/*'):
                 allennllp_evaluate(f'{model_idx_path}/model.tar.gz', dataset_path, output_file_path)
 
 if __name__ == "__main__":
