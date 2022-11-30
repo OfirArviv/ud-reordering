@@ -18,6 +18,7 @@ def main():
         if model_basename == "english_standard":
             test_files = glob.glob(f'{test_files_dir}/*.tsv')
         else:
+            print(model_basename)
             model_name_part = model_basename.split("_")
             lang = model_name_part[3]
             lang_code: str
