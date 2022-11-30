@@ -14,7 +14,7 @@ def main():
         assert os.path.isdir(model)
         model_basename = os.path.basename(model)
 
-        test_files_dir = "experiments/processed_datasets/mtop/pointers_format/standard/"
+        test_files_dir = "experiments/processed_datasets/mtop/pointers_format/standard/*"
         if model_basename == "english_standard":
             test_files = glob.glob(f'{test_files_dir}/*.tsv')
         else:
