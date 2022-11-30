@@ -8,13 +8,13 @@ def main():
     main_models_dir = "experiments_results/models/mtop"
     output_dir = "experiments_results/evaluation/mtop"
     os.makedirs(output_dir, exist_ok=True)
-    sub_models_dir_list = glob.glob(f'{main_models_dir}/')
+    sub_models_dir_list = glob.glob(f'{main_models_dir}/*')
 
     for model in sub_models_dir_list:
         assert os.path.isdir(model)
         model_basename = os.path.basename(model)
 
-        test_files_dir = "experiments/processed_datasets/mtop/pointers_format/standard/*"
+        test_files_dir = "experiments/processed_datasets/mtop/pointers_format/standard/"
         if model_basename == "english_standard":
             test_files = glob.glob(f'{test_files_dir}/*.tsv')
         else:
