@@ -18,7 +18,6 @@ def main():
         if model_basename == "english_standard":
             test_files = glob.glob(f'{test_files_dir}/*.tsv')
         else:
-            print(model_basename)
             model_name_part = model_basename.split("_")
             lang = model_name_part[3]
             lang_code: str
@@ -41,7 +40,8 @@ def main():
             dataset_path = f'{test_files_dir}/{test_file}'
             output_file_path = f'{output_dir}/{model_basename}/{dataset_path}.json'
 
-            allennllp_evaluate(f'{model}/model.tar.gz', dataset_path, output_file_path)
+            for model_idx_path in glob.glob(f'{model}/*')
+                allennllp_evaluate(f'{model_idx_path}/model.tar.gz', dataset_path, output_file_path)
 
 if __name__ == "__main__":
     main()
