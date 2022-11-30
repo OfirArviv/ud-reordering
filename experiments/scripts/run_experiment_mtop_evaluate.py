@@ -7,6 +7,7 @@ from experiments.scripts.allennlp_evaluate import allennllp_evaluate
 def main():
     main_models_dir = "experiments_results/models/mtop"
     output_dir = "experiments_results/evaluation/mtop"
+    os.makedirs(output_dir, exist_ok=True)
     sub_models_dir_list = glob.glob(f'{main_models_dir}/')
 
     for model in sub_models_dir_list:
