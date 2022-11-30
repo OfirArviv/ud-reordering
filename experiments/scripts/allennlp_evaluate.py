@@ -15,7 +15,7 @@ def allennllp_evaluate(model_gz_path: str, dataset: str, output_file_path: str, 
         model_gz_path,
         dataset,
         "--file-friendly-logging",
-        "--cuda-device", cuda_device,
+        "--cuda-device", str(cuda_device),
         "--output-file", output_file_path,
         "--include-package", "experiments.allennlp_extensions",
     ]
