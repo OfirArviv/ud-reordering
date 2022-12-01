@@ -39,9 +39,9 @@ if [ ! -d "$serialization_dir" ]; then
  mkdir -p "$serialization_dir"
 fi
 
-allennlp train "$PWD"/experiments/train_configs/copynet_transformer.jsonnet --serialization-dir "$serialization_dir" --include-package experiments --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
+echo allennlp train "$PWD"/experiments/train_configs/copynet_transformer.jsonnet --serialization-dir "$serialization_dir" --include-package experiments --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
 
-
+exit
 # Reordered Models
 languages=(hindi koean vietnamese)
 for lang in "${languages[@]}"
