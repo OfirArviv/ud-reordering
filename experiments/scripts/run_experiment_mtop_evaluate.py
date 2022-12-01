@@ -1,10 +1,11 @@
 import glob
 import os.path
 
-from experiments.scripts.allennlp_evaluate import allennllp_evaluate
 
 
 def main():
+    from experiments.scripts.allennlp_evaluate_custom import allennllp_evaluate
+
     main_models_dir = "experiments_results/models/mtop"
     output_dir = "experiments_results/evaluation/mtop"
     os.makedirs(output_dir, exist_ok=True)

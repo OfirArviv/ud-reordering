@@ -714,7 +714,7 @@ def create_test_datasets_script_mtop(use_pointers: bool):
                                     None)
 
 
-def create_reordered_datasets_scripts_mtop(use_pointers: bool):
+def create_reordered_datasets_script_mtop(use_pointers: bool):
     use_decoupled_format = True
     for lang in ['hindi', 'thai', 'french', 'spanish', 'german']:
         output_dir = f'experiments/processed_datasets/mtop/'
@@ -840,7 +840,7 @@ if __name__ == "__main__":
     create_english_dataset_script_mtop(True)
 
     # Create Reordered Dataset
-    create_reordered_datasets_scripts_mtop(True)
+    create_reordered_datasets_script_mtop(True)
 
     # Create Test Dataset
     create_test_datasets_script_mtop(True)
