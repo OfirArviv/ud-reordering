@@ -15,8 +15,8 @@ local pointer_vocab_size = std.parseInt(std.extVar('pointer_vocab_size'));
   },
   "dataset_reader": {
     "type": "seq2seq_length_filtering",
-    "source_max_tokens": 200,
-    "target_max_tokens": 200,
+    "source_max_tokens": 100,
+    "target_max_tokens": 100,
     "source_add_start_token": false,
     "source_add_end_token": false,
     "source_tokenizer": {
@@ -63,7 +63,7 @@ local pointer_vocab_size = std.parseInt(std.extVar('pointer_vocab_size'));
       "scheduled_sampling_ratio": 0,
       "beam_search": {
           "beam_size": 4,
-          "max_steps": 200
+          "max_steps": 100
       },
       "decoder_net": {
         "type": "stacked_self_attention",
