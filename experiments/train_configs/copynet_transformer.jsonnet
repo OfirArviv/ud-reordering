@@ -2,6 +2,7 @@
 local vocab_path = std.extVar('vocab_path');
 local train_data_path = std.extVar('train_data_path');
 local valid_data_path = std.extVar('valid_data_path');
+local test_data_path = std.extVar('test_data_path');
 local metric_1 = std.extVar('metric_1');
 local metric_2 = std.extVar('metric_2');
 local validation_metric = std.extVar('validation_metric');
@@ -42,6 +43,9 @@ local pointer_vocab_size = std.parseInt(std.extVar('pointer_vocab_size'));
   },
   "train_data_path": train_data_path,
   "validation_data_path": valid_data_path,
+  [if valid_data_path != "null" then "validation_data_path" else null]: valid_data_path,
+  [if test_data_path != "null" then "test_data_path" else null]: test_data_path,
+  [if test_data_path != "null" then "evaluate_on_test" else null]: true,
   "model": {
     "type": "composed_seq2seq",
     "source_text_embedder": {
