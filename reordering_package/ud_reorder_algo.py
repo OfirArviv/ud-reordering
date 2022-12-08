@@ -82,14 +82,15 @@ class UdReorderingAlgo:
 
     def get_reorder_mapping(self, sent: str, reorder_by_lang: str) -> Optional[Dict[int, int]]:
         if self._algo_type == UdReorderingAlgo.ReorderAlgo.HUJI:
-            return self._get_huji_reorder_mapping(sent, reorder_by_lang)
+            return self._get_huji_reorder_mapping_from_str(sent, reorder_by_lang)
         elif self._algo_type == UdReorderingAlgo.ReorderAlgo.RASOOLINI:
-            return self._get_rasoolini_reorder_mapping(sent, reorder_by_lang)
+            return self._get_rasoolini_reorder_mapping_from_str(sent, reorder_by_lang)
         else:
             raise NotImplemented()
 
-    def _get_huji_reorder_mapping(self, sent: str, reorder_by_lang: str) -> Optional[Dict[int, int]]:
-        input_tree_str = self._parse_sentence_into_ud(sent).serialize()
+    def _get_huji_reorder_mapping(self, input_tree: conllu.TokenList,
+                                  reorder_by_lang: str) -> Tuple[Optional[Dict[int, int]], Optional[conllu.TokenList]]:
+        input_tree_str = input_tree.serialize()
         assert input_tree_str[-1] == "\n"
         input_tree_str = input_tree_str[:-1]
         input_tree: UDLib.UDTree = UDLib.UDTree(*UDLib.conll2graph(input_tree_str))
@@ -112,18 +113,27 @@ class UdReorderingAlgo:
 
         res = _reorder_tree_wrapper((input_tree, 0, estimates))
         reordered_tree, idx_map = res if res is not None else (None, None)
+        idx_map = UdReorderingAlgo._str_mapping_to_int(idx_map)
 
-        return UdReorderingAlgo._str_mapping_to_int(idx_map) if idx_map is not None else None
+        return idx_map, reordered_tree
 
-    def _get_rasoolini_reorder_mapping(self, sent: str, reorder_by_lang: str) -> Optional[Dict[int, int]]:
-        input_tree = self._parse_sentence_into_ud(sent)
+    def _get_huji_reorder_mapping_from_str(self, sent: str, reorder_by_lang: str) -> Optional[Dict[int, int]]:
+        parse_tree = self._parse_sentence_into_ud(sent)
+        return self._get_huji_reorder_mapping(parse_tree, reorder_by_lang)[0]
 
+    def _get_rasoolini_reorder_mapping(self, input_tree: conllu.TokenList,
+                                       reorder_by_lang: str) -> Tuple[Dict[int, int], conllu.TokenList]:
         with open(self._direction_path_dict[reorder_by_lang], 'r', encoding='utf-8') as est:
             direction_dict = json.load(est)
 
         reordered_tree, idx_map = reorder_tree_rasoolini(input_tree, direction_dict)
 
-        return UdReorderingAlgo._str_mapping_to_int(idx_map)
+        return UdReorderingAlgo._str_mapping_to_int(idx_map), reordered_tree
+
+    def _get_rasoolini_reorder_mapping_from_str(self, sent: str, reorder_by_lang: str) -> Optional[Dict[int, int]]:
+        input_tree = self._parse_sentence_into_ud(sent)
+
+        return self._get_rasoolini_reorder_mapping(input_tree, reorder_by_lang)[0]
 
     @staticmethod
     def reorder_sentence(sentence: str, mapping: Dict[int, int]) -> str:
@@ -470,7 +480,6 @@ class UdReorderingAlgo:
         mapping = self.get_reorder_mapping(sentence, reorder_by_lang)
 
         if mapping is None:
-            print("none")
             return None
 
         entities_to_fix = []
