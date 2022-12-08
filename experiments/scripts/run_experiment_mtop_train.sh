@@ -31,7 +31,8 @@ export pointer_vocab_size=100
 dataset_dir=experiments/processed_datasets/mtop/pointers_format/
 # Standard Order Model
 export train_data_path="$dataset_dir"/standard/english_train_decoupled_format.tsv
-export valid_data_path="$dataset_dir"/standard/english_eval_decoupled_format.tsv
+export valid_data_path=null
+export test_data_path="$dataset_dir"/standard/english_eval_decoupled_format.tsv
 
 serialization_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
 if [ ! -d "$serialization_dir" ]; then
@@ -43,15 +44,15 @@ allennlp train "$PWD"/experiments/train_configs/copynet_transformer.jsonnet --se
 
 
 # Reordered Models
+combined_postfixes=("" "_combined")
 languages=(hindi thai french spanish german)
-for lang in "${languages[@]}"
+algo_arr=(HUJI RASOOLINI)
+for combined_postfix in "${combined_postfixes[@]}"
 do
-   subdir=english_reordered_by_"$lang"
-   algo_arr=(HUJI RASOOLINI)
-   for algo in "${algo_arr[@]}"
+   for lang in "${languages[@]}"
+      subdir=english_reordered_by_"$lang"
    do
-     combined_postfixes=("_combined" "")
-     for combined_postfix in "${combined_postfixes[@]}"
+     for algo in "${algo_arr[@]}"
      do
        export train_data_path="$dataset_dir"/"$subdir"/english_train_decoupled_format_reordered_by_"$lang"_"$algo""$combined_postfix".tsv
        export valid_data_path=null

@@ -42,7 +42,6 @@ local pointer_vocab_size = std.parseInt(std.extVar('pointer_vocab_size'));
     }
   },
   "train_data_path": train_data_path,
-  "validation_data_path": valid_data_path,
   [if valid_data_path != "null" then "validation_data_path" else null]: valid_data_path,
   [if test_data_path != "null" then "test_data_path" else null]: test_data_path,
   [if test_data_path != "null" then "evaluate_on_test" else null]: true,
