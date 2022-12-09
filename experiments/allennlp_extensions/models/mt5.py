@@ -143,6 +143,9 @@ class MT5(Model):
         output_dict["predicted_text"] = self.tokenizer.tokenizer.batch_decode(
             predictions, skip_special_tokens=True  # type: ignore[attr-defined]
         )
+        output_dict["output_text"] = self.tokenizer.tokenizer.batch_decode(
+            labels, skip_special_tokens=True  # type: ignore[attr-defined]
+        )
         return output_dict
 
     @overrides
