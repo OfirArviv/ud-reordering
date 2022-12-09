@@ -24,10 +24,6 @@
   "model": {
     "type": "mt5",
     "model_name": "google/mt5-base",
-    "beam_search": {
-      "beam_size": 4,
-      "max_steps": 100
-    },
     "token_based_metric": ["em_accuracy"]
   },
   "data_loader": {
