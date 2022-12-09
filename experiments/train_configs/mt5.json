@@ -1,10 +1,7 @@
 {
-  "vocabulary": {
-    "type": "from_files",
-    "directory": "experiments/vocabs/mtop_pointers"
-  },
-  "train_data_path": "experiments/processed_datasets/mtop/pointers_format/standard/english_test_decoupled_format.tsv",
-  "test_data_path": "experiments/processed_datasets/mtop/pointers_format/standard/english_test_decoupled_format.tsv",
+  "train_data_path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv",
+  "validation_data_path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv",
+  "test_data_path": "experiments/processed_datasets/mtop/non_pointer_format/standard/hi_test_decoupled_format.tsv",
   "evaluate_on_test": true,
   "dataset_reader": {
     "type": "seq2seq_length_filtering",
@@ -29,15 +26,16 @@
     "model_name": "google/mt5-base",
     "beam_search": {
       "beam_size": 4,
-      "max_steps": 50
-    }
+      "max_steps": 100
+    },
+    "token_based_metric": ["em_accuracy"]
   },
   "data_loader": {
     "batch_size": 16,
     "shuffle": true
   },
   "trainer": {
-    "validation_metric": "+f1",
+    "validation_metric": "+em_accuracy",
     "run_confidence_checks": false,
     "num_epochs": 50,
     "optimizer": {

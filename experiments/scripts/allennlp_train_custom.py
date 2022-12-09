@@ -7,10 +7,10 @@ from allennlp.commands import main
 def allennlp_train():
     # See https://guide.allennlp.org/debugging#3
 
-    config_file = "experiments/train_configs/relation_extraction_copynet.json"
+    config_file = "experiments/train_configs/mt5.json"
 
     # Use overrides to train on CPU.
-    overrides = json.dumps({"trainer": {"cuda_device": -1}})
+    overrides = json.dumps({"trainer": {"cuda_device": 0}})
 
     serialization_dir = "temp"
 
@@ -33,3 +33,5 @@ def allennlp_train():
     ]
 
     main()
+
+allennlp_train()

@@ -11,7 +11,8 @@ from allennlp.models.model import Model
 from allennlp.modules.transformer.t5 import T5 as T5Module, T5Output, IntT, BoolT
 from allennlp.nn.beam_search import BeamSearch
 from allennlp.nn.checkpoint import CheckpointWrapper
-from allennlp.training.metrics import ROUGE, BLEU
+from allennlp.training.metrics import ROUGE, BLEU, Metric
+from overrides import overrides
 
 
 @Model.register("mt5")
@@ -20,6 +21,7 @@ class MT5(Model):
         self,
         vocab: Vocabulary,
         model_name: str,
+        token_based_metric: List[Metric] = None,
         beam_search: Lazy[BeamSearch] = Lazy(BeamSearch, beam_size=3, max_steps=50),
         checkpoint_wrapper: Optional[CheckpointWrapper] = None,
         weights_path: Optional[Union[str, PathLike]] = None,
@@ -42,10 +44,8 @@ class MT5(Model):
             self.t5.decoder_start_token_id,
             self.t5.eos_token_id,
         }
-        self._metrics = [
-            ROUGE(exclude_indices=exclude_indices),
-            BLEU(exclude_indices=exclude_indices),
-        ]
+
+        self._token_based_metric = token_based_metric
 
     def _post_load_state_dict(
         self, missing_keys: List[str], unexpected_keys: List[str]
@@ -130,7 +130,14 @@ class MT5(Model):
                 output_dict["loss"] = output.loss
 
                 for metric in self._metrics:
-                    metric(output_dict["predictions"], labels)  # type: ignore[call-arg]
+                    metric(output_dict["predicted_text"], labels)  # type: ignore[call-arg]
+
+                if self._token_based_metric is not None:
+                    output_dict = self.make_output_human_readable(output_dict)
+                    predicted_tokens = output_dict["predicted_text"]
+
+                    for metric in self._token_based_metric:
+                        metric(predicted_tokens, output_dict["target_text"])  # type: ignore
 
         return output_dict
 
@@ -141,11 +148,13 @@ class MT5(Model):
         )
         return output_dict
 
+    @overrides
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
-        metrics: Dict[str, float] = {}
+        all_metrics: Dict[str, float] = {}
         if not self.training:
-            for metric in self._metrics:
-                metrics.update(metric.get_metric(reset=reset))
-        return metrics
+            if self._token_based_metric is not None:
+                for metric in self._token_based_metric:
+                    all_metrics.update(metric.get_metric(reset=reset))  # type: ignore
+        return all_metrics
 
     default_predictor = "seq2seq"
