@@ -129,9 +129,6 @@ class MT5(Model):
                 assert output.loss is not None
                 output_dict["loss"] = output.loss
 
-                for metric in self._metrics:
-                    metric(output_dict["predicted_text"], labels)  # type: ignore[call-arg]
-
                 if self._token_based_metric is not None:
                     output_dict = self.make_output_human_readable(output_dict)
                     predicted_tokens = output_dict["predicted_text"]
