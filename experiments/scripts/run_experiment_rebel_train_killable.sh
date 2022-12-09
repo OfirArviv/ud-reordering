@@ -14,6 +14,8 @@ TEMP=$TMPDIR
 export HOME
 
 
+MODEL_IDX="$EXPERIMENT_NUM"
+
 export vocab_path="experiments/vocabs/rebel_pointers"
 export metric_1="em_accuracy"
 export metric_2="re_fscore"
