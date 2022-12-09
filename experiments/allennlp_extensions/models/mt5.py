@@ -1,18 +1,13 @@
-from os import PathLike
-from typing import Optional, Dict, Any, Union, List, Tuple
-
-
+from typing import Optional, Dict, Any, List, Tuple
 import torch
-
-from allennlp.common.lazy import Lazy
 from allennlp.data import TextFieldTensors, Vocabulary
 from allennlp.data.tokenizers import PretrainedTransformerTokenizer
 from allennlp.models.model import Model
-from allennlp.modules.transformer.t5 import T5 as T5Module, T5Output, IntT, BoolT
-from allennlp.nn.beam_search import BeamSearch
-from allennlp.nn.checkpoint import CheckpointWrapper
-from allennlp.training.metrics import ROUGE, BLEU, Metric
+from allennlp.modules.transformer.t5 import  T5Output, IntT, BoolT
+
+from allennlp.training.metrics import Metric
 from overrides import overrides
+from transformers import MT5ForConditionalGeneration
 
 
 @Model.register("mt5")
@@ -22,28 +17,19 @@ class MT5(Model):
         vocab: Vocabulary,
         model_name: str,
         token_based_metric: List[Metric] = None,
-        beam_search: Lazy[BeamSearch] = Lazy(BeamSearch, beam_size=3, max_steps=50),
-        checkpoint_wrapper: Optional[CheckpointWrapper] = None,
-        weights_path: Optional[Union[str, PathLike]] = None,
+        beam_size: int = 4,
+        max_steps: int = 100,
         **kwargs
     ) -> None:
         super().__init__(vocab, **kwargs)
         self._model_name = model_name
         # We only instantiate this when we need it.
         self._tokenizer: Optional[PretrainedTransformerTokenizer] = None
-        self.t5 = T5Module.from_pretrained_module(
-            model_name,
-            beam_search=beam_search,
-            ddp_accelerator=self.ddp_accelerator,
-            checkpoint_wrapper=checkpoint_wrapper,
-            weights_path=weights_path,
-        )
 
-        exclude_indices = {
-            self.t5.pad_token_id,
-            self.t5.decoder_start_token_id,
-            self.t5.eos_token_id,
-        }
+        self.t5 = MT5ForConditionalGeneration.from_pretrained(model_name)
+
+        self._beam_size = beam_size
+        self._max_steps = max_steps
 
         self._token_based_metric = token_based_metric
 
@@ -104,30 +90,25 @@ class MT5(Model):
         elif self.training:
             raise ValueError("'target_tokens' required during training")
 
-        output: T5Output = self.t5(
-            input_ids,
-            attention_mask=attention_mask,
-            labels=labels,
-            decoder_attention_mask=decoder_attention_mask,
-        )
         output_dict: Dict[str, torch.Tensor] = {}
 
         if self.training:
+            output: T5Output = self.t5(
+                input_ids,
+                attention_mask=attention_mask,
+                labels=labels,
+                decoder_attention_mask=decoder_attention_mask,
+            )
             assert output.loss is not None
             output_dict["loss"] = output.loss
         else:
-            # Shape: (batch_size, beam_size, num_tokens)
-            assert output.predictions is not None
-            # Shape: (batch_size, beam_size)
-            assert output.predicted_log_probs is not None
-            # Shape: (batch_size, num_tokens)
-            output_dict["predictions"] = output.predictions[:, 0, :]
-            # Shape: (batch_size, )
-            output_dict["predicted_log_probs"] = output.predicted_log_probs[:, 0]
+            output = self.t5.generate(input_ids, num_beams=self._beam_size, max_length=self._max_steps,
+                                      output_scores=True, return_dict_in_generate=True)
+
+            output_dict["predictions"] = output['sequences']
 
             if labels is not None:
-                assert output.loss is not None
-                output_dict["loss"] = output.loss
+                output_dict["loss"] = torch.zeros(1)
                 output_dict["labels"] = labels
 
                 if self._token_based_metric is not None:
