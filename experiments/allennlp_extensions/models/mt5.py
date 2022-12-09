@@ -128,6 +128,7 @@ class MT5(Model):
             if labels is not None:
                 assert output.loss is not None
                 output_dict["loss"] = output.loss
+                output_dict["labels"] = labels
 
                 if self._token_based_metric is not None:
                     output_dict = self.make_output_human_readable(output_dict)
@@ -143,6 +144,7 @@ class MT5(Model):
         output_dict["predicted_text"] = self.tokenizer.tokenizer.batch_decode(
             predictions, skip_special_tokens=True  # type: ignore[attr-defined]
         )
+        labels = output_dict["labels"]
         output_dict["output_text"] = self.tokenizer.tokenizer.batch_decode(
             labels, skip_special_tokens=True  # type: ignore[attr-defined]
         )
