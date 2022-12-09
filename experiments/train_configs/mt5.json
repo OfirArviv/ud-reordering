@@ -1,0 +1,55 @@
+{
+  "vocabulary": {
+    "type": "from_files",
+    "directory": "experiments/vocabs/mtop_pointers"
+  },
+  "train_data_path": "experiments/processed_datasets/mtop/pointers_format/standard/english_test_decoupled_format.tsv",
+  "test_data_path": "experiments/processed_datasets/mtop/pointers_format/standard/english_test_decoupled_format.tsv",
+  "evaluate_on_test": true,
+  "dataset_reader": {
+    "type": "seq2seq_length_filtering",
+    "source_add_start_token": false,
+    "source_add_end_token": false,
+    "source_max_tokens": 100,
+    "target_max_tokens": 100,
+    "source_tokenizer": {
+      "type": "pretrained_transformer",
+      "model_name": "google/mt5-base"
+    },
+    "source_token_indexers": {
+      "tokens": {
+        "type": "pretrained_transformer",
+        "model_name": "google/mt5-base",
+        "max_length": 512
+      }
+    }
+  },
+  "model": {
+    "type": "mt5",
+    "model_name": "google/mt5-base",
+    "beam_search": {
+      "beam_size": 4,
+      "max_steps": 50
+    }
+  },
+  "data_loader": {
+    "batch_size": 16,
+    "shuffle": true
+  },
+  "trainer": {
+    "validation_metric": "+f1",
+    "run_confidence_checks": false,
+    "num_epochs": 50,
+    "optimizer": {
+      "type": "huggingface_adamw",
+      "lr": 3e-5,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-8,
+      "correct_bias": true
+    },
+    "grad_norm": 1.0
+  }
+}
