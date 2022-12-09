@@ -29,7 +29,7 @@ export train_data_path="$dataset_dir"/seq2seq_standard/english_train_144976.tsv
 export valid_data_path=null
 export test_data_path="$dataset_dir"/seq2seq_standard/english_dev_2001.tsv
 
-serialization_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
+export serialization_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
 if [ ! -d "$serialization_dir" ]; then
  echo "$serialization_dir" does not exists. Creating...
  mkdir -p "$serialization_dir"
@@ -48,7 +48,7 @@ do
      export train_data_path="$dataset_dir"/$subdir/english_train_144976_reordered_by_"$lang"_"$algo".tsv
      export test_data_path="$dataset_dir"/$subdir/english_dev_2001_reordered_by_"$lang"_"$algo".tsv
 
-     serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo"/model_"$MODEL_IDX"/
+     export serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo"/model_"$MODEL_IDX"/
 
      if [ ! -d "$serialization_dir" ]; then
        echo "$serialization_dir" does not exists. Creating...
