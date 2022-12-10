@@ -737,14 +737,24 @@ def _mp_fn(index):
 if __name__ == "__main__":
     main()
 
-# python examples/pytorch/summarization/run_summarization.py \
-#     --model_name_or_path t5-small \
-#     --do_train \
-#     --do_eval \
-#     --train_file hugginface_summ/dataset/english_eval_decoupled_format.tsv \
-#     --validation_file hugginface_summ/dataset/english_eval_decoupled_format.tsv \
-#     --output_dir temp \
-#     --overwrite_output_dir \
-#     --per_device_train_batch_size=8 \
-#     --per_device_eval_batch_size=8 \
-#     --predict_with_generate
+# --model_name_or_path
+# t5-base
+# --do_train
+# --do_eval
+# --train_file
+# hugginface_summ/dataset/english_eval_decoupled_format.json
+# --validation_file
+# hugginface_summ/dataset/english_eval_decoupled_format.json
+# --output_dir
+# temp
+# --overwrite_output_dir
+# --per_device_train_batch_size=8
+# --per_device_eval_batch_size=8
+# --predict_with_generate
+# --cache_dir
+# cache
+# --report_to="none"
+# --num_train_epochs
+# 20
+# --evaluation_strategy
+# epoch
