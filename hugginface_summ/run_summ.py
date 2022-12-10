@@ -423,6 +423,19 @@ def main():
         use_auth_token=True if model_args.use_auth_token else None,
     )
 
+    # new tokens
+    new_tokens = []
+    token_file = "hugginface_summ/target_tokens.txt"
+    with open(token_file, 'r', encoding='utf-8') as f:
+        for l in f:
+            new_tokens.append(l.strip("\n"))
+
+    # check if the tokens are already in the vocabulary
+    new_tokens = set(new_tokens) - set(tokenizer.vocab.keys())
+
+    # add the tokens to the tokenizer vocabulary
+    tokenizer.add_tokens(list(new_tokens))
+
     # We resize the embeddings only when necessary to avoid index errors. If you are creating a model from scratch
     # on a small vocab and want a smaller embedding size, remove this test.
     embedding_size = model.get_input_embeddings().weight.shape[0]
