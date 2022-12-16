@@ -10,7 +10,7 @@ def allennlp_train():
     config_file = "experiments/train_configs/mt5.json"
 
     # Use overrides to train on CPU.
-    overrides = json.dumps({"trainer": {"cuda_device": 0}})
+    overrides = json.dumps({"trainer": {"cuda_device": -1}})
 
     serialization_dir = "temp"
 
@@ -32,6 +32,6 @@ def allennlp_train():
         "-o", overrides,
     ]
 
-    main()
 
-allennlp_train()
+if __name__ == "__main__":
+    allennlp_train()
