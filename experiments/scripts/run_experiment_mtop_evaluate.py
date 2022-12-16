@@ -24,12 +24,12 @@ def run_evaluation_pointer_format(model_dir: str):
 
             for model_idx_path in glob.glob(f'{model}/*'):
                 model_idx = os.path.basename(model_idx_path)
-                output_file_path = f'{output_dir}/{model_basename}/{dataset_name}_model_{model_idx}.json'
+                output_file_path = f'{output_dir}/{model_basename}/{dataset_name}.{model_idx}.json'
 
-                print(f'------------------------------------------\n'
+                print(f'\n------------------------------------------\n'
                       f'Evaluating model: {model_idx_path}\n'
                       f' test file: {test_file}\n'
-                      f' output_path: {output_file_path}'
+                      f' output_path: {output_file_path}\n'
                       f'------------------------------------------\n')
                 allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
 
