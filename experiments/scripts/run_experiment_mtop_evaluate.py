@@ -18,10 +18,10 @@ def run_evaluation_pointer_format(model_dir: str):
 
         test_files_dir = "experiments/processed_datasets/mtop/pointers_format/standard/"
         test_files = glob.glob(f'{test_files_dir}/*test*.tsv')
-
+        print(test_files)
         for test_file in test_files:
             dataset_name = os.path.basename(test_file)
-
+            print(glob.glob(f'{model}/*'))
             for model_idx_path in glob.glob(f'{model}/*'):
                 model_idx = os.path.basename(model_idx_path)
                 output_file_path = f'{output_dir}/{model_basename}/{dataset_name}.{model_idx}.json'
@@ -31,12 +31,12 @@ def run_evaluation_pointer_format(model_dir: str):
                       f'Test file: {test_file}\n'
                       f'Output_path: {output_file_path}\n'
                       f'------------------------------------------\n')
-                allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
+                # allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
 
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
-    argparser.add_argument("-d", "--model-dir", required=True)
+    argparser.add_argument("-m", "--model-dir", required=True)
 
     args = argparser.parse_args()
 
