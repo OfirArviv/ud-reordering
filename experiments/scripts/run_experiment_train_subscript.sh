@@ -14,18 +14,18 @@ export HOME
 metrics_file="$serialization_dir"/"metrics.json"
 if [ -f "$metrics_file" ]
 then
-  echo "exit"
+  echo "exit: ""$metrics_file"
   exit 0
 fi
 
 best_model_file="$serialization_dir"/"best.th"
 if [ -f "$best_model_file" ]
 then
-  echo "recover"
-  echo allennlp train "$serialization_dir"/config.json --recover --serialization-dir "$serialization_dir" --include-package experiments --file-friendly-logging
+  echo "recover: ""$best_model_file"
+  allennlp train "$serialization_dir"/config.json --recover --serialization-dir "$serialization_dir" --include-package experiments --file-friendly-logging
 else
-  echo "new"
-  echo allennlp train "$PWD"/experiments/train_configs/copynet_transformer.jsonnet --serialization-dir "$serialization_dir" --include-package experiments.allennlp_extensions --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
+  echo "new: ""$best_model_file"
+  allennlp train "$PWD"/experiments/train_configs/copynet_transformer.jsonnet --serialization-dir "$serialization_dir" --include-package experiments.allennlp_extensions --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
 fi
 
 
