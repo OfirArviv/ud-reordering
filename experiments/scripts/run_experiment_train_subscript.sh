@@ -15,7 +15,7 @@ best_model_file="$serialization_dir"/"metrics.json"
 if [ -f "$metrics_file" ]
 then
   echo "exit"
-  exit
+  exit 0
 fi
 
 best_model_file="$serialization_dir"/"best.th"
