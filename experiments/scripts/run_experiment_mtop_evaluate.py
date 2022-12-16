@@ -49,7 +49,7 @@ def run_evaluation_pointer_format(model_dir: str):
                 "std": statistics.stdev(metric_list)
             }
 
-            with open(f'{metric_output_dir}/agg.json', 'x', encoding='utf-8') as f:
+            with open(f'{metric_output_dir}/{dataset_name}_agg.json', 'x', encoding='utf-8') as f:
                 json.dump(agg_metric, f)
 
 
