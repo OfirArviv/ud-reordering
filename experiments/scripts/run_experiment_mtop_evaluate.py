@@ -3,7 +3,7 @@ import glob
 import os.path
 
 
-def run_evaluation_pointer_format():
+def run_evaluation_pointer_format(model_dir: str):
     from experiments.scripts.allennlp_evaluate_custom import allennllp_evaluate
 
     main_models_dir = "experiments_results/models/mtop"
@@ -11,6 +11,7 @@ def run_evaluation_pointer_format():
     os.makedirs(output_dir, exist_ok=True)
     sub_models_dir_list = glob.glob(f'{main_models_dir}/*')
 
+    sub_models_dir_list = [model_dir]
     for model in sub_models_dir_list:
         assert os.path.isdir(model)
         model_basename = os.path.basename(model)
@@ -28,10 +29,9 @@ def run_evaluation_pointer_format():
 
 
 if __name__ == '__main__':
-    # argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
-    # argparser.add_argument("-i", "--model-dir", required=True)
-    # argparser.add_argument("-o", "--output-dir", required=True)
-    #
-    # args = argparser.parse_args()
+    argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
+    argparser.add_argument("-i", "--model-dir", required=True)
 
-    run_evaluation_pointer_format()
+    args = argparser.parse_args()
+
+    run_evaluation_pointer_format(args.model_dir)
