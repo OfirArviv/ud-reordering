@@ -1,9 +1,9 @@
+import argparse
 import glob
 import os.path
 
 
-
-def main():
+def run_evaluation_pointer_format():
     from experiments.scripts.allennlp_evaluate_custom import allennllp_evaluate
 
     main_models_dir = "experiments_results/models/mtop"
@@ -16,33 +16,21 @@ def main():
         model_basename = os.path.basename(model)
 
         test_files_dir = "experiments/processed_datasets/mtop/pointers_format/standard/"
-        if model_basename == "english_standard":
-            test_files = glob.glob(f'{test_files_dir}/*.tsv')
-        else:
-            model_name_part = model_basename.split("_")
-            lang = model_name_part[3]
-            lang_code: str
-            if lang == "spanish":
-                lang_code = "de"
-            elif lang == "spanish":
-                lang_code = "es"
-            elif lang == "french":
-                lang_code = "fr"
-            elif lang == "hindi":
-                lang_code = "hi"
-            elif lang == "thai":
-                lang_code = "th"
-            else:
-                raise NotImplemented(f'{model}')
-
-            test_files = [f'{lang_code}_test_decoupled_format.tsv']
+        test_files = glob.glob(f'{test_files_dir}/*test*.tsv')
 
         for test_file in test_files:
-            dataset_path = f'{test_files_dir}/{test_file}'
-            output_file_path = f'{output_dir}/{model_basename}/{dataset_path}.json'
+            dataset_name = os.path.basename(test_file)
+            output_file_path = f'{output_dir}/{model_basename}/{dataset_name}.json'
 
             for model_idx_path in glob.glob(f'{model}/*'):
-                allennllp_evaluate(f'{model_idx_path}/model.tar.gz', dataset_path, output_file_path)
+                allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
 
-if __name__ == "__main__":
-    main()
+
+if __name__ == '__main__':
+    argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
+    argparser.add_argument("-i", "--model-dir", required=True)
+    argparser.add_argument("-o", "--output-dir", required=True)
+
+    args = argparser.parse_args()
+
+    run_evaluation_pointer_format()
