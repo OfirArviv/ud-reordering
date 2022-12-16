@@ -30,7 +30,7 @@ def run_evaluation_pointer_format(model_dir: str):
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
-    argparser.add_argument("-i", "--model-dir", required=True)
+    argparser.add_argument("-d", "--model-dir", required=True)
 
     args = argparser.parse_args()
 
