@@ -11,7 +11,7 @@ export HOME
 
 . ../venv/bin/activate
 
-$metrics_file="$serialization_dir"/"metrics.json"
+metrics_file="$serialization_dir"/"metrics.json"
 if [ -f "$metrics_file" ]
 then
   echo "exit"
