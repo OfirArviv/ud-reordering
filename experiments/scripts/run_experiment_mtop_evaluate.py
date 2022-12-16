@@ -1,6 +1,8 @@
 import argparse
 import glob
+import json
 import os.path
+import statistics
 
 
 def run_evaluation_pointer_format(model_dir: str):
@@ -20,9 +22,9 @@ def run_evaluation_pointer_format(model_dir: str):
         test_files = glob.glob(f'{test_files_dir}/*test*.tsv')
         for test_file in test_files:
             dataset_name = os.path.basename(test_file)
+            metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
             for model_idx_path in glob.glob(f'{model}/*'):
                 model_idx = os.path.basename(model_idx_path)
-                metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
                 os.makedirs(metric_output_dir, exist_ok=True)
                 output_file_path = f'{metric_output_dir}/{model_idx}.json'
 
@@ -33,6 +35,22 @@ def run_evaluation_pointer_format(model_dir: str):
                       f'------------------------------------------\n')
 
                 allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
+
+            metric_list = []
+            for metric_path in glob.glob(f'{metric_output_dir}/*.json'):
+                with open(metric_path, 'r', encoding='utf-8') as f:
+                    json_data = json.load(f)
+                    acc = json_data["em_accuracy"]
+                    metric_list.append(acc)
+
+            agg_metric = {
+                "model_count": len(metric_list),
+                "mean": statistics.mean(metric_list),
+                "std": statistics.stdev(metric_list)
+            }
+
+            with open(f'{metric_output_dir}/agg.json', 'x', encoding='utf-8') as f:
+                json.dump(agg_metric, f)
 
 
 if __name__ == '__main__':
