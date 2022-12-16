@@ -40,7 +40,7 @@ def run_evaluation_pointer_format(model_dir: str):
             for metric_path in glob.glob(f'{metric_output_dir}/*.json'):
                 with open(metric_path, 'r', encoding='utf-8') as f:
                     json_data = json.load(f)
-                    acc = json_data["em_accuracy"]
+                    acc = float(json_data["em_accuracy"])
                     metric_list.append(acc)
 
             agg_metric = {
