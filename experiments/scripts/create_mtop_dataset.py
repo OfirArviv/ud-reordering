@@ -1,3 +1,4 @@
+import glob
 import json
 import os
 import random
@@ -278,20 +279,6 @@ def create_mtop_seq2seq_dataset_legacy(input_file_path: str,
 # endregion
 
 
-# Multilingual TOP Format Utils
-def multilingual_top_format_to_mtop_format(target_mrl: str) -> str:
-    # The only thing this function does is to replace the closing parentheses of format '](node type)' with plain ']'.
-    new_str_arr = []
-    for token in target_mrl.split():
-        if token.startswith("]"):
-            new_str_arr.append("]")
-        else:
-            new_str_arr.append(token)
-    return " ".join(new_str_arr)
-
-
-# endregion
-
 # region Tree Utils
 
 def _convert_bare_closing_parentesis_to_full(decoupled_form_string: str, use_multilingual_top_format: bool):
@@ -425,6 +412,7 @@ def _parse_tree_to_parse_str(parse_tree: nltk.Tree, use_multilingual_top_format:
 
 def get_parse_tree_str_from_pointer_tree(parse_tree: nltk.Tree, source_sequence: str, use_pointers: bool,
                                          use_multilingual_top_format: bool) -> str:
+    parse_tree = parse_tree.copy(True)
     source_sequence_list = source_sequence.split()
 
     def traverse_replace_idx(t):
@@ -548,6 +536,9 @@ def reorder_mtop_pointer_tree(parse_tree: nltk.Tree,
         except AttributeError:
             return
 
+        if len(t.leaves()) == 0:
+            return
+
         # We are first traversing into the subtrees, as otherwise the dynamic change
         # of the tree mid-iteration, cause errors
         for c in t:
@@ -560,7 +551,14 @@ def reorder_mtop_pointer_tree(parse_tree: nltk.Tree,
                 subtree_start_index_to_subtree[c] = c
             else:
                 subtree_leaves = c.leaves()
-                subtree_start_index = min(subtree_leaves)
+
+                if len(subtree_leaves) == 0:
+                    current_loc = subtree_start_index_to_subtree.keys()
+                    if len(current_loc) == 0:
+                        current_loc = [-1]
+                    subtree_start_index = min(current_loc) + 0.5
+                else:
+                    subtree_start_index = min(subtree_leaves)
                 subtree_start_index_to_subtree[subtree_start_index] = c
 
         for c in list(t):
@@ -734,62 +732,6 @@ def create_reordered_datasets_script_mtop(use_pointers: bool):
                                             lang)
 
 
-def create_english_dataset_script_multilingual_top(use_pointers: bool):
-    use_decoupled_format = True
-    output_dir = "experiments/processed_datasets/multilingual_top/"
-    if use_pointers:
-        output_dir += "pointers_format/"
-    output_dir += "/standard/"
-    os.makedirs(output_dir, exist_ok=True)
-    for split in ['train', 'eval', 'test']:
-        print(f'Creating seq2seq dataset. lang: en, split: {split}')
-        create_mtop_seq2seq_dataset(f'experiments/datasets/top/mtop/en/{split}.txt',
-                                    "english",
-                                    use_pointers,
-                                    use_decoupled_format,
-                                    output_dir,
-                                    None,
-                                    None)
-
-
-def create_test_datasets_script_multilingual_top(use_pointers: bool):
-    use_decoupled_format = True
-    output_dir = "experiments/processed_datasets/mtop/"
-    if use_pointers:
-        output_dir += "pointers_format/"
-    output_dir += "/standard/"
-    os.makedirs(output_dir, exist_ok=True)
-    for lang in ['hi', 'th', 'de', 'es', 'fr']:
-        print(f'Creating seq2seq dataset. lang: {lang}, split: test')
-        create_mtop_seq2seq_dataset(f'experiments/datasets/top/mtop/{lang}/test.txt',
-                                    lang,
-                                    use_pointers,
-                                    use_decoupled_format,
-                                    output_dir,
-                                    None,
-                                    None)
-
-
-def create_reordered_datasets_scripts_multilingual_top(use_pointers: bool):
-    use_decoupled_format = True
-    for lang in ['hindi', 'thai', 'french', 'spanish', 'german']:
-        output_dir = f'experiments/processed_datasets/mtop/'
-        if use_pointers:
-            output_dir += "pointers_format/"
-        output_dir += f'english_reordered_by_{lang}'
-        os.makedirs(output_dir, exist_ok=True)
-        for split in ['train', 'eval', 'test']:
-            for reorder_algo in [UdReorderingAlgo.ReorderAlgo.HUJI, UdReorderingAlgo.ReorderAlgo.RASOOLINI]:
-                print(f'Creating seq2seq dataset. lang: {lang}, split: {split}, algorithm: {reorder_algo.name}')
-                create_mtop_seq2seq_dataset(f'experiments/datasets/top/mtop/en/{split}.txt',
-                                            "english",
-                                            use_pointers,
-                                            use_decoupled_format,
-                                            output_dir,
-                                            reorder_algo,
-                                            lang)
-
-
 def create_vocab_from_seq2seq_file(file_path_list: List[str], output_dir: str) -> None:
     ontology_tokens = ['@@UNKNOWN@@', '@@PADDING@@', '@start@', '@end@']
     pointers_tokens = set()
@@ -826,9 +768,41 @@ def create_vocab_from_seq2seq_file(file_path_list: List[str], output_dir: str) -
             f.write(f'{token}\n')
 
 
+def convert_pointer_format_tsv_to_non_pointer_format(pointer_format_dataset_dir: str, output_dir: str):
+    os.makedirs(output_dir, exist_ok=True)
+    subdirs = list(os.walk(pointer_format_dataset_dir))[0][1]
+    for d in subdirs:
+        input_dir = f'{pointer_format_dataset_dir}/{d}'
+        output_subdir = f'{output_dir}/{d}'
+        os.makedirs(output_subdir, exist_ok=True)
+        file_paths = glob.glob(f'{input_dir}/*.tsv')
+
+        for file_path in file_paths:
+            file_basename = os.path.basename(file_path)
+            output_file_path = f'{output_subdir}/{file_basename}'
+            with open(file_path, 'r', encoding='utf-8') as f, \
+                    open(output_file_path, 'x', encoding='utf-8') as o_f:
+                for line in f:
+                    error = False
+                    source_seq, target_seq = line.strip("\n").split("\t")
+                    source_seq_arr = source_seq.split()
+                    non_pointer_target_seq_arr = []
+                    for tok in target_seq.split():
+                        if tok.startswith("@ptr"):
+                            pointer_idx = int(tok.split("@ptr")[1])
+                            try:
+                                non_pointer_target_seq_arr.append(source_seq_arr[pointer_idx])
+                            except:
+                                error = True
+                        else:
+                            non_pointer_target_seq_arr.append(tok)
+                    if error:
+                        continue
+                    non_pointer_target_seq = " ".join(non_pointer_target_seq_arr)
+                    o_f.write(f'{source_seq}\t{non_pointer_target_seq}\n')
+
+
 # endregion
-
-
 
 
 if __name__ == "__main__":
@@ -837,7 +811,7 @@ if __name__ == "__main__":
 
     ### MTOP Dataset Creation ###
     # Create English standard dataset
-    create_english_dataset_script_mtop(True)
+    # create_english_dataset_script_mtop(True)
 
     # Create Reordered Dataset
     create_reordered_datasets_script_mtop(True)
@@ -853,3 +827,7 @@ if __name__ == "__main__":
     ],
         "experiments/vocabs/mtop_pointers/"
     )
+
+    # Create non-pointer dataset
+    convert_pointer_format_tsv_to_non_pointer_format("experiments/processed_datasets/mtop/pointers_format/",
+                                                     "experiments/processed_datasets/mtop/non_pointer_format/")
