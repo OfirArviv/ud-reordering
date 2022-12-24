@@ -562,7 +562,7 @@ def create_vocab_from_seq2seq_file(file_path_list: List[str], output_dir: str) -
         for token in sorted(list(rel_tokens)):
             f.write(f'{token}\n')
 
-        pointer_tokens_size = round((len(pointers_tokens)+100)/100)*100
+        pointer_tokens_size = round((len(pointers_tokens) + 100) / 100) * 100
         for i in range(pointer_tokens_size):
             f.write(f'@ptr{i}\n')
 
@@ -707,7 +707,7 @@ def creat_json_dataset_subset(json_dataset_path: str, output_dir: str, size: int
             if instance_selected:
                 selected_instances.append({sentence: copy.deepcopy(triples_by_subject)})
             elif relevant_instance:
-               unused_instances.append({sentence: copy.deepcopy(triples_by_subject)})
+                unused_instances.append({sentence: copy.deepcopy(triples_by_subject)})
 
         if len(selected_instances) > size:
             break
@@ -850,6 +850,7 @@ def create_seq2seq_rebel_dataset(input_json_path: str,
                 f.write(f'{s}')
 
 
+
 # endregion
 
 # region Dataset Creation Scrips
@@ -882,7 +883,10 @@ def create_json_datasets_small_script():
 
     for file_path in glob.glob(f'{input_dir}/*.jsonl'):
         basename = os.path.basename(file_path)
-        dataset_size = sys.maxsize if "train" in basename else 2000 if "dev" in basename else 10000
+        # dataset_size = sys.maxsize if "train" in basename else 2000 if "dev" in basename else 10000
+        dataset_size = 30000 if "train" in basename else 2000 if "dev" in basename else 10000
+        if "train" not in basename:
+            continue
         creat_json_dataset_subset(file_path, output_dir, dataset_size, top_rel)
 
 
@@ -892,23 +896,27 @@ def create_standard_seq2seq_datasets_script():
     os.makedirs(output_dir, exist_ok=True)
 
     for file_path in glob.glob(f'{input_dir}/*.jsonl'):
+        if "50000" not in file_path:
+            continue
         create_seq2seq_rebel_dataset(file_path, output_dir)
 
 
 def create_reordered_seq2seq_datasets_script():
-    file_path_regex = f'experiments/processed_datasets/rebel/json_format_small/english_*.jsonl'
+    file_path_regex = f'experiments/processed_datasets/rebel/json_format_small/english_train_50000.jsonl'
     for file_path in glob.glob(file_path_regex):
         for lang in ["hindi", "korean", "vietnamese"]:
             output_dir = f'experiments/processed_datasets/rebel/seq2seq_english_reordered_by_{lang}/'
             os.makedirs(output_dir, exist_ok=True)
 
             for reorder_algo in [UdReorderingAlgo.ReorderAlgo.HUJI, UdReorderingAlgo.ReorderAlgo.RASOOLINI]:
-                print(f'Creating seq2seq dataset. lang: {lang}, file: {os.path.basename(file_path)}, algorithm: {reorder_algo.name}')
+                print(
+                    f'Creating seq2seq dataset. lang: {lang}, file: {os.path.basename(file_path)}, algorithm: {reorder_algo.name}')
                 create_seq2seq_rebel_dataset(file_path,
                                              output_dir,
                                              "english",
                                              reorder_algo=reorder_algo,
                                              reorder_by_lang=lang)
+
 
 # endregion
 
@@ -918,10 +926,9 @@ if __name__ == "__main__":
     # create_json_datasets_script()
     # create_json_datasets_small_script()
     # create_standard_seq2seq_datasets_script()
-    # create_reordered_seq2seq_datasets_script()
+    create_reordered_seq2seq_datasets_script()
 
     # create_vocab_from_seq2seq_file(["experiments/processed_datasets/rebel/seq2seq_standard/english_train_144976.tsv",
     #                                 "experiments/processed_datasets/rebel/seq2seq_standard/english_dev_2001.tsv",
     #                                 "experiments/processed_datasets/rebel/seq2seq_standard/english_test_10000.tsv"],
     #                                "experiments/vocabs/rebel_pointers")
-
