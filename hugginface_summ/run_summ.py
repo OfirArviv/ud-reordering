@@ -45,7 +45,7 @@ from transformers import (
     MBartTokenizerFast,
     Seq2SeqTrainer,
     Seq2SeqTrainingArguments,
-    set_seed,
+    set_seed, T5Tokenizer,
 )
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, is_offline_mode, send_example_telemetry
@@ -53,7 +53,7 @@ from transformers.utils.versions import require_version
 
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
-check_min_version("4.26.0.dev0")
+# check_min_version("4.26.0.dev0")
 
 require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/summarization/requirements.txt")
 
@@ -407,7 +407,7 @@ def main():
         revision=model_args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
     )
-    tokenizer = AutoTokenizer.from_pretrained(
+    tokenizer = T5Tokenizer.from_pretrained(
         model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
         cache_dir=model_args.cache_dir,
         use_fast=model_args.use_fast_tokenizer,
@@ -431,7 +431,7 @@ def main():
             new_tokens.append(l.strip("\n"))
 
     # check if the tokens are already in the vocabulary
-    new_tokens = set(new_tokens) - set(tokenizer.vocab.keys())
+    # new_tokens = set(new_tokens) - set(tokenizer.all_special_tokens)
 
     # add the tokens to the tokenizer vocabulary
     tokenizer.add_tokens(list(new_tokens))
@@ -542,7 +542,8 @@ def main():
         model_inputs = tokenizer(inputs, max_length=data_args.max_source_length, padding=padding, truncation=True)
 
         # Tokenize targets with the `text_target` keyword argument
-        labels = tokenizer(text_target=targets, max_length=max_target_length, padding=padding, truncation=True)
+        with tokenizer.as_target_tokenizer():
+            labels = tokenizer(targets, max_length=max_target_length, padding=padding, truncation=True)
 
         # If we are padding here, replace all tokenizer.pad_token_id in the labels by -100 when we want to ignore
         # padding in the loss.
