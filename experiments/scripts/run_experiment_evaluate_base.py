@@ -5,17 +5,19 @@ import os.path
 import statistics
 
 
-def run_evaluation_pointer_format(main_models_dir: str, output_dir: str, test_files_dir: str):
+def run_evaluation_pointer_format(main_models_dir: str, output_dir: str, test_file: str):
     from experiments.scripts.allennlp_evaluate_custom import allennllp_evaluate
 
     os.makedirs(output_dir, exist_ok=True)
-    sub_models_dir_list = glob.glob(f'{main_models_dir}/*')
+    # sub_models_dir_list = glob.glob(f'{main_models_dir}/*')
+    sub_models_dir_list = [main_models_dir]
 
     for model in sub_models_dir_list:
         assert os.path.isdir(model)
         model_basename = os.path.basename(model)
 
-        test_files = glob.glob(f'{test_files_dir}/*test*.tsv')
+        # test_files = glob.glob(f'{test_files_dir}/*test*.tsv')
+        test_files = [test_file]
         for test_file in test_files:
             dataset_name = os.path.basename(test_file)
             metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
