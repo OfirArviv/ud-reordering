@@ -807,6 +807,7 @@ def create_seq2seq_rebel_dataset(input_json_path: str,
                     reorder_triples_by_subject_by_sentence_object_w_word_boundaries(
                         triples_by_subject_by_sentence, reorder_alog, reorder_by_lang)
             except Exception as e:
+                raise e
                 error_dict[f'error reordering instance: {str(e)}'] += 1
                 reordered_triples_by_subject_by_sentence = triples_by_subject_by_sentence
 
@@ -917,6 +918,22 @@ def create_reordered_seq2seq_datasets_script():
                                              reorder_algo=reorder_algo,
                                              reorder_by_lang=lang)
 
+def create_reordered_seq2seq_datasets_script_gurobi_temp():
+    file_path_regex = f'experiments/processed_datasets/rebel/json_format_small/english_train_144976.jsonl'
+    for file_path in glob.glob(file_path_regex):
+        for lang in ["hindi", "vietnamese", "korean"]:
+            output_dir = f'experiments/processed_datasets/rebel/seq2seq_english_reordered_by_{lang}/'
+            os.makedirs(output_dir, exist_ok=True)
+
+            for reorder_algo in [UdReorderingAlgo.ReorderAlgo.HUJI_GUROBI]:
+                print(
+                    f'Creating seq2seq dataset. lang: {lang}, file: {os.path.basename(file_path)}, algorithm: {reorder_algo.name}')
+                create_seq2seq_rebel_dataset(file_path,
+                                             output_dir,
+                                             "english",
+                                             reorder_algo=reorder_algo,
+                                             reorder_by_lang=lang)
+
 
 # endregion
 
@@ -926,9 +943,11 @@ if __name__ == "__main__":
     # create_json_datasets_script()
     # create_json_datasets_small_script()
     # create_standard_seq2seq_datasets_script()
-    create_reordered_seq2seq_datasets_script()
+    # create_reordered_seq2seq_datasets_script()
 
     # create_vocab_from_seq2seq_file(["experiments/processed_datasets/rebel/seq2seq_standard/english_train_144976.tsv",
     #                                 "experiments/processed_datasets/rebel/seq2seq_standard/english_dev_2001.tsv",
     #                                 "experiments/processed_datasets/rebel/seq2seq_standard/english_test_10000.tsv"],
     #                                "experiments/vocabs/rebel_pointers")
+
+    create_reordered_seq2seq_datasets_script_gurobi_temp()
