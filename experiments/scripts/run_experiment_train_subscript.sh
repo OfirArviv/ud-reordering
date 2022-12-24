@@ -26,14 +26,14 @@ then
 else
   echo "new: ""$best_model_file"
 
-  if [$pointer_vocab_size == 0]
+  if [$pointer_vocab_size == "0"]
   then
     $config_file=seq2seq_transformer.jsonnet
   else
-    $config=copynet_transformer.jsonnet
+    $config_file=copynet_transformer.jsonnet
   fi
 
-  allennlp train "$PWD"/experiments/train_configs/"$config" --serialization-dir "$serialization_dir" --include-package experiments.allennlp_extensions --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
+  allennlp train "$PWD"/experiments/train_configs/"$config_file" --serialization-dir "$serialization_dir" --include-package experiments.allennlp_extensions --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
 fi
 
 

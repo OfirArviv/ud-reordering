@@ -1,5 +1,4 @@
 // =================== Configurable Settings ======================
-local vocab_path = std.extVar('vocab_path');
 local train_data_path = std.extVar('train_data_path');
 local valid_data_path = std.extVar('valid_data_path');
 local test_data_path = std.extVar('test_data_path');
@@ -9,10 +8,6 @@ local validation_metric = std.extVar('validation_metric');
 local model_name = std.extVar('model_name');
 // ================================================================
 {
- "vocabulary": {
-    "type": "from_files",
-    "directory": vocab_path
-  },
   "dataset_reader": {
     "type": "seq2seq_length_filtering",
     "source_max_tokens": 100,
