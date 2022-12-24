@@ -30,7 +30,8 @@ def _create_conllu_node(id: int, form: str, lemma: str, upostag: str, xpostag: s
 class UdReorderingAlgo:
     class ReorderAlgo(Enum):
         HUJI = 0,
-        RASOOLINI = 1
+        RASOOLINI = 1,
+        HUJI_GUROBI = 2,
 
     def __init__(self, algo_type: ReorderAlgo, input_lang: str = "english"):
         self._algo_type = algo_type
@@ -85,6 +86,8 @@ class UdReorderingAlgo:
     def get_reorder_mapping(self, sent: str, reorder_by_lang: str) -> Optional[Dict[int, int]]:
         if self._algo_type == UdReorderingAlgo.ReorderAlgo.HUJI:
             return self._get_huji_reorder_mapping_from_str(sent, reorder_by_lang)
+        elif self._algo_type == UdReorderingAlgo.ReorderAlgo.HUJI_GUROBI:
+            return self._get_huji_reorder_mapping_from_str(sent, reorder_by_lang)
         elif self._algo_type == UdReorderingAlgo.ReorderAlgo.RASOOLINI:
             return self._get_rasoolini_reorder_mapping_from_str(sent, reorder_by_lang)
         else:
@@ -107,15 +110,15 @@ class UdReorderingAlgo:
                 # TODO: Make it configurable
                 return ReorderingNew.reorder_tree(tree, estimates,
                                                   separate_neg=False,
-                                                  with_gurobi=False,
-                                                  preference_threshold=0.8)
+                                                  with_gurobi=self._algo_type == self.ReorderAlgo.HUJI_GUROBI,
+                                                  preference_threshold=0.7)
             except Exception as e:
                 print(f'Reordering failed on tree #{i}: {e}')
                 return
 
         res = _reorder_tree_wrapper((input_tree, 0, estimates))
         reordered_tree, idx_map = res if res is not None else (None, None)
-        idx_map = UdReorderingAlgo._str_mapping_to_int(idx_map)
+        idx_map = UdReorderingAlgo._str_mapping_to_int(idx_map) if idx_map is not None else None
 
         return idx_map, reordered_tree
 
