@@ -26,13 +26,18 @@ def run_evaluation_pointer_format(main_models_dir: str, output_dir: str, test_fi
                 os.makedirs(metric_output_dir, exist_ok=True)
                 output_file_path = f'{metric_output_dir}/{model_idx}.json'
 
+                prediction_output_dir = f'{output_dir}/{model_basename}/{model_idx}'
+                os.makedirs(prediction_output_dir, exist_ok=True)
+                prediction_output_file = f'{prediction_output_dir}/{dataset_name}'
                 print(f'\n------------------------------------------\n'
                       f'Evaluating model: {model_idx_path}\n'
                       f'Test file: {test_file}\n'
+                      f'Prediction Output File: {prediction_output_file}\n'
                       f'Output_path: {output_file_path}\n'
                       f'------------------------------------------\n')
 
-                allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
+                allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path,
+                                   prediction_output_file)
 
             metrics_list = []
             for metric_path in glob.glob(f'{metric_output_dir}/*.json'):
