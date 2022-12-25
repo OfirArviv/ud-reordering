@@ -553,6 +553,19 @@ def main():
             ]
 
         model_inputs["labels"] = labels["input_ids"]
+
+        filtered_a = []
+        filtered_b = []
+        filtered_c = []
+        for a,b,c in zip(model_inputs['input_ids'], model_inputs['attention_mask'], model_inputs['labels']):
+            if len(a) <= data_args.max_source_length:
+                filtered_a.append(a)
+                filtered_b.append(b)
+                filtered_c.append(c)
+
+        model_inputs["input_ids"] = filtered_a
+        model_inputs["attention_mask"] = filtered_b
+        model_inputs["labels"] = filtered_c
         return model_inputs
 
     if training_args.do_train:
@@ -571,6 +584,7 @@ def main():
                 load_from_cache_file=not data_args.overwrite_cache,
                 desc="Running tokenizer on train dataset",
             )
+
 
     if training_args.do_eval:
         max_target_length = data_args.val_max_target_length
