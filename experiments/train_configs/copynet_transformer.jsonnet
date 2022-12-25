@@ -8,7 +8,7 @@ local metric_2 = std.extVar('metric_2');
 local validation_metric = std.extVar('validation_metric');
 local model_name = std.extVar('model_name');
 local pointer_vocab_size = std.parseInt(std.extVar('pointer_vocab_size'));
-local pointer_vocab_size = std.parseInt(std.extVar('num_epochs'));
+local num_epochs = std.parseInt(std.extVar('num_epochs'));
 // ================================================================
 {
  "vocabulary": {
