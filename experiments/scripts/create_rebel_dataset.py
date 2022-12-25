@@ -807,7 +807,7 @@ def create_seq2seq_rebel_dataset(input_json_path: str,
                     reorder_triples_by_subject_by_sentence_object_w_word_boundaries(
                         triples_by_subject_by_sentence, reorder_alog, reorder_by_lang)
             except Exception as e:
-                raise e
+                print(e)
                 error_dict[f'error reordering instance: {str(e)}'] += 1
                 reordered_triples_by_subject_by_sentence = triples_by_subject_by_sentence
 
