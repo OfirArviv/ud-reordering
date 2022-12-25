@@ -38,10 +38,11 @@ def run_evaluation_pointer_format(main_models_dir: str, output_dir: str, test_fi
                       f'Output_path: {output_file_path}\n'
                       f'------------------------------------------\n')
 
-                allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
-                allennllp_predict(f'{model_idx_path}/model.tar.gz', test_file, prediction_output_file)
+                # allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
+                # allennllp_predict(f'{model_idx_path}/model.tar.gz', test_file, prediction_output_file)
 
             metrics_list = []
+            print(glob.glob(f'{metric_output_dir}/*.json'))
             for metric_path in glob.glob(f'{metric_output_dir}/*.json'):
                 with open(metric_path, 'r', encoding='utf-8') as f:
                     json_data = json.load(f)
@@ -52,15 +53,21 @@ def run_evaluation_pointer_format(main_models_dir: str, output_dir: str, test_fi
             }
 
             for k in metrics_list[0].keys():
+                print(k)
+                print(metrics_list)
                 temp_val_list = [d[k] for d in metrics_list]
                 metric_dict = {
                     f'{k}_mean': statistics.mean(temp_val_list),
                     f'{k}_std': statistics.stdev(temp_val_list)
                 }
+
+                print(metric_dict)
                 agg_metric.update(metric_dict)
 
-            with open(f'{metric_output_dir}/{dataset_name}_agg.json', 'x', encoding='utf-8') as f:
-                json.dump(agg_metric, f)
+
+
+            # with open(f'{metric_output_dir}/{dataset_name}_agg.json', 'x', encoding='utf-8') as f:
+            #     json.dump(agg_metric, f)
 
 
 if __name__ == '__main__':
