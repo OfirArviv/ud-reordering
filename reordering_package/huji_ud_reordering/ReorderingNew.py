@@ -3,8 +3,8 @@ from typing import Dict, Tuple, List
 
 from itertools import combinations, permutations
 
-# import gurobipy as gb
-# from gurobipy import GRB
+import gurobipy as gb
+from gurobipy import GRB
 
 import z3
 
