@@ -28,6 +28,7 @@ dataset_dir=experiments/processed_datasets/rebel/
 # Standard Order Model
 export train_data_path="$dataset_dir"/seq2seq_standard/english_train_144976.tsv
 export valid_data_path="$dataset_dir"/seq2seq_standard/english_dev_2001.tsv
+export test_data_path=null
 
 export serialization_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
 if [ ! -d "$serialization_dir" ]; then
@@ -46,7 +47,7 @@ do
    for algo in "${algo_arr[@]}"
    do
      export train_data_path="$dataset_dir"/$subdir/english_train_144976_reordered_by_"$lang"_"$algo".tsv
-     export test_data_path="$dataset_dir"/$subdir/english_dev_2001_reordered_by_"$lang"_"$algo".tsv
+     export valid_data_path="$dataset_dir"/$subdir/english_dev_2001_reordered_by_"$lang"_"$algo".tsv
 
      export serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo"/model_"$MODEL_IDX"/
 
