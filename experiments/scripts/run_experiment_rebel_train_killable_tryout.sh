@@ -22,6 +22,7 @@ export metric_2="re_fscore"
 export validation_metric="+f1"
 export model_name="xlm-roberta-large"
 export pointer_vocab_size=300
+export num_epochs=50
 
 dataset_dir=experiments/processed_datasets/rebel/
 # Standard Order Model

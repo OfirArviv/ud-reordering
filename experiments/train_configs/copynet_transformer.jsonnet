@@ -8,6 +8,7 @@ local metric_2 = std.extVar('metric_2');
 local validation_metric = std.extVar('validation_metric');
 local model_name = std.extVar('model_name');
 local pointer_vocab_size = std.parseInt(std.extVar('pointer_vocab_size'));
+local pointer_vocab_size = std.parseInt(std.extVar('num_epochs'));
 // ================================================================
 {
  "vocabulary": {
@@ -95,7 +96,7 @@ local pointer_vocab_size = std.parseInt(std.extVar('pointer_vocab_size'));
     }
   },
   "trainer": {
-    "num_epochs": 100,
+    "num_epochs": num_epochs,
     "patience": 10,
     "grad_norm": 5.0,
     "validation_metric": validation_metric,
@@ -123,7 +124,7 @@ local pointer_vocab_size = std.parseInt(std.extVar('pointer_vocab_size'));
     },
     "learning_rate_scheduler": {
       "type": "slanted_triangular",
-      "num_epochs": 100,
+      "num_epochs": num_epochs,
       "gradual_unfreezing": true
     },
     "checkpointer": {
