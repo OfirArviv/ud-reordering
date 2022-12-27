@@ -525,7 +525,7 @@ class UdReorderingAlgo:
         try:
             reordered_sentence = self.reorder_sentence(sentence, mapping)
         except Exception as e:
-            raise print(e)
+            raise Exception(print(e))
             # return None
 
         return mapping
