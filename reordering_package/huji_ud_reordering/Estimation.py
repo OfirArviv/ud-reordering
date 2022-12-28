@@ -2,7 +2,7 @@ from collections import defaultdict
 from itertools import combinations
 from typing import List
 
-from . import UDLib
+import UDLib
 import z3
 
 

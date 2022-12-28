@@ -101,10 +101,10 @@ def reorder_tree(sent: conllu.TokenList, direction_dict: Dict):
 
 
 if __name__ == '__main__':
-    ud_path = "C:/Users/ofira/PycharmProjects/ud-reordering/experiments/datasets/ud/ud-treebanks-v2.10/UD_Italian-ISDT/it_isdt-ud-train.conllu"
+    ud_path = "experiments/datasets/ud/ud-treebanks-v2.10/UD_Arabic-PUD/ar_pud-ud-test.conllu"
     direction_dict = _get_direction_dict(ud_path)
     direction_dir = "reordering_package/rasoolini_ud_reorder/data"
-    with open(f'{direction_dir}/{"it_isdt-ud-train.conllu"}.right_direction_prop.json', 'w', encoding='utf-8')as f:
+    with open(f'{direction_dir}/{"ar_pud-ud-test.conllu"}.right_direction_prop.json', 'w', encoding='utf-8')as f:
         json.dump(direction_dict, f)
 
     exit()

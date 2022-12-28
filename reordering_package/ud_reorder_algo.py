@@ -52,7 +52,9 @@ class UdReorderingAlgo:
             "indonesian": f'{_estimates_dir}/id_gsd-ud-train.conllu.estimates.json',
             "turkish": f'{_estimates_dir}/tr_imst-ud-train.conllu.estimates.json',
             "vietnamese": f'{_estimates_dir}/vi_vtb-ud-train.conllu.estimates.json',
-            "italian": f'{_estimates_dir}/it_isdt-ud-train.conllu.estimates.json'
+            "italian": f'{_estimates_dir}/it_isdt-ud-train.conllu.estimates.json',
+            "arabic": f'{_estimates_dir}/ar_pud-ud-test.conllu.estimates.json',
+            "persian": f'{_estimates_dir}/fa_perdt-ud-train.conllu.estimates.json'
         }
 
         _direction_dir = "reordering_package/rasoolini_ud_reorder/data"
@@ -67,7 +69,9 @@ class UdReorderingAlgo:
             "indonesian": f'{_direction_dir}/id_gsd-ud-train.conllu.right_direction_prop.json',
             "turkish": f'{_direction_dir}/tr_imst-ud-train.conllu.right_direction_prop.json',
             "vietnamese": f'{_direction_dir}/vi_vtb-ud-train.conllu.right_direction_prop.json',
-            "italian": f'{_direction_dir}/it_isdt-ud-train.conllu.right_direction_prop.json'
+            "italian": f'{_direction_dir}/it_isdt-ud-train.conllu.right_direction_prop.json',
+            "arabic": f'{_direction_dir}/ar_pud-ud-test.conllu.right_direction_prop.json',
+            "persian": f'{_direction_dir}/fa_perdt-ud-train.conllu.right_direction_prop.json'
         }
 
     def _parse_sentence_into_ud(self, sent: str) -> conllu.TokenList:

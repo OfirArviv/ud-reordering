@@ -4,8 +4,8 @@ import json
 import random
 from typing import Optional
 
-from . import UDLib as U
-from . import Estimation as E
+import UDLib as U
+import Estimation as E
 import argparse
 
 
