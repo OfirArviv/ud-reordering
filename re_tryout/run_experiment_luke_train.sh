@@ -19,7 +19,7 @@ export HOME
 
 . ../venv/bin/activate
 
-MODEL_IDX="$SLURM_ARRAY_TASK_ID"
+MODEL_IDX="$EXPERIMENT_NUM"
 
 
 dataset_dir=re_tryout/simlier_dataset_conll_format/
