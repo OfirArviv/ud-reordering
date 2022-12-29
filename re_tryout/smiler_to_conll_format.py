@@ -108,9 +108,13 @@ def smiler_to_conll(input_path: str, output_path: str, input_lang: str):
 
     instance_list = []
     with open(input_path, 'r', encoding='utf-8') as f:
-        for i, line in tqdm(enumerate(f)):
-            if i == 0:
-                continue  # header
+        lines = list(f)
+        lines = lines[1:]  # header
+
+        if len(lines) > 10000:
+            random.shuffle(lines)
+            lines = lines[:10000]
+        for i, line in tqdm(enumerate(lines)):
             instance = smiler_line_to_conll_dict(line, input_lang, nlp)
             instance_list.append(instance)
 
@@ -209,7 +213,8 @@ def reorder_relation_instance(
         raise Exception("Cannot reorder sentence")
 
 
-def reorder_file(input_path: str, reorder_by_lang: str, reorder_algo_type: UdReorderingAlgo.ReorderAlgo, output_dir: str):
+def reorder_file(input_path: str, reorder_by_lang: str, reorder_algo_type: UdReorderingAlgo.ReorderAlgo,
+                 output_dir: str):
     reorder_algo = UdReorderingAlgo(reorder_algo_type, "english")
     with open(input_path, 'r', encoding='utf-8') as f:
         instance_list = json.load(f)
@@ -243,15 +248,17 @@ def reorder_file(input_path: str, reorder_by_lang: str, reorder_algo_type: UdReo
 
 def create_standard_dataset():
     main_dir = "re_tryout/smiler_dataset"
-    for f in glob.glob(f'{main_dir}/*.tsv'):
+    input_files = glob.glob(f'{main_dir}/*.tsv')
+    input_files = [
+        # "re_tryout/smiler_dataset/en_corpora_train.tsv",
+        # "re_tryout/smiler_dataset/en_corpora_test.tsv",
+        "re_tryout/smiler_dataset/ko_corpora_test.tsv",
+        "re_tryout/smiler_dataset/fa_corpora_test.tsv",
+        "re_tryout/smiler_dataset/ar_corpora_test.tsv"
+    ]
+    for f in input_files:
         filename = os.path.basename(f)
         output_path = f're_tryout/simlier_dataset_conll_format/standard/{filename}.json'
-
-        if "ko" not in filename and "ar" not in filename:
-            continue
-
-        if "test" not in filename:
-            continue
 
         if "ar" in filename:
             lang = "arabic"
@@ -279,21 +286,23 @@ def create_standard_dataset():
             lang = "russian"
         else:
             raise Exception("Unknown lang")
-        smiler_to_conll(f'{main_dir}/en_corpora_test.tsv', output_path, lang)
+        smiler_to_conll(f, output_path, lang)
 
-    en_train_path = "re_tryout/smiler_dataset/en-full_corpora_test.tsv"
+
+def create_type_files():
+    en_train_path = "re_tryout/smiler_dataset/en-full_corpora_train.tsv"
     output_path = "re_tryout/simlier_dataset_conll_format/types/types.json"
-    # smiler_to_rel_type(en_train_path, output_path)
+    smiler_to_rel_type(en_train_path, output_path)
 
 
 def create_reordered_dataset():
     file_paths = [
-        "re_tryout/simlier_dataset_conll_format/standard/en-full_corpora_test.tsv.json",
-        "re_tryout/simlier_dataset_conll_format/standard/en-full_corpora_train.tsv.json"
+        "re_tryout/simlier_dataset_conll_format/standard/en_corpora_train.tsv.json",
+        "re_tryout/simlier_dataset_conll_format/standard/en_corpora_test.tsv.json"
     ]
 
     for file_path in file_paths:
-        for lang in ["korean"]:
+        for lang in ["korean", "arabic", "persian"]:
             output_dir = f're_tryout/simlier_dataset_conll_format/english_reordered_by_{lang}/'
             os.makedirs(output_dir, exist_ok=True)
 
@@ -306,6 +315,8 @@ def create_reordered_dataset():
                              output_dir)
 
 
-create_reordered_dataset()
+# create_type_files()
 
-# create_standard_dataset()
+
+create_standard_dataset()
+create_reordered_dataset()
