@@ -32,6 +32,37 @@ def parse_tacred_file(path: str):
 
         yield {"example_id": example["id"], "sentence": sentence, "label": example["relation"]}
 
+def parse_conll_file(path: str):
+    if Path(path).suffix != ".json":
+        raise ValueError(
+            f"{path} does not seem to be a json file. We currently only supports the json format file.")
+    for example in json.load(open(path, "r")):
+        tokens = example["token"]
+
+        for rel in example['relations']:
+            ent_1_idx = int(rel['head'])
+            ent_2_idx = int(rel['tail'])
+            ent1 = example["entities"][ent_1_idx]
+            ent2 = example["entities"][ent_2_idx]
+            spans = [
+                ((ent1['start'], ENT), (ent1['start'], ENT)),
+                ((ent2['start'], ENT2), (ent2['start'], ENT2))
+            ]
+
+            # carefully insert special tokens in a specific order
+            spans.sort()
+            for i, span in enumerate(spans):
+                (start_idx, start_token), (end_idx, end_token) = span
+                tokens.insert(end_idx + i * 2, end_token)
+                tokens.insert(start_idx + i * 2, start_token)
+
+            sentence = " ".join(tokens)
+            # we do not need some spaces
+            sentence = sentence.replace(f" {ENT} ", f"{ENT} ")
+            sentence = sentence.replace(f" {ENT2} ", f"{ENT2} ")
+
+            yield {"example_id": example["orig_id"], "sentence": sentence, "label": rel["type"]}
+
 
 @DatasetReader.register("relation_classification")
 class RelationClassificationReader(DatasetReader):
