@@ -38,8 +38,8 @@ def run_evaluation_pointer_format(main_models_dir: str, output_dir: str, test_fi
                       f'Output_path: {output_file_path}\n'
                       f'------------------------------------------\n')
 
-                # allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
-                # allennllp_predict(f'{model_idx_path}/model.tar.gz', test_file, prediction_output_file)
+                allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
+                allennllp_predict(f'{model_idx_path}/model.tar.gz', test_file, prediction_output_file)
 
             metrics_list = []
             print(glob.glob(f'{metric_output_dir}/*.json'))
