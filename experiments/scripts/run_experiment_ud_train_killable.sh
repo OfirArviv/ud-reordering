@@ -16,7 +16,6 @@ export HOME
 
 MODEL_IDX="$EXPERIMENT_NUM"
 
-export vocab_path="experiments/vocabs/ud"
 export metric_1="attachment_scores_seq2seq"
 export metric_2=null
 export validation_metric="+LAS"
@@ -35,5 +34,5 @@ if [ ! -d "$serialization_dir" ]; then
  mkdir -p "$serialization_dir"
 fi
 
-sbatch  experiments/scripts/run_experiment_train_subscript.sh
+sbatch  --killable --requeue --kilable --requeue experiments/scripts/run_experiment_train_subscript.sh
 
