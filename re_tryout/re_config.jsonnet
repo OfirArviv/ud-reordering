@@ -1,4 +1,4 @@
-local transformers_model_name="xlm-roberta-large"
+local transformers_model_name="xlm-roberta-large";
 local train_data_path = std.extVar('train_data_path');
 local valid_data_path = std.extVar('valid_data_path');
 local test_data_path = std.extVar('test_data_path');
