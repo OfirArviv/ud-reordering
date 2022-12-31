@@ -2,6 +2,7 @@ local transformers_model_name="xlm-roberta-large";
 local train_data_path = std.extVar('train_data_path');
 local valid_data_path = std.extVar('valid_data_path');
 local test_data_path = std.extVar('test_data_path');
+local extra_tokens =  ["<ent>", "<ent2>"];
 {
   "model":{
     "type": "relation_classifier",
@@ -10,7 +11,7 @@ local test_data_path = std.extVar('test_data_path');
         "embedder": {
           "type": "pretrained_transformer",
           "model_name": transformers_model_name,
-          "tokenizer_kwargs": {"additional_special_tokens": ["<ent>", "<ent2>"]}
+          "tokenizer_kwargs": {"additional_special_tokens": extra_tokens}
         },
         "feature_type": "entity_start"
     }
