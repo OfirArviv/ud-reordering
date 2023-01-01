@@ -34,7 +34,7 @@
         "tokens": {
           "type": "pretrained_transformer",
           "model_name": "xlm-roberta-large",
-          "train_parameters":  true,
+          "train_parameters": true,
           "tokenizer_kwargs": {
             "additional_special_tokens": [
               "<ent>",
@@ -69,13 +69,14 @@
       "type": "huggingface_adamw",
       "lr": 1e-5,
       "weight_decay": 0.01,
-    "learning_rate_scheduler": {
-      "type": "slanted_triangular",
-      "num_epochs": 100,
-      "gradual_unfreezing": true
-    },
-    "checkpointer": {
-      "keep_most_recent_by_count": 1
+      "learning_rate_scheduler": {
+        "type": "slanted_triangular",
+        "num_epochs": 100,
+        "gradual_unfreezing": true
+      },
+      "checkpointer": {
+        "keep_most_recent_by_count": 1
+      }
     }
   }
 }
