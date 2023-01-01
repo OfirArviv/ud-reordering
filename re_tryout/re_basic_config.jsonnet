@@ -62,18 +62,13 @@
   },
   "trainer": {
     "num_epochs": 100,
-    "patience": 10,
+    "patience": 5,
     "grad_norm": 5.0,
     "validation_metric": "+accuracy",
     "optimizer": {
       "type": "huggingface_adamw",
       "lr": 1e-5,
       "weight_decay": 0.01
-    },
-    "learning_rate_scheduler": {
-      "type": "slanted_triangular",
-      "num_epochs": 100,
-      "gradual_unfreezing": true
     },
     "checkpointer": {
       "keep_most_recent_by_count": 1
