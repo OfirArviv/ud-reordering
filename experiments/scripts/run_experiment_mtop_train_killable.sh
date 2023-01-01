@@ -22,6 +22,7 @@ export metric_2=null
 export validation_metric="+em_accuracy"
 export model_name="xlm-roberta-large"
 export pointer_vocab_size=100
+export num_epochs=100
 
 dataset_dir=experiments/processed_datasets/mtop/pointers_format/
 # Standard Order Model
