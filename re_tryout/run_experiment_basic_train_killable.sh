@@ -31,7 +31,7 @@ fi
 sbatch re_tryout/run_experiment_train_subscript_2.sh
 
 # Reordered Models
-combined_postfixes=("" "_combined")
+combined_postfixes=("")
 languages=(arabic korean persian)
 algo_arr=(HUJI RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
