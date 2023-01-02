@@ -28,7 +28,7 @@ if [ ! -d "$serialization_dir" ]; then
  mkdir -p "$serialization_dir"
 fi
 
-sbatch re_tryout/run_experiment_train_subscript.sh
+# sbatch re_tryout/run_experiment_train_subscript.sh
 
 # Reordered Models
 combined_postfixes=("")
@@ -41,8 +41,8 @@ do
     subdir=english_reordered_by_"$lang"
     for algo in "${algo_arr[@]}"
     do
-      export train_data_path="$dataset_dir"/"$subdir"/en_corpora_train_reordered_by_"$lang"_"$algo""$combined_postfix".tsv.json
-      export valid_data_path="$dataset_dir"/"$subdir"/en_corpora_test_reordered_by_"$lang"_"$algo""$combined_postfix".tsv.json
+      export train_data_path="$dataset_dir"/"$subdir"/en_corpora_train_reordered_by_"$lang"_"$algo""$combined_postfix".tsv
+      export valid_data_path="$dataset_dir"/"$subdir"/en_corpora_test_reordered_by_"$lang"_"$algo""$combined_postfix".tsv
 
       export serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
 
