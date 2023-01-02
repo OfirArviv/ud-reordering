@@ -2,6 +2,7 @@ import glob
 import json
 import os.path
 import random
+import string
 from collections import defaultdict
 from typing import Dict
 
@@ -10,6 +11,129 @@ from tqdm import tqdm
 
 from reordering_package.ud_reorder_algo import UdReorderingAlgo
 
+def smiler_line_to_conll_dict_v2(line: str, input_lang: str, nlp) -> Dict:
+    split_arr = line.strip('\n').split('\t')
+    _id = split_arr[0]
+    entity_1 = split_arr[1]
+    entity_2 = split_arr[2]
+    label = split_arr[3]
+    lang = split_arr[-1]
+    if len(split_arr) == 6:
+        text = split_arr[4]
+    elif len(split_arr) > 6:
+        text = " ".join(split_arr[4:-1]).strip('\t')
+    else:
+        raise ValueError("No enough values to unpack")
+
+    if "</e2>" not in text:
+        temp = text.split("<e2>")
+        text = f'{temp[0]} <e2>{entity_2}</e2> .'
+    if "</e1>" not in text:
+        temp = text.split("<e1>")
+        text = f'{temp[0]} <e1>{entity_1}</e1> .'
+
+    tokenized_text = text.strip()
+
+    tokenized_text = tokenized_text.split('<e1>')
+    tokenized_text = tokenized_text[0] + ' <e1> ' + tokenized_text[1]
+
+    tokenized_text = tokenized_text.split('<e2>')
+    tokenized_text = tokenized_text[0] + ' <e2> ' + tokenized_text[1]
+
+    tokenized_text = tokenized_text.split('</e1>')
+    tokenized_text = tokenized_text[0] + ' </e1> ' + tokenized_text[1]
+
+    tokenized_text = tokenized_text.split('</e2>')
+    tokenized_text = tokenized_text[0] + ' </e2> ' + tokenized_text[1]
+
+    tokenized_text_arr = []
+    for tok in tokenized_text.split():
+        if tok in ['<e1>', '</e1>', '<e2>', '</e2>']:
+            tokenized_text_arr.append(tok)
+        else:
+            doc = nlp.tokenize(tok, is_sent=True)
+            doc_tok_list = [t['text'] for t in doc['tokens']]
+            for tok in doc_tok_list:
+                tokenized_text_arr.append(tok)
+
+    tokenized_text = " ".join(tokenized_text_arr).strip()
+
+    assert '<e1>' in tokenized_text
+    assert '</e1>' in tokenized_text
+    assert '<e2>' in tokenized_text
+    assert '</e2>' in tokenized_text
+
+    entity_1_start_idx = None
+    entity_1_end_idx = None
+    entity_2_start_idx = None
+    entity_2_end_idx = None
+    tokens = tokenized_text.split()
+    i = 0
+    output_tokens = []
+    for j, tok in enumerate(tokens):
+        if tok in ['<e1>', '</e1>', '<e2>', '</e2>']:
+            continue
+
+        if j > 0 and tokens[j-1] == '<e1>':
+            assert entity_1_start_idx is None
+            entity_1_start_idx = i
+        if j > 0 and tokens[j-1] == '<e2>':
+            assert entity_2_start_idx is None
+            entity_2_start_idx = i
+        if j+1 < len(tokens) and tokens[j+1] == '</e1>':
+            assert entity_1_start_idx is not None
+            assert entity_1_end_idx is None
+            entity_1_end_idx = i
+        if j+1 < len(tokens) and tokens[j+1] == '</e2>':
+            assert entity_2_start_idx is not None
+            assert entity_2_end_idx is None
+            entity_2_end_idx = i
+
+        output_tokens.append(tok)
+        i = i + 1
+
+    if entity_2_start_idx is None:
+        print(text)
+        print("here")
+
+
+    entities = [
+        {
+            "type": "dummy",
+            "start": entity_1_start_idx,
+            "end": entity_1_end_idx + 1  # needs exclusive indices
+        },
+        {
+            "type": "dummy",
+            "start": entity_2_start_idx,
+            "end": entity_2_end_idx + 1  # needs exclusive indices
+        },
+    ]
+
+    entity_1_str = output_tokens[entity_1_start_idx:entity_1_end_idx + 1]
+    entity_2_str = output_tokens[entity_2_start_idx:entity_2_end_idx + 1]
+
+    if any([s in entity_1_str for s in string.punctuation]):
+        print("here")
+    if any([s in entity_2_str for s in string.punctuation]):
+        print("here")
+
+    relations = [
+        {
+            "type": label,
+            "head": 0,
+            "tail": 1
+        }
+    ]
+
+    instance = {
+        "orig_id": _id,
+        "tokens": output_tokens,
+        "entities": entities,
+        "relations": relations
+    }
+
+    return instance
 
 def smiler_line_to_conll_dict(line: str, input_lang: str, nlp) -> Dict:
     split_arr = line.strip('\n').split('\t')
@@ -85,6 +209,14 @@ def smiler_line_to_conll_dict(line: str, input_lang: str, nlp) -> Dict:
         },
     ]
 
+    entity_1_str = tokens[entity_1_start_idx:entity_1_end_idx + 1]
+    entity_2_str = tokens[entity_2_start_idx:entity_2_end_idx + 1]
+
+    if any([s in entity_1_str for s in string.punctuation]):
+        print("here")
+    if any([s in entity_2_str for s in string.punctuation]):
+        print("here")
+
     relations = [
         {
             "type": label,
@@ -115,7 +247,7 @@ def smiler_to_conll(input_path: str, output_path: str, input_lang: str):
             random.shuffle(lines)
             lines = lines[:10000]
         for i, line in tqdm(enumerate(lines)):
-            instance = smiler_line_to_conll_dict(line, input_lang, nlp)
+            instance = smiler_line_to_conll_dict_v2(line, input_lang, nlp)
             instance_list.append(instance)
 
     with open(output_path, 'x', encoding='utf-8') as f:
@@ -226,7 +358,6 @@ def reorder_file(input_path: str, reorder_by_lang: str, reorder_algo_type: UdReo
             reordered_instance = reorder_relation_instance(instance, reorder_algo, reorder_by_lang)
             reordered_instances.append(reordered_instance)
         except Exception as e:
-            print(str(e))
             error_dict[str(e)] += 1
             reordered_instances.append(instance)
 
@@ -251,14 +382,14 @@ def create_standard_dataset():
     input_files = glob.glob(f'{main_dir}/*.tsv')
     input_files = [
         # "re_tryout/smiler_dataset/en_corpora_train.tsv",
-        # "re_tryout/smiler_dataset/en_corpora_test.tsv",
-        "re_tryout/smiler_dataset/ko_corpora_test.tsv",
-        "re_tryout/smiler_dataset/fa_corpora_test.tsv",
-        "re_tryout/smiler_dataset/ar_corpora_test.tsv"
+        "re_tryout/smiler_dataset/en_corpora_test.tsv",
+        # "re_tryout/smiler_dataset/ko_corpora_test.tsv",
+        # "re_tryout/smiler_dataset/fa_corpora_test.tsv",
+        # "re_tryout/smiler_dataset/ar_corpora_test.tsv"
     ]
     for f in input_files:
         filename = os.path.basename(f)
-        output_path = f're_tryout/simlier_dataset_conll_format/standard/{filename}.json'
+        output_path = f're_tryout/simlier_dataset_conll_format_tokenized/standard/{filename}.json'
 
         if "ar" in filename:
             lang = "arabic"
@@ -297,13 +428,13 @@ def create_type_files():
 
 def create_reordered_dataset():
     file_paths = [
-        "re_tryout/simlier_dataset_conll_format/standard/en_corpora_train.tsv.json",
-        "re_tryout/simlier_dataset_conll_format/standard/en_corpora_test.tsv.json"
+        "re_tryout/simlier_dataset_conll_format_tokenized/standard/en_corpora_train.tsv.json",
+        "re_tryout/simlier_dataset_conll_format_tokenized/standard/en_corpora_test.tsv.json"
     ]
 
     for file_path in file_paths:
         for lang in ["korean", "arabic", "persian"]:
-            output_dir = f're_tryout/simlier_dataset_conll_format/english_reordered_by_{lang}/'
+            output_dir = f're_tryout/simlier_dataset_conll_format_tokenized/english_reordered_by_{lang}/'
             os.makedirs(output_dir, exist_ok=True)
 
             for reorder_algo in [UdReorderingAlgo.ReorderAlgo.HUJI, UdReorderingAlgo.ReorderAlgo.RASOOLINI]:
@@ -318,5 +449,5 @@ def create_reordered_dataset():
 # create_type_files()
 
 
-create_standard_dataset()
+# create_standard_dataset()
 create_reordered_dataset()

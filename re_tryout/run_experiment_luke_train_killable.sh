@@ -17,7 +17,7 @@ export HOME
 MODEL_IDX="$EXPERIMENT_NUM"
 
 
-dataset_dir=re_tryout/simlier_dataset_conll_format/
+dataset_dir=re_tryout/simlier_dataset_conll_format_tokenized/
 # Standard Order Model
 export train_data_path="$dataset_dir"/standard/en_corpora_train.tsv.json
 export valid_data_path="$dataset_dir"/standard/en_corpora_test.tsv.json
