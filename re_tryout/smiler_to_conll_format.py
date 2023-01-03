@@ -367,11 +367,11 @@ def reorder_file(input_path: str, reorder_by_lang: str, reorder_algo_type: UdReo
     output_file_path = f'{output_dir}/{filename}'
 
     output_file_path += f'_reordered_by_{reorder_by_lang}_{reorder_algo_type.name}'
-    with open(f'{output_file_path}.tsv', 'x', encoding='utf-8') as f:
+    with open(f'{output_file_path}.tsv.json', 'x', encoding='utf-8') as f:
         json.dump(reordered_instances, f)
 
     output_file_path += f'_combined'
-    with open(f'{output_file_path}.tsv', 'x', encoding='utf-8') as f:
+    with open(f'{output_file_path}.tsv.json', 'x', encoding='utf-8') as f:
         temp = instance_list + reordered_instances
         random.shuffle(temp)
         json.dump(temp, f)
