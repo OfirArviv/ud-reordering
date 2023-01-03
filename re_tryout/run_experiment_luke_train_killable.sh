@@ -28,7 +28,7 @@ if [ ! -d "$serialization_dir" ]; then
  mkdir -p "$serialization_dir"
 fi
 
-# sbatch re_tryout/run_experiment_train_subscript.sh
+sbatch re_tryout/run_experiment_train_subscript.sh
 
 # Reordered Models
 combined_postfixes=("")
