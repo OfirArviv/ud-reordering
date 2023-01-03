@@ -1,52 +1,47 @@
+local transformers_model_name="xlm-roberta-large";
+local train_data_path = std.extVar('train_data_path');
+local valid_data_path = std.extVar('valid_data_path');
+local extra_tokens =  ["<ent>", "<ent2>"];
 {
   "dataset_reader": {
     "type": "re_basic",
     "token_indexers": {
       "tokens": {
         "type": "pretrained_transformer",
-        "model_name": "xlm-roberta-large",
+        "model_name": transformers_model_name,
         "tokenizer_kwargs": {
-          "additional_special_tokens": [
-            "<ent>",
-            "<ent2>"
-          ]
+          "additional_special_tokens": extra_tokens
         }
       }
     },
     "tokenizer": {
       "type": "pretrained_transformer",
-      "model_name": "xlm-roberta-large",
+      "model_name": transformers_model_name,
       "add_special_tokens": true,
       "tokenizer_kwargs": {
-        "additional_special_tokens": [
-          "<ent>",
-          "<ent2>"
-        ]
+        "additional_special_tokens": extra_tokens
       }
     }
   },
-  "train_data_path": "re_tryout/simlier_dataset_conll_format/standard/en_corpora_train.tsv.json",
-  "validation_data_path": "re_tryout/simlier_dataset_conll_format/standard/en_corpora_test.tsv.json",
+  "train_data_path": train_data_path,
+  "validation_data_path": valid_data_path,
   "model": {
     "type": "basic_classifier",
     "text_field_embedder": {
       "token_embedders": {
         "tokens": {
           "type": "pretrained_transformer",
-          "model_name": "xlm-roberta-large",
+          "model_name": transformers_model_name,
           "train_parameters": true,
           "tokenizer_kwargs": {
-            "additional_special_tokens": [
-              "<ent>",
-              "<ent2>"
-            ]
+            "additional_special_tokens": extra_tokens
           }
         }
       }
     },
     "seq2vec_encoder": {
       "type": "bert_pooler",
-      "pretrained_model": "xlm-roberta-large",
+      "pretrained_model": transformers_model_name,
       "dropout": 0.1
     },
     "namespace": "tags"
