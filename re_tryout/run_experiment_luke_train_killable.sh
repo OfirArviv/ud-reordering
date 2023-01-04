@@ -32,7 +32,7 @@ fi
 
 # Reordered Models
 combined_postfixes=("")
-languages=(arabic) # korean persian)
+languages=(arabic korean persian)
 algo_arr=(HUJI RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
 do
