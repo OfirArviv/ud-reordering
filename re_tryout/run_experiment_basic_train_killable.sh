@@ -38,13 +38,13 @@ for combined_postfix in "${combined_postfixes[@]}"
 do
   for lang in "${languages[@]}"
   do
-    subdir=english_reordered_by_"$lang"_padt
+    subdir=english_reordered_by_"$lang"_nyuad
     for algo in "${algo_arr[@]}"
     do
       export train_data_path="$dataset_dir"/"$subdir"/en_corpora_train_reordered_by_"$lang"_"$algo""$combined_postfix".tsv.json
       export valid_data_path="$dataset_dir"/"$subdir"/en_corpora_test_reordered_by_"$lang"_"$algo""$combined_postfix".tsv.json
 
-      export serialization_dir="$DIR"/english_reordered_by_"$lang"_padt_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
+      export serialization_dir="$DIR"/english_reordered_by_"$lang"nyuad_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
 
       if [ ! -d "$serialization_dir" ]; then
         echo "$serialization_dir" does not exists. Creating...
