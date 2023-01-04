@@ -28,10 +28,10 @@ if [ ! -d "$serialization_dir" ]; then
  mkdir -p "$serialization_dir"
 fi
 
-# sbatch re_tryout/run_experiment_train_subscript.sh
+sbatch re_tryout/run_experiment_train_subscript.sh
 
 # Reordered Models
-combined_postfixes=("")
+combined_postfixes=("" "_combined")
 languages=(arabic korean persian)
 algo_arr=(HUJI RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
@@ -44,7 +44,7 @@ do
       export train_data_path="$dataset_dir"/"$subdir"/en_corpora_train_reordered_by_"$lang"_"$algo""$combined_postfix".tsv.json
       export valid_data_path="$dataset_dir"/"$subdir"/en_corpora_test_reordered_by_"$lang"_"$algo""$combined_postfix".tsv.json
 
-      export serialization_dir="$DIR"/english_reordered_by_"$lang"_nyuad_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
+      export serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
 
       if [ ! -d "$serialization_dir" ]; then
         echo "$serialization_dir" does not exists. Creating...
