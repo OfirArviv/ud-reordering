@@ -823,9 +823,6 @@ if __name__ == "__main__":
     # TODO: Also run the experiments of the non-decoupled mode to measure if it really help to generalize over
     #  word-order
 
-    create_rasoolini_huji_combined_datasets()
-    exit()
-
     ### MTOP Dataset Creation ###
     # Create English standard dataset
     create_english_dataset_script_mtop(True)

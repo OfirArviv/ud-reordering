@@ -189,13 +189,22 @@ def create_rasoolini_huji_combined_datasets():
             with open(standard_path, 'r', encoding='utf-8') as std_f,\
                 open(reordered_huji, 'r', encoding='utf-8') as huji_f,\
                     open(reordered_rasoolini, 'r', encoding='utf-8') as rasoolini_f:
-                # std_list = list(std_f)
+                std_list = list(std_f)
                 huji_list = list(huji_f)
                 rasoolini_list = list(rasoolini_f)
 
             output_path = f'{reordered_by_lang_dir}/english_{split}_decoupled_format_reordered_by_{lang}_HUJI_RASOOLINI.tsv'
 
             output_list = huji_list + rasoolini_list
+            random.shuffle(output_list)
+
+            with open(output_path, 'x', encoding='utf-8') as o_f:
+                for l in output_list:
+                    o_f.write(l)
+
+            output_path = f'{reordered_by_lang_dir}/english_{split}_decoupled_format_reordered_by_{lang}_HUJI_RASOOLINI_combined.tsv'
+
+            output_list = huji_list + rasoolini_list + std_list
             random.shuffle(output_list)
 
             with open(output_path, 'x', encoding='utf-8') as o_f:
