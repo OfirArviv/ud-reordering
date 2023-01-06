@@ -3,23 +3,19 @@ import glob
 import json
 import os.path
 import statistics
-
 from experiments.scripts.allennlp_predict_custom import allennllp_predict
 
 
-def run_evaluation_pointer_format(main_models_dir: str, output_dir: str, test_file: str):
+def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
     from experiments.scripts.allennlp_evaluate_custom import allennllp_evaluate
 
     os.makedirs(output_dir, exist_ok=True)
-    # sub_models_dir_list = glob.glob(f'{main_models_dir}/*')
     sub_models_dir_list = [os.path.dirname(main_models_dir + "/")]
-
+    test_files = glob.glob(f'{test_dir}/*test*')
     for model in sub_models_dir_list:
         assert os.path.isdir(model)
         model_basename = os.path.basename(model)
 
-        # test_files = glob.glob(f'{test_files_dir}/*test*.tsv')
-        test_files = [test_file]
         for test_file in test_files:
             dataset_name = os.path.basename(test_file)
             metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
@@ -38,8 +34,10 @@ def run_evaluation_pointer_format(main_models_dir: str, output_dir: str, test_fi
                       f'Output_path: {output_file_path}\n'
                       f'------------------------------------------\n')
 
-                allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
-                allennllp_predict(f'{model_idx_path}/model.tar.gz', test_file, prediction_output_file)
+                if not os.path.exists(output_file_path):
+                    allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
+                if not os.path.exists(prediction_output_file):
+                    allennllp_predict(f'{model_idx_path}/model.tar.gz', test_file, prediction_output_file)
 
             metrics_list = []
             print(glob.glob(f'{metric_output_dir}/*.json'))
@@ -64,8 +62,7 @@ def run_evaluation_pointer_format(main_models_dir: str, output_dir: str, test_fi
                 print(metric_dict)
                 agg_metric.update(metric_dict)
 
-
-            with open(f'{metric_output_dir}/{dataset_name}_agg.json', 'x', encoding='utf-8') as f:
+            with open(f'{metric_output_dir}/{dataset_name}_agg.json', 'w', encoding='utf-8') as f:
                 json.dump(agg_metric, f)
 
 
@@ -77,4 +74,4 @@ if __name__ == '__main__':
 
     args = argparser.parse_args()
 
-    run_evaluation_pointer_format(args.model_dir, args.output_dir, args.test_dir)
+    run_model_evaluation(args.model_dir, args.output_dir, args.test_dir)
