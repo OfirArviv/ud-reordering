@@ -10,66 +10,61 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
     from experiments.scripts.allennlp_evaluate_custom import allennllp_evaluate
 
     os.makedirs(output_dir, exist_ok=True)
-    sub_models_dir_list = glob.glob(f'{main_models_dir}/*')
-    print(f'{main_models_dir}/*')
-    print(sub_models_dir_list)
     test_files = glob.glob(f'{test_dir}/*test*')
 
-    for model in sub_models_dir_list:
-        assert os.path.isdir(model)
-        model_basename = os.path.basename(model)
+    model = main_models_dir
 
-        for test_file in test_files:
-            dataset_name = os.path.basename(test_file)
-            metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
-            print(f'{model}/*')
-            print(glob.glob(f'{model}/*'))
-            return
-            for model_idx_path in glob.glob(f'{model}/*'):
-                model_idx = os.path.basename(model_idx_path)
-                os.makedirs(metric_output_dir, exist_ok=True)
-                output_file_path = f'{metric_output_dir}/{model_idx}.json'
+    assert os.path.isdir(model)
+    model_basename = os.path.basename(model)
 
-                prediction_output_dir = f'{output_dir}/{model_basename}/predictions/{model_idx}'
-                os.makedirs(prediction_output_dir, exist_ok=True)
-                prediction_output_file = f'{prediction_output_dir}/{dataset_name}'
-                print(f'\n------------------------------------------\n'
-                      f'Evaluating model: {model_idx_path}\n'
-                      f'Test file: {test_file}\n'
-                      f'Prediction Output File: {prediction_output_file}\n'
-                      f'Output_path: {output_file_path}\n'
-                      f'------------------------------------------\n')
+    for test_file in test_files:
+        dataset_name = os.path.basename(test_file)
+        metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
+        for model_idx_path in glob.glob(f'{model}/*'):
+            model_idx = os.path.basename(model_idx_path)
+            os.makedirs(metric_output_dir, exist_ok=True)
+            output_file_path = f'{metric_output_dir}/{model_idx}.json'
 
-                if not os.path.exists(output_file_path):
-                    allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
-                if not os.path.exists(prediction_output_file):
-                    allennllp_predict(f'{model_idx_path}/model.tar.gz', test_file, prediction_output_file)
+            prediction_output_dir = f'{output_dir}/{model_basename}/predictions/{model_idx}'
+            os.makedirs(prediction_output_dir, exist_ok=True)
+            prediction_output_file = f'{prediction_output_dir}/{dataset_name}'
+            print(f'\n------------------------------------------\n'
+                  f'Evaluating model: {model_idx_path}\n'
+                  f'Test file: {test_file}\n'
+                  f'Prediction Output File: {prediction_output_file}\n'
+                  f'Output_path: {output_file_path}\n'
+                  f'------------------------------------------\n')
 
-            metrics_list = []
-            print(glob.glob(f'{metric_output_dir}/*.json'))
-            for metric_path in glob.glob(f'{metric_output_dir}/*.json'):
-                with open(metric_path, 'r', encoding='utf-8') as f:
-                    json_data = json.load(f)
-                    metrics_list.append(json_data)
+            if not os.path.exists(output_file_path):
+                allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
+            if not os.path.exists(prediction_output_file):
+                allennllp_predict(f'{model_idx_path}/model.tar.gz', test_file, prediction_output_file)
 
-            agg_metric = {
-                "model_count": len(metrics_list)
+        metrics_list = []
+        print(glob.glob(f'{metric_output_dir}/*.json'))
+        for metric_path in glob.glob(f'{metric_output_dir}/*.json'):
+            with open(metric_path, 'r', encoding='utf-8') as f:
+                json_data = json.load(f)
+                metrics_list.append(json_data)
+
+        agg_metric = {
+            "model_count": len(metrics_list)
+        }
+
+        for k in metrics_list[0].keys():
+            print(k)
+            print(metrics_list)
+            temp_val_list = [d[k] for d in metrics_list]
+            metric_dict = {
+                f'{k}_mean': statistics.mean(temp_val_list),
+                f'{k}_std': statistics.stdev(temp_val_list)
             }
 
-            for k in metrics_list[0].keys():
-                print(k)
-                print(metrics_list)
-                temp_val_list = [d[k] for d in metrics_list]
-                metric_dict = {
-                    f'{k}_mean': statistics.mean(temp_val_list),
-                    f'{k}_std': statistics.stdev(temp_val_list)
-                }
+            print(metric_dict)
+            agg_metric.update(metric_dict)
 
-                print(metric_dict)
-                agg_metric.update(metric_dict)
-
-            with open(f'{metric_output_dir}/{dataset_name}_agg.json', 'w', encoding='utf-8') as f:
-                json.dump(agg_metric, f)
+        with open(f'{metric_output_dir}/{dataset_name}_agg.json', 'w', encoding='utf-8') as f:
+            json.dump(agg_metric, f)
 
 
 if __name__ == '__main__':
