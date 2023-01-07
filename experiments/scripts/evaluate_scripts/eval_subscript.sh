@@ -12,7 +12,7 @@ export HOME
 . ../venv/bin/activate
 export PYTHONPATH=$PYTHONPATH:.
 
-echo python experiments/scripts/evaluate_scripts/evaluate_base.py -m "$model_dir" -o "$output_dir" -t "$test_dir"
+python experiments/scripts/evaluate_scripts/evaluate_base.py -m "$model_dir" -o "$output_dir" -t "$test_dir"
 
 
 
