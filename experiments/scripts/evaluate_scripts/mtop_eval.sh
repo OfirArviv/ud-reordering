@@ -3,8 +3,8 @@
 ARGPARSE_DESCRIPTION="Sample script description"      # this is optional
 source /cs/labs/oabend/ofir.arviv/argparse.bash || exit 1
 argparse "$@" <<EOF || exit 1
-parser.add_argument('-m', '--model_dir', required=True)
-parser.add_argument('-o', '--output_dir', required=True)
+parser.add_argument('-m', '--model-dir', required=True)
+parser.add_argument('-o', '--output-dir', required=True)
 parser.add_argument('-k', '--killable', action='store_true', default=False)
 
 EOF
