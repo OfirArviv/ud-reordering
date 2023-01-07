@@ -20,6 +20,7 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
         for test_file in test_files:
             dataset_name = os.path.basename(test_file)
             metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
+            print(f'{model}/*')
             print(glob.glob(f'{model}/*'))
             return
             for model_idx_path in glob.glob(f'{model}/*'):
