@@ -13,8 +13,6 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
     sub_models_dir_list = glob.glob(f'{main_models_dir}/*')
     test_files = glob.glob(f'{test_dir}/*test*')
 
-    print(sub_models_dir_list)
-    return
     for model in sub_models_dir_list:
         assert os.path.isdir(model)
         model_basename = os.path.basename(model)
@@ -22,6 +20,8 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
         for test_file in test_files:
             dataset_name = os.path.basename(test_file)
             metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
+            print(glob.glob(f'{model}/*'))
+            return
             for model_idx_path in glob.glob(f'{model}/*'):
                 model_idx = os.path.basename(model_idx_path)
                 os.makedirs(metric_output_dir, exist_ok=True)
