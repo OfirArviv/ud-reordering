@@ -10,7 +10,7 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
     from experiments.scripts.allennlp_evaluate_custom import allennllp_evaluate
 
     os.makedirs(output_dir, exist_ok=True)
-    sub_models_dir_list = [os.path.dirname(main_models_dir + "/")]
+    sub_models_dir_list = [main_models_dir + "/"]
     test_files = glob.glob(f'{test_dir}/*test*')
     for model in sub_models_dir_list:
         assert os.path.isdir(model)
