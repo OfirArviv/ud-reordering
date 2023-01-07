@@ -17,6 +17,10 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
     assert os.path.isdir(model)
     model_basename = os.path.basename(model)
 
+    print(model)
+    print(model_basename)
+    return
+
     for test_file in test_files:
         dataset_name = os.path.basename(test_file)
         metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
@@ -41,7 +45,6 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
                 allennllp_predict(f'{model_idx_path}/model.tar.gz', test_file, prediction_output_file)
 
         metrics_list = []
-        print(glob.glob(f'{metric_output_dir}/*.json'))
         for metric_path in glob.glob(f'{metric_output_dir}/*.json'):
             with open(metric_path, 'r', encoding='utf-8') as f:
                 json_data = json.load(f)
