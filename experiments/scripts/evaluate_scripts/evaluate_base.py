@@ -44,6 +44,8 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
 
         metrics_list = []
         for metric_path in glob.glob(f'{metric_output_dir}/*.json'):
+            if "_agg" in metric_path:
+                continue
             with open(metric_path, 'r', encoding='utf-8') as f:
                 json_data = json.load(f)
                 metrics_list.append(json_data)
