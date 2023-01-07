@@ -75,4 +75,5 @@ if __name__ == '__main__':
 
     args = argparser.parse_args()
 
-    run_model_evaluation(args.model_dir, args.output_dir, args.test_dir)
+    print(args)
+    # run_model_evaluation(args.model_dir, args.output_dir, args.test_dir)
