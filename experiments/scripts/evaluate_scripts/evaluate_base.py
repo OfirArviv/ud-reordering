@@ -12,9 +12,7 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
     os.makedirs(output_dir, exist_ok=True)
     sub_models_dir_list = glob.glob(f'{main_models_dir}/*')
     test_files = glob.glob(f'{test_dir}/*test*')
-    print(main_models_dir)
-    print(sub_models_dir_list)
-    return
+
     for model in sub_models_dir_list:
         assert os.path.isdir(model)
         model_basename = os.path.basename(model)
