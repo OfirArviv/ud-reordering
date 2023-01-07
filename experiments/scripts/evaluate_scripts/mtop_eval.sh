@@ -37,7 +37,7 @@ do
   do
     for algo in "${algo_arr[@]}"
     do
-      export model_dir="MODEL_$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/
+      export model_dir="$MODEL_DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/
 
       sbatch $sbatch_params experiments/scripts/evaluate_scripts/eval_subscript.sh
 
