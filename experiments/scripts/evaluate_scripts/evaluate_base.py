@@ -15,7 +15,7 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
     model = main_models_dir
 
     assert os.path.isdir(model)
-    while model[-1] in ["/","\\"]:
+    while model[-1] in ["/", "\\"]:
         model = model[:-1]
     model_basename = os.path.basename(model)
 
