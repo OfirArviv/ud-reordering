@@ -14,7 +14,6 @@ TMP=$TMPDIR
 TEMP=$TMPDIR
 export HOME
 
-
 export model_dir="$MODEL_DIR"/english_standard/
 export output_dir=$OUTPUT_DIR
 export test_dir="experiments/processed_datasets/mtop/pointers_format/standard/"
