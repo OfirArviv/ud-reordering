@@ -11,6 +11,8 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
 
     os.makedirs(output_dir, exist_ok=True)
     sub_models_dir_list = glob.glob(f'{main_models_dir}/*')
+    print(f'{main_models_dir}/*')
+    print(sub_models_dir_list)
     test_files = glob.glob(f'{test_dir}/*test*')
 
     for model in sub_models_dir_list:
