@@ -3,7 +3,8 @@
 ARGPARSE_DESCRIPTION="Sample script description"      # this is optional
 source /cs/labs/oabend/ofir.arviv/argparse.bash || exit 1
 argparse "$@" <<EOF || exit 1
-parser.add_argument('-d', '--dir', required=True)
+parser.add_argument('-m', '--model-dir', required=True)
+parser.add_argument('-o', '--output-dir', required=True)
 parser.add_argument('-k', '--killable', action='store_true', default=False)
 
 EOF
@@ -13,12 +14,10 @@ TMP=$TMPDIR
 TEMP=$TMPDIR
 export HOME
 
-. ../venv/bin/activate
-export PYTHONPATH=$PYTHONPATH:.
-
 # Standard Order Model
-model_dir="$DIR"/english_standard/
-test_dir="experiments/processed_datasets/multilingual_top/pointers_format/standard/"
+export model_dir="$DIR"/english_standard/
+export output_dir=$OUTPUT_DIR
+export test_dir="experiments/processed_datasets/multilingual_top/pointers_format/standard/"
 
 if [ "$KILLABLE" ]
  then
@@ -27,7 +26,7 @@ if [ "$KILLABLE" ]
     sbatch_params=""
 fi
 
-sbatch $sbatch_params python experiments/scripts/evaluate_scripts/evaluate_base.py -m "$model_dir" -o "$OUTPUT_DIR" -t "$TEST_DIR"
+sbatch $sbatch_params -J eval_multi_top experiments/scripts/evaluate_scripts/eval_subscript.sh
 
 # Reordered Models
 combined_postfixes=("" "_combined")
@@ -40,9 +39,9 @@ do
     for algo in "${algo_arr[@]}"
     do
 
-      model_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/
+      export model_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/
 
-      sbatch $sbatch_params python experiments/scripts/evaluate_scripts/evaluate_base.py -m "$model_dir" -o "$OUTPUT_DIR" -t "$TEST_DIR"
+      sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/eval_subscript.sh
 
     done
   done
