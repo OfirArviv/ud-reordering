@@ -13,9 +13,9 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
     sub_models_dir_list = glob.glob(f'{main_models_dir}/*')
     test_files = glob.glob(f'{test_dir}/*test*')
 
+    print(sub_models_dir_list)
+    return
     for model in sub_models_dir_list:
-        print(model)
-        return
         assert os.path.isdir(model)
         model_basename = os.path.basename(model)
 
