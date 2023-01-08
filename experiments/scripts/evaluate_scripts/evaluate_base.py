@@ -50,6 +50,9 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
                 json_data = json.load(f)
                 metrics_list.append(json_data)
 
+        if len(metrics_list) != 10:
+            print(f'\n\n!!!!!! ERROR !!!!!! Missing metric files! Only {len(metrics_list)} metrics found!\n\n')
+
         agg_metric = {
             "model_count": len(metrics_list)
         }
