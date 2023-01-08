@@ -19,7 +19,7 @@ MODEL_IDX="$EXPERIMENT_NUM"
 
 dataset_dir=experiments/processed_datasets/smiler/
 # Standard Order Model
-export train_data_path="$dataset_dir"/standard/en-small_corpora_train.tsv_5000.json
+export train_data_path="$dataset_dir"/standard/en-small_corpora_train_5000.tsv.json
 export valid_data_path="$dataset_dir"/standard/en-small_corpora_test.tsv.json
 
 export serialization_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
@@ -48,8 +48,8 @@ do
     subdir=english_reordered_by_"$lang"
     for algo in "${algo_arr[@]}"
     do
-      export train_data_path="$dataset_dir"/"$subdir"/en_corpora_train_reordered_by_"$lang"_"$algo""$combined_postfix".tsv.json
-      export valid_data_path="$dataset_dir"/"$subdir"/en_corpora_test_reordered_by_"$lang"_"$algo""$combined_postfix".tsv.json
+      export train_data_path="$dataset_dir"/"$subdir"/en-small_corpora_train_5000_reordered_by_"$lang"_"$algo""$combined_postfix".tsv.json
+      export valid_data_path="$dataset_dir"/"$subdir"/en-small_corpora_test_reordered_by_"$lang"_"$algo""$combined_postfix".tsv.json
 
       export serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
 
