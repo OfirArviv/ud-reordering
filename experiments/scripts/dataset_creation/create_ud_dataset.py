@@ -2,7 +2,6 @@ import os.path
 import shutil
 from collections import defaultdict
 import random
-
 import conllu
 from tqdm import tqdm
 
@@ -19,9 +18,6 @@ def conllu_to_UDLib_format(input_tree: conllu.TokenList) -> UDLib.UDTree:
     return input_tree
 
 
-# TODO: Raise exception when reordering map is None?
-# TODO: Check why I didn't split the tags
-# TODO: Check if it happens more
 def create_reorder_ud_dataset(input_file_path: str,
                               input_lang: str,
                               output_dir: str,
@@ -60,6 +56,7 @@ def create_reorder_ud_dataset(input_file_path: str,
                 elif reorder_algo == UdReorderingAlgo.ReorderAlgo.RASOOLINI:
                     _, reordered_tree = ud_reorder_algo._get_rasoolini_reorder_mapping(conllu_token_list,
                                                                                        reorder_by_lang)
+                    reordered_tree = conllu_to_UDLib_format(reordered_tree)
                 else:
                     raise NotImplementedError()
 
@@ -122,7 +119,8 @@ def copy_standard_datasets():
         "experiments/datasets/ud/ud-treebanks-v2.10/UD_Hindi-PUD/hi_pud-ud-test.conllu",
         "experiments/datasets/ud/ud-treebanks-v2.10/UD_Thai-PUD/th_pud-ud-test.conllu",
         "experiments/datasets/ud/ud-treebanks-v2.10/UD_Turkish-PUD/tr_pud-ud-test.conllu",
-        "experiments/datasets/ud/ud-treebanks-v2.10/UD_Indonesian-PUD/id_pud-ud-test.conllu"
+        "experiments/datasets/ud/ud-treebanks-v2.10/UD_Indonesian-PUD/id_pud-ud-test.conllu",
+        "experiments/datasets/ud/ud-treebanks-v2.10/UD_Korean-PUD/ko_pud-ud-test.conllu"
     ]
 
     output_dir = "experiments/processed_datasets/ud/conllu_format/standard/"
