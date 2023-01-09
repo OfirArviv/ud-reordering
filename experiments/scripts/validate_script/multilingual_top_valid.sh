@@ -19,7 +19,7 @@ export PYTHONPATH=$PYTHONPATH:.
 export expected_models_count="$COUNT"
 
 # Standard Order Model
-export model_dir="MODEL_$DIR"/english_standard/
+export model_dir="$MODEL_DIR"/english_standard/
 
 python experiments/scripts/validate_script/validate_base.py -m "$model_dir" -c "$expected_models_count"
 
