@@ -40,3 +40,4 @@ do
   done
 done
 
+echo "Finished validation!"
