@@ -51,7 +51,6 @@ local model_name = std.extVar('model_name');
       "type": "bucket",
       "padding_noise": 0.0,
       "batch_size":128,
-      "shuffle:" true,
     }
   },
     "trainer": {
