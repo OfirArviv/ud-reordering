@@ -24,7 +24,7 @@ def run_model_evaluation(main_models_dir: str, expected_models_count: int):
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
     argparser.add_argument("-m", "--model-dir", required=True)
-    argparser.add_argument("-c", "--expected-models-count", required=True)
+    argparser.add_argument("-c", "--expected-models-count", type=int, required=True)
 
     args = argparser.parse_args()
 
