@@ -17,14 +17,17 @@ export HOME
 
 MODEL_IDX="$EXPERIMENT_NUM"
 
+export metric_1="attachment_scores_seq2seq"
+export metric_2=null
+export validation_metric="+LAS"
 export model_name="xlm-roberta-large"
-export config_file="dependency_parser.jsonnet"
+export config_file="seq2seq_transformer.jsonnet"
 
-dataset_dir=experiments/processed_datasets/ud/conllu_format
+dataset_dir=experiments/processed_datasets/ud/seq2seq/
 # Standard Order Model
-export train_data_path="$dataset_dir"/standard/en_ewt-ud-train.conllu
-export valid_data_path="$dataset_dir"/standard/en_ewt-ud-dev.conllu
-export test_data_path=null
+export train_data_path="$dataset_dir"/standard/en_ewt-ud-train.conllu.tsv
+export valid_data_path=null
+export test_data_path="$dataset_dir"/standard/en_ewt-ud-dev.conllu.tsv
 
 export serialization_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
 if [ ! -d "$serialization_dir" ]; then
@@ -52,9 +55,9 @@ do
     subdir=english_reordered_by_"$lang"
     for algo in "${algo_arr[@]}"
     do
-      export train_data_path="$dataset_dir"/"$subdir"/en_ewt-ud-train_reordered_by_"$lang"_"$algo""$combined_postfix".conllu
-      export valid_data_path="$dataset_dir"/"$subdir"/en_ewt-ud-dev_reordered_by_"$lang"_"$algo""$combined_postfix".conllu
-      export test_data_path=null
+      export train_data_path="$dataset_dir"/"$subdir"/en_ewt-ud-train_reordered_by_"$lang"_"$algo""$combined_postfix".conllu.tsv
+      export valid_data_path=null
+      export test_data_path="$dataset_dir"/"$subdir"/en_ewt-ud-dev_reordered_by_"$lang"_"$algo""$combined_postfix".conllu.tsv
 
       export serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
 
