@@ -11,6 +11,7 @@ def run_model_evaluation(main_models_dir: str, expected_models_count: int):
         model = model[:-1]
 
     existing_models = []
+    print(glob.glob(f'{model}/*'))
     for model_idx_path in glob.glob(f'{model}/*'):
         if not os.path.exists(f'{model_idx_path}/model.tar.gz'):
             existing_models.append(model_idx_path)
