@@ -15,9 +15,7 @@ def run_model_evaluation(main_models_dir: str, expected_models_count: int):
         if os.path.exists(f'{model_idx_path}/model.tar.gz'):
             existing_models.append(model_idx_path)
 
-    print(existing_models)
-    existing_models_idx = [os.path.basename(p) for p in existing_models]
-    print(existing_models_idx)
+    existing_models_idx = [int(os.path.basename(p).split("_")[1]) for p in existing_models]
     if set(existing_models_idx) != set(range(1, expected_models_count + 1)):
         missing_models = set(range(1, expected_models_count + 1)).difference(set(existing_models_idx))
         print(f'{main_models_dir} is missing the following models: {missing_models}')
