@@ -55,15 +55,12 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
         }
 
         for k in metrics_list[0].keys():
-            print(k)
-            print(metrics_list)
             temp_val_list = [d[k] for d in metrics_list]
             metric_dict = {
                 f'{k}_mean': statistics.mean(temp_val_list),
                 f'{k}_std': statistics.stdev(temp_val_list)
             }
 
-            print(metric_dict)
             agg_metric.update(metric_dict)
 
         with open(f'{metric_output_dir}/{dataset_name}_agg.json', 'w', encoding='utf-8') as f:
