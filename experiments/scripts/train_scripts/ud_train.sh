@@ -52,8 +52,8 @@ do
     subdir=english_reordered_by_"$lang"
     for algo in "${algo_arr[@]}"
     do
-      export train_data_path="$dataset_dir"/"$subdir"/en_ewt-ud-train_reordered_by_"$lang"_"$algo""$combined_postfix".conllu
-      export valid_data_path="$dataset_dir"/"$subdir"/en_ewt-ud-dev_reordered_by_"$lang"_"$algo""$combined_postfix".conllu
+      export train_data_path="$dataset_dir"/"$subdir"/english_en_ewt-ud-train_reordered_by_"$lang"_"$algo""$combined_postfix".conllu
+      export valid_data_path="$dataset_dir"/"$subdir"/english_en_ewt-ud-dev_reordered_by_"$lang"_"$algo""$combined_postfix".conllu
       export test_data_path=null
 
       export serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
