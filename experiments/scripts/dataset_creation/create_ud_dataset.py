@@ -1,3 +1,4 @@
+import glob
 import os.path
 import shutil
 from collections import defaultdict
@@ -134,6 +135,30 @@ def copy_standard_datasets():
             shutil.copyfile(f_path, output_path)
 
 
+def create_ud_vocab():
+    conllu_dataset_root_dir = "experiments/processed_datasets/ud/conllu_format/standard/"
+    dep_id_set = set()
+    for ud_file_path in glob.glob(f'{conllu_dataset_root_dir}/*.conllu'):
+        with open(ud_file_path, 'r', encoding='utf-8') as f:
+            for sent in conllu.parse_incr(f):
+                for node in sent:
+                    if not isinstance(node['id'], int):
+                        continue
+                    dep_id = node['deprel']
+                    dep_id = dep_id.split(":")[0]
+                    dep_id_set.add(dep_id)
+
+    output_dir = "experiments/vocabs/ud/"
+    with open(f'{output_dir}/head_tags.txt', 'x', encoding='utf-8') as f:
+        for token in dep_id_set:
+            f.write(f'{token}\n')
+
+    with open(f'{output_dir}/non_padded_namespaces.txt', 'x', encoding='utf-8') as f:
+        for token in ["*tags", "*labels"]:
+            f.write(f'{token}\n')
+
+
 if __name__ == "__main__":
     copy_standard_datasets()
+    create_ud_vocab()
     create_reordered_datasets_script()
