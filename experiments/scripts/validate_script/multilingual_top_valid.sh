@@ -16,7 +16,7 @@ export HOME
 . ../venv/bin/activate
 export PYTHONPATH=$PYTHONPATH:.
 
-export $expected_models_count="$COUNT"
+export expected_models_count="$COUNT"
 
 # Standard Order Model
 export model_dir="$DIR"/english_standard/
