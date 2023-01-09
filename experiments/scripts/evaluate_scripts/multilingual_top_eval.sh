@@ -15,7 +15,7 @@ TEMP=$TMPDIR
 export HOME
 
 # Standard Order Model
-export model_dir="$DIR"/english_standard/
+export model_dir="$MODEL_DIR"/english_standard/
 export output_dir=$OUTPUT_DIR
 export test_dir="experiments/processed_datasets/multilingual_top/pointers_format/standard/"
 
@@ -39,7 +39,7 @@ do
     for algo in "${algo_arr[@]}"
     do
 
-      export model_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/
+      export model_dir="$MODEL_DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/
 
       sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/eval_subscript.sh
 
