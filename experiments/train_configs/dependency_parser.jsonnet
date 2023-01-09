@@ -50,7 +50,7 @@ local model_name = std.extVar('model_name');
     "batch_sampler": {
       "type": "bucket",
       "padding_noise": 0.0,
-      "batch_size":128,
+      "batch_size": 32,
     }
   },
     "trainer": {
