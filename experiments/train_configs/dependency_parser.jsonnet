@@ -11,6 +11,7 @@ local model_name = std.extVar('model_name');
   },
     "dataset_reader":{
       "type": "universal_dependencies_custom",
+       "max_sentence_length_filter": 100,
       "token_indexers": {
         "tokens": {
           "type": "pretrained_transformer_mismatched",
