@@ -109,6 +109,6 @@ class RelationClassificationReader(DatasetReader):
         for data in self.parser(file_path):
             if len([t.text for t in self.tokenizer.tokenize(data["sentence"])]) > 512:
                 continue
-            if data['label'] == "event-year":
+            if data['label'] in ["event-year", "has-edu"]:
                 continue
             yield self.text_to_instance(data["sentence"], data["label"])
