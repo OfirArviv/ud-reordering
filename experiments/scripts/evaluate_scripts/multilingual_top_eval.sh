@@ -41,7 +41,7 @@ do
 
       export model_dir="$MODEL_DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/
 
-      sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/eval_subscript.sh
+      sbatch $sbatch_params -J eval_multi_top experiments/scripts/evaluate_scripts/eval_subscript.sh
 
     done
   done
