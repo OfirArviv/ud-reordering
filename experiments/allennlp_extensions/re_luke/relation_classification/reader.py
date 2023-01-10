@@ -79,6 +79,11 @@ class RelationClassificationReader(DatasetReader):
         self.head_entity_id = 1
         self.tail_entity_id = 2
 
+        with open("experiments/allennlp_extensions/re_luke/relation_classification/labels.txt", 'r', encoding='utf-8') as f:
+            labels = f.readline()
+            self.labels = [l.strip() for l in labels]
+            print(labels)
+
     def text_to_instance(self, sentence: str, label: str = None):
         texts = [t.text for t in self.tokenizer.tokenize(sentence)]
         e1_start_position = texts.index(ENT)
@@ -109,6 +114,7 @@ class RelationClassificationReader(DatasetReader):
         for data in self.parser(file_path):
             if len([t.text for t in self.tokenizer.tokenize(data["sentence"])]) > 512:
                 continue
-            if data['label'] in ["event-year", "has-edu"]:
+
+            if data['label'] not in self.labels:
                 continue
             yield self.text_to_instance(data["sentence"], data["label"])
