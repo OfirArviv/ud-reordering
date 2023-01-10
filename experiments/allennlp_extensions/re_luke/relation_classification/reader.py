@@ -80,9 +80,8 @@ class RelationClassificationReader(DatasetReader):
         self.tail_entity_id = 2
 
         with open("experiments/allennlp_extensions/re_luke/relation_classification/labels.txt", 'r', encoding='utf-8') as f:
-            labels = f.readline()
+            labels = f.readlines()
             self.labels = [l.strip() for l in labels]
-            print(labels)
 
     def text_to_instance(self, sentence: str, label: str = None):
         texts = [t.text for t in self.tokenizer.tokenize(sentence)]
