@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-#SBATCH --mem=10G
+#SBATCH --mem=12G
 #SBATCH --time=2-0
-#SBATCH --gres=gpu:1,vmem:10g
+#SBATCH --gres=gpu:1,vmem:8g
 #SBATCH -c2
 
 HOME="/cs/labs/oabend/ofir.arviv/"
