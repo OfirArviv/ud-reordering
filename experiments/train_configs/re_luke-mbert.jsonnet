@@ -1,4 +1,4 @@
-local transformers_model_name="xlm-roberta-large";
+local transformers_model_name="bert-base-multilingual-cased";
 local train_data_path = std.extVar('train_data_path');
 local valid_data_path = std.extVar('valid_data_path');
 local test_data_path = std.extVar('test_data_path');
@@ -60,5 +60,5 @@ local extra_tokens =  ["<ent>", "<ent2>"];
         "num_gradient_accumulation_steps": 8,
         "validation_metric": "+micro_fscore"
     },
-    "data_loader": {"batch_size": 8, "shuffle": true}
+    "data_loader": {"batch_size": 16, "shuffle": true}
 }
