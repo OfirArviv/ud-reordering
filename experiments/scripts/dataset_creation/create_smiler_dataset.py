@@ -353,6 +353,7 @@ def create_normalized_test_datasets():
     for f in input_files:
         filename = os.path.basename(f)
         output_path = f'experiments/processed_datasets/smiler/test_normalized/{filename}.json'
+        output_path = output_path.replace("train", "test")
         if os.path.exists(output_path):
             print(f'File {output_path} already exists! Skipping!')
             continue
