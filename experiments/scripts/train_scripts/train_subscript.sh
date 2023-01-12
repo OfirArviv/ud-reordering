@@ -21,7 +21,6 @@ fi
 best_model_file="$serialization_dir"/"best.th"
 if [ -f "$best_model_file" ]
 then
-  exit
   echo "recover: ""$best_model_file"
   allennlp train "$serialization_dir"/config.json --recover --serialization-dir "$serialization_dir" --include-package experiments --file-friendly-logging
 else
