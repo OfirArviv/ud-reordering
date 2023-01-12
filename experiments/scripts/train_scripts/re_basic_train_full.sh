@@ -14,7 +14,7 @@ TMP=$TMPDIR
 TEMP=$TMPDIR
 export HOME
 
-export config_file="re_luke.jsonnet"
+export config_file="re_basic.jsonnet"
 MODEL_IDX="$EXPERIMENT_NUM"
 
 dataset_dir=experiments/processed_datasets/smiler/
