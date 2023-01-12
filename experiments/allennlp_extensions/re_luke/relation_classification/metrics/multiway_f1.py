@@ -91,6 +91,13 @@ class MultiwayF1(Metric):
             [self.get_f1_by_label(label) for label in all_labels if label not in self.ignored_labels]
         )
         micro_fscore_score = self.get_micro_fscore()
+
+        per_label_fscore_dict = {
+            f'label_{label}_fscore': self.get_f1_by_label(label) for label in all_labels if label not in self.ignored_labels
+        }
         if reset:
             self.reset()
-        return {"macro_fscore": macro_fscore_score, "micro_fscore": micro_fscore_score}
+
+        res = {"macro_fscore": macro_fscore_score, "micro_fscore": micro_fscore_score}
+        res.update(per_label_fscore_dict)
+        return res
