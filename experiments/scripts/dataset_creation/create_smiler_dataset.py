@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 from reordering_package.ud_reorder_algo import UdReorderingAlgo
 
+
 def smiler_line_to_conll_dict_v2(line: str, input_lang: str, nlp) -> Dict:
     split_arr = line.strip('\n').split('\t')
     _id = split_arr[0]
@@ -74,17 +75,17 @@ def smiler_line_to_conll_dict_v2(line: str, input_lang: str, nlp) -> Dict:
         if tok in ['<e1>', '</e1>', '<e2>', '</e2>']:
             continue
 
-        if j > 0 and tokens[j-1] == '<e1>':
+        if j > 0 and tokens[j - 1] == '<e1>':
             assert entity_1_start_idx is None
             entity_1_start_idx = i
-        if j > 0 and tokens[j-1] == '<e2>':
+        if j > 0 and tokens[j - 1] == '<e2>':
             assert entity_2_start_idx is None
             entity_2_start_idx = i
-        if j+1 < len(tokens) and tokens[j+1] == '</e1>':
+        if j + 1 < len(tokens) and tokens[j + 1] == '</e1>':
             assert entity_1_start_idx is not None
             assert entity_1_end_idx is None
             entity_1_end_idx = i
-        if j+1 < len(tokens) and tokens[j+1] == '</e2>':
+        if j + 1 < len(tokens) and tokens[j + 1] == '</e2>':
             assert entity_2_start_idx is not None
             assert entity_2_end_idx is None
             entity_2_end_idx = i
@@ -95,7 +96,6 @@ def smiler_line_to_conll_dict_v2(line: str, input_lang: str, nlp) -> Dict:
     if entity_2_start_idx is None:
         print(text)
         print("here")
-
 
     entities = [
         {
@@ -273,8 +273,8 @@ def create_standard_dataset():
 
 def create_reordered_dataset():
     file_paths = [
-        "experiments/processed_datasets/smiler/standard/en-small_corpora_train_5000.tsv.json",
-        "experiments/processed_datasets/smiler/standard/en-small_corpora_test.tsv.json"
+        "experiments/processed_datasets/smiler/standard/en-small_corpora_train.tsv.json",
+        # "experiments/processed_datasets/smiler/standard/en-small_corpora_test.tsv.json"
     ]
 
     for file_path in file_paths:
@@ -290,6 +290,103 @@ def create_reordered_dataset():
                              reorder_algo,
                              output_dir)
 
+
+def _get_rel_from_tsv_line(line: str) -> str:
+    split_arr = line.strip('\n').split('\t')
+    _id = split_arr[0]
+    entity_1 = split_arr[1]
+    entity_2 = split_arr[2]
+    label = split_arr[3]
+    lang = split_arr[-1]
+    if len(split_arr) == 6:
+        text = split_arr[4]
+    elif len(split_arr) > 6:
+        text = " ".join(split_arr[4:-1]).strip('\t')
+    else:
+        raise ValueError("No enough values to unpack")
+
+    return label
+
+
+def smiler_to_normalized_conll(input_path: str, output_path: str, input_lang: str):
+    rel_to_line_dict = defaultdict(list)
+    with open(input_path, 'r', encoding='utf-8') as f:
+        lines = list(f)
+        lines = lines[1:]  # header
+        for i, line in tqdm(enumerate(lines)):
+            rel = _get_rel_from_tsv_line(line)
+            rel_to_line_dict[rel].append(line)
+
+    min_rel_count = min([len(k) for k in rel_to_line_dict])
+    min_rel_count = max(min_rel_count, 50)  # min 50 per rel
+    min_rel_count = min(min_rel_count, 200)  # max 200 per rel
+
+    normalized_lines_list = []
+    for k, v in rel_to_line_dict.items():
+        if len(v) >= min_rel_count:
+            instances = v
+            random.shuffle(v)
+            normalized_lines_list.extend(instances[:min_rel_count])
+
+
+    random.shuffle(normalized_lines_list)
+
+    nlp = trankit.Pipeline(lang=input_lang, gpu=True, cache_dir='./cache')
+
+    instance_list = []
+    for i, line in tqdm(enumerate(normalized_lines_list)):
+        instance = smiler_line_to_conll_dict_v2(line, input_lang, nlp)
+        instance_list.append(instance)
+
+    with open(output_path, 'x', encoding='utf-8') as f:
+        json.dump(instance_list, f)
+
+
+def create_normalized_test_datasets():
+    main_dir = "experiments/datasets/relation_extraction/smiler"
+    input_files = [
+        "experiments/datasets/relation_extraction/smiler/fa_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/ko_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/ar_corpora_train.tsv"
+    ]
+
+    for f in input_files:
+        filename = os.path.basename(f)
+        output_path = f'experiments/processed_datasets/smiler/test_normalized/{filename}.json'
+        if os.path.exists(output_path):
+            print(f'File {output_path} already exists! Skipping!')
+            continue
+
+        if "ar" in filename:
+            lang = "arabic"
+        elif "de" in filename:
+            lang = "german"
+        elif "en" in filename:
+            lang = "english"
+        elif "es" in filename:
+            lang = "spanish"
+        elif "fa" in filename:
+            lang = "persian"
+        elif "fr" in filename:
+            lang = "french"
+        elif "it" in filename:
+            lang = "italian"
+        elif "ko" in filename:
+            lang = "korean"
+        elif "nl" in filename:
+            lang = "dutch"
+        elif "pl" in filename:
+            lang = "polish"
+        elif "pt" in filename:
+            lang = "portuguese"
+        elif "ru" in filename:
+            lang = "russian"
+        else:
+            raise Exception("Unknown lang")
+        smiler_to_normalized_conll(f, output_path, lang)
+
+
 if __name__ == '__main__':
     # create_standard_dataset()
-    create_reordered_dataset()
+    # create_reordered_dataset()
+    create_normalized_test_datasets()
