@@ -87,13 +87,15 @@ class MultiwayF1(Metric):
             | set(self._num_gold_by_label.keys())
             | set(self._num_correct_by_label.keys())
         )
+
+        gold_labels = set(self._num_gold_by_label.keys())
         macro_fscore_score = np.mean(
-            [self.get_f1_by_label(label) for label in all_labels if label not in self.ignored_labels]
+            [self.get_f1_by_label(label) for label in all_labels if label not in self.ignored_labels and label in gold_labels]
         )
         micro_fscore_score = self.get_micro_fscore()
 
         per_label_fscore_dict = {
-            f'label_{label}_fscore': self.get_f1_by_label(label) for label in all_labels if label not in self.ignored_labels
+            f'label_{label}_fscore': self.get_f1_by_label(label) for label in all_labels if label not in self.ignored_labels and label in gold_labels
         }
         if reset:
             self.reset()
