@@ -37,8 +37,8 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
                   f'Output_path: {output_file_path}\n'
                   f'------------------------------------------\n')
 
-            # if not os.path.exists(output_file_path):
-            allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
+            if not os.path.exists(output_file_path):
+                allennllp_evaluate(f'{model_idx_path}/model.tar.gz', test_file, output_file_path)
             if not os.path.exists(prediction_output_file):
                 allennllp_predict(f'{model_idx_path}/model.tar.gz', test_file, prediction_output_file)
 
