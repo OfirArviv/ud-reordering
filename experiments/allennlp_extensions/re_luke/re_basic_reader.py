@@ -60,6 +60,11 @@ class ReBasic(DatasetReader):
         self._token_indexers = token_indexers or {"tokens": SingleIdTokenIndexer()}
         self._tokenizer = tokenizer
 
+        with open("experiments/allennlp_extensions/re_luke/relation_classification/labels.txt", 'r',
+                  encoding='utf-8') as f:
+            labels = f.readlines()
+            self.labels = [l.strip() for l in labels]
+
     @staticmethod
     def parse_conll_file(path: str):
         if Path(path).suffix != ".json":
@@ -95,6 +100,8 @@ class ReBasic(DatasetReader):
     def _read(self, file_path: str):
         for data in self.parse_conll_file(file_path):
             if len([t.text for t in self._tokenizer.tokenize(data["sentence"])]) > 512:
+                continue
+            if data['label'] not in self.labels:
                 continue
             yield self.text_to_instance(data["sentence"].split(), data["label"])
 
