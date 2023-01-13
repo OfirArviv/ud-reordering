@@ -16,7 +16,7 @@ export HOME
 
 export model_dir="$MODEL_DIR"/english_standard/
 export output_dir=$OUTPUT_DIR
-export test_dir="experiments/processed_datasets/ud/conllu_format/standard/"
+export test_dir="experiments/processed_datasets/ud/seq2seq/standard/"
 
 if [ "$KILLABLE" ]
  then
