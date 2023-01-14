@@ -43,25 +43,21 @@ class Seq2SeqAttachmentScores(Metric):
             instance_correct_unlabeled_count = 0
             instance_correct_labeled_count = 0
 
-            p_arr = p.split()
-            g_arr = g.split()
+            for i in range(0, len(g), 2):
+                g_position = g[i]
+                g_label = g[i + 1]
 
-            assert len(p_arr) == len(g_arr)
+                if len(p) > i+1:
+                    p_position = p[i]
+                    p_label = p[i+1]
 
-            for i in range(start=0, stop=len(p_arr), step=2):
-                p_position = p_arr[i]
-                p_label = p_arr[i+1]
+                    if p_position == g_position:
+                        instance_correct_unlabeled_count += 1
 
-                g_position = g_arr[i]
-                g_label = g_arr[i + 1]
+                        if p_label == g_label:
+                            instance_correct_labeled_count += 1
 
-                if p_position == g_position:
-                    instance_correct_unlabeled_count += 1
-
-                    if p_label == g_label:
-                        instance_correct_labeled_count += 1
-
-            sentence_length = len(p_arr) / 2
+            sentence_length = len(g) / 2
             self._unlabeled_correct += instance_correct_unlabeled_count
             self._exact_unlabeled_correct += 1 if instance_correct_unlabeled_count == sentence_length else 0
             self._labeled_correct += instance_correct_labeled_count
