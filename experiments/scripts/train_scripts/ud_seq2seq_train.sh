@@ -42,7 +42,7 @@ if [ "$KILLABLE" ]
     sbatch_params=""
 fi
 
-sbatch $sbatch_params -J train_ud_seq2seq experiments/scripts/train_scripts/rain_subscript.sh
+sbatch $sbatch_params -J train_ud_seq2seq experiments/scripts/train_scripts/train_subscript.sh
 
 # Reordered Models
 combined_postfixes=("" "_combined")
