@@ -56,7 +56,7 @@ local model_name = std.extVar('model_name');
       "input_dim": 1024
     },
     "decoder": {
-      "type": "auto_regressive_seq_decoder",
+      "type": "auto_regressive_seq_decoder_custom",
       "scheduled_sampling_ratio": 0,
       "beam_search": {
           "beam_size": 4,
