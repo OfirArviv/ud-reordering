@@ -42,7 +42,7 @@ if [ "$KILLABLE" ]
     sbatch_params=""
 fi
 
-sbatch $sbatch_params -J train_ud_seq2seq experiments/scripts/train_scripts/train_subscript_ud_fix.sh
+sbatch $sbatch_params -J train_ud_seq2seq experiments/scripts/train_scripts/train_subscript.sh
 
 exit
 
@@ -68,7 +68,7 @@ do
         mkdir -p "$serialization_dir"
       fi
 
-      sbatch $sbatch_params -J train_ud_seq2seq experiments/scripts/train_scripts/train_subscript_ud_fix.sh
+      sbatch $sbatch_params -J train_ud_seq2seq experiments/scripts/train_scripts/train_subscript.sh
 
     done
   done
