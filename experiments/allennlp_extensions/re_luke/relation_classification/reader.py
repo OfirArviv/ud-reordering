@@ -114,6 +114,6 @@ class RelationClassificationReader(DatasetReader):
             if len([t.text for t in self.tokenizer.tokenize(data["sentence"])]) > 512:
                 continue
 
-            if data['label'] not in self.labels:
-                continue
+            # if data['label'] not in self.labels:
+            #     continue
             yield self.text_to_instance(data["sentence"], data["label"])
