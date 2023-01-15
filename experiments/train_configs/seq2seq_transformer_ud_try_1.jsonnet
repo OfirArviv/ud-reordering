@@ -65,7 +65,7 @@ local model_name = std.extVar('model_name');
       "decoder_net": {
         "type": "stacked_self_attention",
         "decoding_dim": 1024,
-        "target_embedding_dim": 128,
+        "target_embedding_dim": 1024,
         "feedforward_hidden_dim": 512,
         "num_layers": 4,
         "num_attention_heads": 8
