@@ -24,6 +24,8 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
         metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
         for model_idx_path in glob.glob(f'{model}/*'):
             model_idx = os.path.basename(model_idx_path)
+            if model_idx != "model_1":
+                continue
             os.makedirs(metric_output_dir, exist_ok=True)
             output_file_path = f'{metric_output_dir}/{model_idx}.json'
 
