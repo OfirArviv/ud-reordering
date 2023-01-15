@@ -22,7 +22,7 @@ best_model_file="$serialization_dir"/"best.th"
 if [ -f "$best_model_file" ]
 then
   echo "recover: ""$best_model_file"
-  allennlp train "$serialization_dir"/config.json --recover --serialization-dir "$serialization_dir" --include-package experiments --file-friendly-logging --overrides '{"model.decoder": "auto_regressive_seq_decoder_custom"}'
+  allennlp train "$serialization_dir"/config.json --recover --serialization-dir "$serialization_dir" --include-package experiments --file-friendly-logging --overrides '{"model.decoder.type": "auto_regressive_seq_decoder_custom"}'
 else
   echo "new: ""$best_model_file"
 
