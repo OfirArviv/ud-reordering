@@ -17,8 +17,7 @@ def allennllp_evaluate(model_gz_path: str, dataset: str, output_file_path: str,
         "--file-friendly-logging",
         "--cuda-device", str(cuda_device),
         "--output-file", output_file_path,
-        "--include-package", "experiments.allennlp_extensions",
-        "--overrides", '{"model.decoder.type": "auto_regressive_seq_decoder_custom"}'
+        "--include-package", "experiments.allennlp_extensions"
     ]
     if predictions_output_file:
         sys.argv.extend([
