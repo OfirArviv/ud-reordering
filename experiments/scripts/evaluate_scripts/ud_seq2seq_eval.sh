@@ -27,6 +27,7 @@ fi
 
 sbatch $sbatch_params -J eval_ud experiments/scripts/evaluate_scripts/eval_subscript.sh
 
+exit
 # Reordered Models
 combined_postfixes=("" "_combined")
 languages=(french german hindi korean persian spanish thai)
