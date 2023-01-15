@@ -44,6 +44,8 @@ fi
 
 sbatch $sbatch_params -J train_ud_seq2seq experiments/scripts/train_scripts/train_subscript.sh
 
+exit
+
 # Reordered Models
 combined_postfixes=("" "_combined")
 languages=(hindi korean persian spanish thai)
