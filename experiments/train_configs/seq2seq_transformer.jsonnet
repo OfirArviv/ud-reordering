@@ -11,7 +11,7 @@ local model_name = std.extVar('model_name');
   "dataset_reader": {
     "type": "seq2seq_length_filtering",
     "source_max_tokens": 100,
-    "target_max_tokens": 100,
+    "target_max_tokens": 200,
     "source_add_start_token": false,
     "source_add_end_token": false,
     "source_tokenizer": {
@@ -92,7 +92,7 @@ local model_name = std.extVar('model_name');
     "validation_metric": validation_metric,
     "optimizer": {
       "type": "huggingface_adamw",
-      "lr": 1e-3,
+      "lr": 1e-5,
       "weight_decay": 0.01,
       "parameter_groups": [
         [[".*transformer.*embeddings.*"], {"lr": 1e-5}],
@@ -109,7 +109,7 @@ local model_name = std.extVar('model_name');
         [[".*transformer.*(layer[.]20[.]|layer[.]21[.]).*"], {"lr": 1e-5}],
         [[".*transformer.*(layer[.]22[.]|layer[.]23[.]).*"], {"lr": 1e-5}],
         [[".*transformer_model.pooler*"], {"lr": 1e-5}],
-        [[".*_decoder.*"], {"lr": 1e-3}]
+        [[".*_decoder.*"], {"lr": 1e-5}]
       ]
     },
     "learning_rate_scheduler": {

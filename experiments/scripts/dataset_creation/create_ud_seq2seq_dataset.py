@@ -1,5 +1,6 @@
 import glob
 import os.path
+import random
 from typing import List
 
 import conllu
@@ -84,13 +85,69 @@ def create_vocab_from_seq2seq_file(file_path_list: List[str], output_dir: str) -
     with open(f'{output_dir}/non_padded_namespaces.txt', 'w', encoding='utf-8') as f:
         for token in ["*tags", "*labels"]:
             f.write(f'{token}\n')
+
+
+
+def create_merge_seq2seq_dataset_script(use_pointer_format: bool):
+    input_files = [
+        "experiments/datasets/ud/ud-treebanks-v2.10/UD_English-Atis/en_atis-ud-train.conllu",
+        "experiments/datasets/ud/ud-treebanks-v2.10/UD_English-ESL/en_esl-ud-train.conllu",
+        "experiments/datasets/ud/ud-treebanks-v2.10/UD_English-EWT/en_ewt-ud-train.conllu",
+        "experiments/datasets/ud/ud-treebanks-v2.10/UD_English-GUM/en_gum-ud-train.conllu",
+        "experiments/datasets/ud/ud-treebanks-v2.10/UD_English-LinES/en_lines-ud-train.conllu",
+        "experiments/datasets/ud/ud-treebanks-v2.10/UD_English-ParTUT/en_partut-ud-train.conllu"
+    ]
+
+    seq2seq_dataset_root_dir = f'experiments/processed_datasets/ud/seq2seq{"_pointer_format" if use_pointer_format else ""}/'
+    os.makedirs(seq2seq_dataset_root_dir, exist_ok=True)
+
+    basename = "english_merged.conllu"
+    output_subdir = os.path.join(seq2seq_dataset_root_dir, 'standard')
+    os.makedirs(output_subdir, exist_ok=True)
+    output_path = os.path.join(output_subdir, f'{basename}.tsv')
+    conllu_to_seq2seq_merge(input_files, output_path, use_pointer_format)
+
+
+def conllu_to_seq2seq_merge(ud_file_paths: List[str], output_file_path: str, use_pointer_format: bool):
+    output_sents = []
+    for ud_file_path in ud_file_paths:
+        with open(ud_file_path, 'r', encoding='utf-8') as f:
+            for sent in conllu.parse_incr(f):
+                sent_input_seq = " ".join([node['form'] for node in sent])
+                sent_target_seq_arr = []
+                for node in sent:
+                    if not isinstance(node['id'], int):
+                        continue
+                    dep_ind = int(node['id'])
+                    head_ind = int(node['head'])
+                    if use_pointer_format:
+                        tag = f'@ptr{head_ind}'
+                    else:
+                        if dep_ind > head_ind:
+                            tag = 'L' + str(abs(dep_ind - head_ind))
+                        else:
+                            tag = 'R' + str(abs(dep_ind - head_ind))
+                    dep_id = node['deprel']
+                    dep_id = dep_id.split(":")[0]
+                    tag = tag + " " + dep_id
+                    sent_target_seq_arr.append(tag)
+                sent_target_seq = " ".join(sent_target_seq_arr)
+                output_sents.append(f'{sent_input_seq}\t{sent_target_seq}\n')
+
+    with open(output_file_path, 'x', encoding='utf-8') as out_f:
+        random.shuffle(output_sents)
+        for s in output_sents:
+            out_f.write(s)
+
+
 if __name__ == "__main__":
-    # create_seq2seq_dataset_script(True)
+    create_merge_seq2seq_dataset_script(False)
+    # create_seq2seq_dataset_script(False)
 
     # Create vocab
-    create_vocab_from_seq2seq_file([
-        "experiments/processed_datasets/ud/seq2seq_pointer_format/standard/en_ewt-ud-train.conllu.tsv",
-        "experiments/processed_datasets/ud/seq2seq_pointer_format/standard/en_ewt-ud-dev.conllu.tsv",
-    ],
-        "experiments/vocabs/ud_pointers/"
-    )
+    # create_vocab_from_seq2seq_file([
+    #     "experiments/processed_datasets/ud/seq2seq_pointer_format/standard/en_ewt-ud-train.conllu.tsv",
+    #     "experiments/processed_datasets/ud/seq2seq_pointer_format/standard/en_ewt-ud-dev.conllu.tsv",
+    # ],
+    #     "experiments/vocabs/ud_pointers/"
+    # )
