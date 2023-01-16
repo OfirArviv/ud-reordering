@@ -1,4 +1,5 @@
-from typing import Dict
+import logging
+from typing import Dict, Optional
 import json
 from pathlib import Path
 import numpy as np
@@ -6,6 +7,7 @@ from allennlp.data import DatasetReader, TokenIndexer, Tokenizer, Instance, Toke
 from allennlp.data.fields import SpanField, TextField, LabelField, TensorField, MetadataField
 
 from ..utils.util import ENT, ENT2, list_rindex
+logger = logging.getLogger(__name__)
 
 
 def parse_tacred_file(path: str):
@@ -67,7 +69,8 @@ def parse_conll_file(path: str):
 @DatasetReader.register("relation_classification")
 class RelationClassificationReader(DatasetReader):
     def __init__(
-        self, tokenizer: Tokenizer, token_indexers: Dict[str, TokenIndexer], use_entity_feature: bool = False, **kwargs,
+        self, tokenizer: Tokenizer, token_indexers: Dict[str, TokenIndexer], use_entity_feature: bool = False,
+            source_max_tokens: Optional[int] = None, **kwargs,
     ):
         super().__init__(**kwargs)
 
@@ -79,9 +82,8 @@ class RelationClassificationReader(DatasetReader):
         self.head_entity_id = 1
         self.tail_entity_id = 2
 
-        with open("experiments/allennlp_extensions/re_luke/relation_classification/labels.txt", 'r', encoding='utf-8') as f:
-            labels = f.readlines()
-            self.labels = [l.strip() for l in labels]
+        self._source_max_tokens = source_max_tokens
+        self._source_max_exceeded = 0
 
     def text_to_instance(self, sentence: str, label: str = None):
         texts = [t.text for t in self.tokenizer.tokenize(sentence)]
@@ -111,9 +113,18 @@ class RelationClassificationReader(DatasetReader):
 
     def _read(self, file_path: str):
         for data in self.parser(file_path):
-            if len([t.text for t in self.tokenizer.tokenize(data["sentence"])]) > 512:
+            tokenized_source_len = len([t.text for t in self.tokenizer.tokenize(data["sentence"])])
+            if self._source_max_tokens and tokenized_source_len > self._source_max_tokens:
+                self._source_max_exceeded += 1
                 continue
 
             # if data['label'] not in self.labels:
             #     continue
             yield self.text_to_instance(data["sentence"], data["label"])
+
+        if self._source_max_tokens and self._source_max_exceeded:
+            logger.info(
+                "In %d instances, the source token length exceeded the max limit (%d) and were skipped.",
+                self._source_max_exceeded,
+                self._source_max_tokens,
+            )

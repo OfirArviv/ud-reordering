@@ -18,6 +18,7 @@ local extra_tokens =  ["<ent>", "<ent2>"];
   },
   "dataset_reader": {
     "type": "relation_classification",
+          "source_max_tokens": 100,
     "tokenizer":
         {"type": "pretrained_transformer",
                    "model_name": transformers_model_name,
