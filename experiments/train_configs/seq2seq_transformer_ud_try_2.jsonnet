@@ -10,7 +10,7 @@ local model_name = std.extVar('model_name');
 {
   "dataset_reader": {
     "type": "seq2seq_length_filtering",
-    "source_max_tokens": 200,
+    "source_max_tokens": 100,
     "target_max_tokens": 200,
     "source_add_start_token": false,
     "source_add_end_token": false,
