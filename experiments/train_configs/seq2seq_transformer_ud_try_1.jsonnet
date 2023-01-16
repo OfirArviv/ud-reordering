@@ -86,7 +86,7 @@ local model_name = std.extVar('model_name');
     }
   },
   "trainer": {
-    "num_epochs": 50,
+    "num_epochs": 100,
     "patience": 10,
     "grad_norm": 5.0,
     "validation_metric": validation_metric,
