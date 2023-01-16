@@ -97,6 +97,7 @@ class UdReorderingAlgo:
         else:
             raise NotImplemented()
 
+
     def _get_huji_reorder_mapping(self, input_tree: conllu.TokenList,
                                   reorder_by_lang: str) -> Tuple[Optional[Dict[int, int]], Optional[conllu.TokenList]]:
         input_tree_str = input_tree.serialize()
@@ -535,3 +536,82 @@ class UdReorderingAlgo:
         return mapping
 
     # endregion
+
+    def get_reorder_mapping_with_parse_tree_input(self, sent: str, reorder_by_lang: str,
+                                                  parse_tree: conllu.TokenList) -> Optional[Dict[int, int]]:
+        if self._algo_type == UdReorderingAlgo.ReorderAlgo.HUJI:
+            return self._get_huji_reorder_mapping(parse_tree, reorder_by_lang)[0]
+        elif self._algo_type == UdReorderingAlgo.ReorderAlgo.HUJI_GUROBI:
+            return self._get_huji_reorder_mapping(parse_tree, reorder_by_lang)[0]
+        elif self._algo_type == UdReorderingAlgo.ReorderAlgo.RASOOLINI:
+            return self._get_rasoolini_reorder_mapping(parse_tree, reorder_by_lang)[0]
+        else:
+            raise NotImplemented()
+    def get_entities_aware_reorder_mapping_with_parse_tree_input(
+            self,
+            sentence: str,
+            reorder_by_lang: str,
+            entities: List,
+            parse_tree: conllu.TokenList,
+            forced_entities_to_fix=None) -> Optional[Dict[int, int]]:
+        """
+        Returns a reorder mapping of original_pos -> reordered_position of a sentence, that match the 'reorder_by_lang',
+        while keeping the entities in the entity list as a continues unit in the reordered sentence.
+
+        Parameters:
+            sentence (str): The sentence to reorder.
+            reorder_by_lang (str): The language to reorder by. Must be available in the estimate dir.
+            entities (List): A list of the entities that has been merged. The entity dictionary must contain the keys 'inclusive_span'.
+            forced_entities_to_fix (List): entities we transform to single token even if they were reordered correctly
+        Returns:
+            reorder_mapping (Dict[int, int]):  A reorder mapping of original_pos -> reordered_position of a sentence. Can be used with 'reorder_sentence()'.
+        """
+        if forced_entities_to_fix is None:
+            forced_entities_to_fix = list()
+        mapping = self.get_reorder_mapping_with_parse_tree_input(sentence, reorder_by_lang, parse_tree)
+
+        if mapping is None:
+            return None
+
+        entities_to_fix = []
+        for entity in entities:
+            span = UdReorderingAlgo.get_continuous_mapped_span(entity['inclusive_span'], mapping)
+            if span is None:
+                entities_to_fix.append(entity)
+
+        entities_to_fix = entities_to_fix + forced_entities_to_fix
+
+        # Removing duplicates
+        entities_to_fix = list({ent['inclusive_span']: ent for ent in entities_to_fix}.values())
+
+        # for entity in entities_to_fix:
+        #     if "-" in entity['surfaceform']:
+        #         print(f'Current algorithm does not support fixing entities with dashes (-)!')
+        #         return None
+
+        if len(entities_to_fix) > 0:
+            merged_sentence = UdReorderingAlgo._merge_entities_in_sentence(entities_to_fix, sentence)
+            merged_sentence_mapping = self.get_reorder_mapping(merged_sentence, reorder_by_lang)
+
+            mapping = UdReorderingAlgo._convert_merge_sentence_mapping_to_unmerged_sentence_mapping(
+                entities_to_fix, merged_sentence_mapping)
+
+        # For the rare case an entity that was reordered correctly by the original algorithm, get reordered incorrectly
+        # due to our entity-aware-hack.
+        # This also a useful sanity-check that our reordering was valid.
+        for entity in entities:
+            span = UdReorderingAlgo.get_continuous_mapped_span(entity['inclusive_span'], mapping)
+            if span is None:
+                if entity in forced_entities_to_fix:
+                    raise RecursionError("The entity is not getting fixed and the function is getting into"
+                                         " endless recursion")
+                return self.get_entities_aware_reorder_mapping(sentence, reorder_by_lang, entities,
+                                                               [entity] + forced_entities_to_fix)
+
+        try:
+            reordered_sentence = self.reorder_sentence(sentence, mapping)
+        except Exception as e:
+            raise Exception(print(e))
+            # return None
+
+        return mapping
