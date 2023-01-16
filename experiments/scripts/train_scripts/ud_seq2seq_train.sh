@@ -47,7 +47,7 @@ sbatch $sbatch_params -J train_ud_seq2seq experiments/scripts/train_scripts/trai
 # Reordered Models
 combined_postfixes=("" "_combined")
 languages=(hindi korean persian spanish thai french german)
-algo_arr=(HUJI RASOOLINI)
+algo_arr=(HUJI)
 for combined_postfix in "${combined_postfixes[@]}"
 do
   for lang in "${languages[@]}"
