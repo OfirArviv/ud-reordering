@@ -61,6 +61,7 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
 
     model = main_models_dir
 
+    print(model)
     assert os.path.isdir(model)
     while model[-1] in ["/", "\\"]:
         model = model[:-1]
@@ -76,6 +77,7 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
         dataset_lang = get_lang_from_filename(dataset_name)
 
         if model_lang != "english" and model_lang != dataset_lang:
+            print(f'model lang {model_lang} does not match dataset lang {dataset_lang}')
             continue
 
         metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
