@@ -84,8 +84,8 @@ class MT5(Model):
         decoder_attention_mask: Optional[BoolT] = None
         if target_tokens is not None:
             labels, decoder_attention_mask = (
-                target_tokens["tokens"]["token_ids"],  # type: ignore[assignment]
-                target_tokens["tokens"]["mask"],  # type: ignore[assignment]
+                target_tokens["target_tokens"]["token_ids"],  # type: ignore[assignment]
+                target_tokens["target_tokens"]["mask"],  # type: ignore[assignment]
             )
         elif self.training:
             raise ValueError("'target_tokens' required during training")
