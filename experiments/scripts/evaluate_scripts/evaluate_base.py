@@ -7,47 +7,45 @@ from experiments.scripts.allennlp_predict_custom import allennllp_predict
 
 
 def get_lang_from_filename(filename: str):
-    if "en" in filename:
+    if filename.startswith("en"):
         lang = "english"
     elif "english" in filename:
         lang = "english"
-    elif "ar" in filename:
+    elif filename.startswith("ar"):
         lang = "arabic"
-    elif "de" in filename:
+    elif filename.startswith("de"):
         lang = "german"
-    elif "en" in filename:
-        lang = "english"
-    elif "es" in filename:
+    elif filename.startswith("es"):
         lang = "spanish"
-    elif "fa" in filename:
+    elif filename.startswith("fa"):
         lang = "persian"
-    elif "fr" in filename:
+    elif filename.startswith("fr"):
         lang = "french"
-    elif "it" in filename:
+    elif filename.startswith("it"):
         lang = "italian"
-    elif "ko" in filename:
+    elif filename.startswith("ko"):
         lang = "korean"
-    elif "nl" in filename:
+    elif filename.startswith("nl"):
         lang = "dutch"
-    elif "pl" in filename:
+    elif filename.startswith("pl"):
         lang = "polish"
-    elif "pt" in filename:
+    elif filename.startswith("pt"):
         lang = "portuguese"
-    elif "ru" in filename:
+    elif filename.startswith("ru"):
         lang = "russian"
-    elif "hi" in filename:
+    elif filename.startswith("hi"):
         lang = "hindi"
-    elif "th" in filename:
+    elif filename.startswith("th"):
         lang = "thai"
-    elif "ja" in filename:
+    elif filename.startswith("ja"):
         lang = "japanese"
-    elif "tr" in filename:
+    elif filename.startswith("tr"):
         lang = "turkish"
-    elif "sv" in filename:
+    elif filename.startswith("sv"):
         lang = "swedish"
-    elif "fa" in filename:
+    elif filename.startswith("fa"):
         lang = "persian"
-    elif "id" in filename:
+    elif filename.startswith("id"):
         lang = "indonesian"
     else:
         raise Exception("Unknown lang")
