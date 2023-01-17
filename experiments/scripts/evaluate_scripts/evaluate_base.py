@@ -65,7 +65,7 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
             agg_metric.update(metric_dict)
 
         with open(f'{metric_output_dir}/{dataset_name}_agg.json', 'w', encoding='utf-8') as f:
-            json.dump(agg_metric, f)
+            json.dump(agg_metric, f, indent=4)
 
 
 if __name__ == '__main__':
