@@ -6,6 +6,52 @@ import statistics
 from experiments.scripts.allennlp_predict_custom import allennllp_predict
 
 
+def get_lang_from_filename(filename: str):
+    if "en" or "english" in filename:
+        lang = "english"
+    elif "ar" in filename:
+        lang = "arabic"
+    elif "de" in filename:
+        lang = "german"
+    elif "en" in filename:
+        lang = "english"
+    elif "es" in filename:
+        lang = "spanish"
+    elif "fa" in filename:
+        lang = "persian"
+    elif "fr" in filename:
+        lang = "french"
+    elif "it" in filename:
+        lang = "italian"
+    elif "ko" in filename:
+        lang = "korean"
+    elif "nl" in filename:
+        lang = "dutch"
+    elif "pl" in filename:
+        lang = "polish"
+    elif "pt" in filename:
+        lang = "portuguese"
+    elif "ru" in filename:
+        lang = "russian"
+    elif "hi" in filename:
+        lang = "hindi"
+    elif "th" in filename:
+        lang = "thai"
+    elif "ja" in filename:
+        lang = "japanese"
+    elif "tr" in filename:
+        lang = "turkish"
+    elif "sv" in filename:
+        lang = "swedish"
+    elif "fa" in filename:
+        lang = "persian"
+    elif "id" in filename:
+        lang = "indonesian"
+    else:
+        raise Exception("Unknown lang")
+
+    return lang
+
 def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
     from experiments.scripts.allennlp_evaluate_custom import allennllp_evaluate
 
@@ -19,8 +65,18 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
         model = model[:-1]
     model_basename = os.path.basename(model)
 
+    if "reordered" in model_basename:
+        model_lang = model_basename.split("english_reordered_by_")[1].split("_")[0]
+    else:
+        model_lang = "english"
+
     for test_file in test_files:
         dataset_name = os.path.basename(test_file)
+        dataset_lang = get_lang_from_filename(dataset_name)
+
+        if model_lang !="english" and model_lang != dataset_lang:
+            continue
+
         metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
         for model_idx_path in glob.glob(f'{model}/*'):
             model_idx = os.path.basename(model_idx_path)
