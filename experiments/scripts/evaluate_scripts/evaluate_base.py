@@ -7,7 +7,9 @@ from experiments.scripts.allennlp_predict_custom import allennllp_predict
 
 
 def get_lang_from_filename(filename: str):
-    if "en" or "english" in filename:
+    if "en" in filename:
+        lang = "english"
+    elif "english" in filename:
         lang = "english"
     elif "ar" in filename:
         lang = "arabic"
