@@ -18,20 +18,11 @@ local model_name = std.extVar('model_name');
           "type": "pretrained_transformer",
           "model_name": model_name
         },
-    "target_tokenizer": {
-       "type": "whitespace"
-    },
     "source_token_indexers": {
       "tokens": {
         "type": "pretrained_transformer",
         "model_name": model_name,
         "max_length": 1024
-      }
-    },
-    "target_token_indexers": {
-      "target_tokens": {
-        "type": "single_id",
-        "namespace": "target_tokens"
       }
     }
   },
@@ -41,7 +32,7 @@ local model_name = std.extVar('model_name');
   [if test_data_path != "null" then "evaluate_on_test" else null]: true,
   "model": {
     "type": "mt5",
-    "model_name": "google/mt5-base",
+    "model_name": model_name,
     "beam_size": 4,
     "max_steps": 100,
     [if metric_2 == "null" then "token_based_metric" else null]: [metric_1],
