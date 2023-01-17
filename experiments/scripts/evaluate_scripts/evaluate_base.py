@@ -52,6 +52,7 @@ def get_lang_from_filename(filename: str):
 
     return lang
 
+
 def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
     from experiments.scripts.allennlp_evaluate_custom import allennllp_evaluate
 
@@ -74,7 +75,7 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
         dataset_name = os.path.basename(test_file)
         dataset_lang = get_lang_from_filename(dataset_name)
 
-        if model_lang !="english" and model_lang != dataset_lang:
+        if model_lang != "english" and model_lang != dataset_lang:
             continue
 
         metric_output_dir = f'{output_dir}/{model_basename}/{dataset_name}'
