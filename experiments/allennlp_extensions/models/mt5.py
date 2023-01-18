@@ -40,8 +40,8 @@ class MT5(Model):
             "t5.encoder.token_embeddings.weight",
             "t5.decoder.token_embeddings.weight",
         ]
-        if self.t5._tie_word_embeddings:
-            missing_keys_to_ignore.append("t5.lm_head.weight")
+        # if self.t5._tie_word_embeddings:
+        #     missing_keys_to_ignore.append("t5.lm_head.weight")
         for key in missing_keys_to_ignore:
             if key in missing_keys:
                 missing_keys.remove(key)
