@@ -66,6 +66,7 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
     model_type = glob.glob(f'{main_models_dir}/*/')
     model_count = None
     for model in model_type:
+        print(model)
         model_basename = os.path.basename(model.strip("\\").strip("/"))
 
         if "reordered" in model_basename:
@@ -92,6 +93,8 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
             dataset_name = os.path.basename(dataset.strip("\\").strip("/"))
             if dataset_name == "predictions":
                 continue
+
+            print(dataset)
 
             dataset_lang = get_lang_from_filename(dataset_name)
 
