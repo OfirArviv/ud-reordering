@@ -29,7 +29,7 @@ sbatch $sbatch_params -J eval_smiler experiments/scripts/evaluate_scripts/eval_s
 
 # Reordered Models
 combined_postfixes=("" "_combined")
-languages=(arabic korean persian "persian-0")
+languages=(arabic korean persian "persian_0")
 algo_arr=(HUJI RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
 do
