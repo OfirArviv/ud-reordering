@@ -123,6 +123,9 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
                     df.loc[dataset_lang, model_type] = v
 
     for metric, df in val_dict.items():
+        df['VANILLA-HUJI_ENSEMBLE'] = df['VANILLA'] - df['HUJI_ENSEMBLE']
+        df = df[['VANILLA', 'HUJI', 'RASOOLINI', 'HUJI_ENSEMBLE', 'RASOOLINI_ENSEMBLE', 'VANILLA-HUJI_ENSEMBLE']]
+
         output_path = f'{output_dir}/{metric}_model_count_{model_count}.csv'
         os.makedirs(output_dir, exist_ok=True)
         df.to_csv(output_path)
