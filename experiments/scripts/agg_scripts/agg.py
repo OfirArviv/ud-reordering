@@ -2,11 +2,8 @@ import argparse
 import glob
 import json
 import os.path
-import statistics
 from collections import defaultdict
 import pandas as pd
-
-from experiments.scripts.allennlp_predict_custom import allennllp_predict
 
 
 def get_lang_from_filename(filename: str):
