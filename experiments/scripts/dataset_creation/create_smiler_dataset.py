@@ -1,10 +1,11 @@
+import argparse
 import glob
 import json
 import os.path
 import random
 import string
 from collections import defaultdict
-from typing import Dict
+from typing import Dict, Optional, List
 
 import trankit
 from tqdm import tqdm
@@ -93,10 +94,6 @@ def smiler_line_to_conll_dict_v2(line: str, input_lang: str, nlp) -> Dict:
         output_tokens.append(tok)
         i = i + 1
 
-    if entity_2_start_idx is None:
-        print(text)
-        print("here")
-
     entities = [
         {
             "type": "dummy",
@@ -114,9 +111,9 @@ def smiler_line_to_conll_dict_v2(line: str, input_lang: str, nlp) -> Dict:
     entity_2_str = output_tokens[entity_2_start_idx:entity_2_end_idx + 1]
 
     if any([s in entity_1_str for s in string.punctuation]):
-        print("here")
+        print(entity_1_str)
     if any([s in entity_2_str for s in string.punctuation]):
-        print("here")
+        print(entity_2_str)
 
     relations = [
         {
@@ -271,14 +268,14 @@ def create_standard_dataset():
         smiler_to_conll(f, output_path, lang)
 
 
-def create_reordered_dataset():
+def create_reordered_dataset(lang: Optional[str] = None):
     file_paths = [
         "experiments/processed_datasets/smiler/standard/en-small_corpora_train.tsv.json",
-        # "experiments/processed_datasets/smiler/standard/en-small_corpora_test.tsv.json"
+        "experiments/processed_datasets/smiler/standard/en-small_corpora_test.tsv.json"
     ]
 
     for file_path in file_paths:
-        for lang in ["korean", "arabic", "persian"]:
+        for lang in ["german", "spanish", "french", "italian", "dutch", "polish", "portuguese", "russian"]: #'persian', "korean", "arabic",
             output_dir = f'experiments/processed_datasets/smiler/english_reordered_by_{lang}/'
             os.makedirs(output_dir, exist_ok=True)
 
@@ -317,9 +314,10 @@ def smiler_to_normalized_conll(input_path: str, output_path: str, input_lang: st
             rel = _get_rel_from_tsv_line(line)
             rel_to_line_dict[rel].append(line)
 
-    min_rel_count = min([len(k) for k in rel_to_line_dict])
-    min_rel_count = max(min_rel_count, 50)  # min 50 per rel
-    min_rel_count = min(min_rel_count, 200)  # max 200 per rel
+    # min_rel_count = min([len(k) for k in rel_to_line_dict])
+    # min_rel_count = max(min_rel_count, 50)  # min 50 per rel
+    # min_rel_count = min(min_rel_count, 200)  # max 200 per rel
+    min_rel_count = 50
 
     normalized_lines_list = []
     for k, v in rel_to_line_dict.items():
@@ -343,7 +341,10 @@ def smiler_to_normalized_conll(input_path: str, output_path: str, input_lang: st
 
 
 def create_normalized_test_datasets():
-    main_dir = "experiments/datasets/relation_extraction/smiler"
+    # Because the actual test sets often contains less than 10 occurrences of each rel and even below that,
+    # which cause the evaluation to be highly unstable, we create a new test set from the train set.
+    # We only include relations that appear at least 50 times, to a maximum of 200 per rel, in order to keep the test
+    # set small enough it is quick to evaluate it.
     input_files = [
         "experiments/datasets/relation_extraction/smiler/fa_corpora_train.tsv",
         "experiments/datasets/relation_extraction/smiler/ko_corpora_train.tsv",
@@ -352,7 +353,9 @@ def create_normalized_test_datasets():
 
     for f in input_files:
         filename = os.path.basename(f)
-        output_path = f'experiments/processed_datasets/smiler/test_normalized/{filename}.json'
+        output_dir = f'experiments/processed_datasets/smiler/normalized_test_sets_50_per_rel/'
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = f'{output_dir}/{filename}.json'
         output_path = output_path.replace("train", "test")
         if os.path.exists(output_path):
             print(f'File {output_path} already exists! Skipping!')
@@ -387,7 +390,117 @@ def create_normalized_test_datasets():
         smiler_to_normalized_conll(f, output_path, lang)
 
 
+def create_small_datasets(input_path: str, size: int, input_lang: str, output_path: str):
+    rel_to_line_dict = defaultdict(list)
+    with open(input_path, 'r', encoding='utf-8') as f:
+        lines = list(f)
+        lines = lines[1:]  # header
+        for i, line in tqdm(enumerate(lines)):
+            rel = _get_rel_from_tsv_line(line)
+            rel_to_line_dict[rel].append(line)
+    rel_count = len(rel_to_line_dict.keys())
+    wanted_rel_occurrence_count = int(size /rel_count)
+
+    selected_lines_list = []
+    left_lines_list = []
+    for rel, instances in rel_to_line_dict.items():
+        if len(instances) <= wanted_rel_occurrence_count:
+            selected_lines_list.extend(instances)
+        else:
+            random.shuffle(instances)
+            selected_instances = instances[:wanted_rel_occurrence_count]
+            selected_lines_list.extend(selected_instances)
+            left_lines_list.extend(instances[wanted_rel_occurrence_count:])
+
+    missing_instances_count = size - len(selected_lines_list)
+    random.shuffle(left_lines_list)
+    selected_lines_list.extend(left_lines_list[:missing_instances_count])
+
+    random.shuffle(selected_lines_list)
+
+    nlp = trankit.Pipeline(lang=input_lang, gpu=True, cache_dir='./cache')
+
+    instance_list = []
+    for i, line in tqdm(enumerate(selected_lines_list)):
+        instance = smiler_line_to_conll_dict_v2(line, input_lang, nlp)
+        instance_list.append(instance)
+
+    with open(output_path, 'x', encoding='utf-8') as f:
+        json.dump(instance_list, f)
+
+def create_small_train_dev_datasets(train_size: int, test_size: int):
+    input_files = [
+        "experiments/datasets/relation_extraction/smiler/en-full_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/en-full_corpora_test.tsv"
+    ]
+
+    output_dir = 'experiments/processed_datasets/smiler/train_normalized'
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    for f in input_files:
+        filename = os.path.basename(f)
+
+        if "train" in filename:
+            size = train_size
+        else:
+            size = test_size
+        output_path = f'{output_dir}/{filename}-{size}.json'
+        if os.path.exists(output_path):
+            print(f'File {output_path} already exists! Skipping!')
+            continue
+
+
+        create_small_datasets(f, size, "english", output_path)
+
+def filter_json_by_rel_set(rel_set: List, input_path: str, output_dir: str):
+    filename = os.path.basename(input_path)
+    filtered_instances = []
+    with open(input_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+        for instance in data:
+            assert len(instance['relations']) == 1
+            rel = instance['relations'][0]['type']
+            if rel in rel_set:
+                filtered_instances.append(instance)
+
+    with open(f'{output_dir}/{filename}', 'x', encoding='utf-8') as f:
+        json.dump(filtered_instances, f)
+
+
+def get_rel_set_from_json(path: str):
+    rel_set = set()
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+        for instance in data:
+            for rel in instance['relations']:
+                label = rel['type'].split("(")[0]
+                rel_set.add(label)
+    return rel_set
+
+
+def create_normalized_test_datasets_with_only_32_rels():
+    input_dir = "experiments/processed_datasets/smiler/test_normalized"
+    input_files = glob.glob(f'{input_dir}/*')
+    output_dir = "experiments/processed_datasets/smiler/test_normalized_32_rels"
+
+    en_small_dataset = "experiments/processed_datasets/smiler/standard/en-small_corpora_train.tsv.json"
+    rel_set = get_rel_set_from_json(en_small_dataset)
+
+    for f in input_files:
+        filter_json_by_rel_set(rel_set, f, output_dir)
+
+
 if __name__ == '__main__':
+    # create_normalized_test_datasets_with_only_32_rels()
+    # create_small_train_dev_datasets(10000, 3600)
+    # create_small_train_dev_datasets(35000, 3600)
     # create_standard_dataset()
     # create_reordered_dataset()
-    create_normalized_test_datasets()
+    # create_normalized_test_datasets()
+    argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
+    argparser.add_argument("-s", "--size", required=True)
+
+    args = argparser.parse_args()
+
+    create_small_train_dev_datasets(args.size, 3600)
