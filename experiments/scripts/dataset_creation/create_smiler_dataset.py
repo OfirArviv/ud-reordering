@@ -275,7 +275,8 @@ def create_reordered_dataset(lang: Optional[str] = None):
     ]
 
     for file_path in file_paths:
-        for lang in ["german", "spanish", "french", "italian", "dutch", "polish", "portuguese", "russian"]: #'persian', "korean", "arabic",
+        for lang in ["german", "spanish", "french", "italian", "dutch", "polish", "portuguese",
+                     "russian"]:  # 'persian', "korean", "arabic",
             output_dir = f'experiments/processed_datasets/smiler/english_reordered_by_{lang}/'
             os.makedirs(output_dir, exist_ok=True)
 
@@ -326,7 +327,6 @@ def smiler_to_normalized_conll(input_path: str, output_path: str, input_lang: st
             random.shuffle(v)
             normalized_lines_list.extend(instances[:min_rel_count])
 
-
     random.shuffle(normalized_lines_list)
 
     nlp = trankit.Pipeline(lang=input_lang, gpu=True, cache_dir='./cache')
@@ -348,7 +348,18 @@ def create_normalized_test_datasets():
     input_files = [
         "experiments/datasets/relation_extraction/smiler/fa_corpora_train.tsv",
         "experiments/datasets/relation_extraction/smiler/ko_corpora_train.tsv",
-        "experiments/datasets/relation_extraction/smiler/ar_corpora_train.tsv"
+        "experiments/datasets/relation_extraction/smiler/ar_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/de_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/es_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/fr_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/it_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/ko_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/nl_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/pl_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/pt_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/ru_corpora_train.tsv",
+        "experiments/datasets/relation_extraction/smiler/sv_corpora_train.tsv"
+
     ]
 
     for f in input_files:
@@ -385,6 +396,8 @@ def create_normalized_test_datasets():
             lang = "portuguese"
         elif "ru" in filename:
             lang = "russian"
+        elif "sv" in filename:
+            lang = "swedish"
         else:
             raise Exception("Unknown lang")
         smiler_to_normalized_conll(f, output_path, lang)
@@ -399,7 +412,7 @@ def create_small_datasets(input_path: str, size: int, input_lang: str, output_pa
             rel = _get_rel_from_tsv_line(line)
             rel_to_line_dict[rel].append(line)
     rel_count = len(rel_to_line_dict.keys())
-    wanted_rel_occurrence_count = int(size /rel_count)
+    wanted_rel_occurrence_count = int(size / rel_count)
 
     selected_lines_list = []
     left_lines_list = []
@@ -421,12 +434,19 @@ def create_small_datasets(input_path: str, size: int, input_lang: str, output_pa
     nlp = trankit.Pipeline(lang=input_lang, gpu=True, cache_dir='./cache')
 
     instance_list = []
+    error_count = 0
     for i, line in tqdm(enumerate(selected_lines_list)):
-        instance = smiler_line_to_conll_dict_v2(line, input_lang, nlp)
+        try:
+            instance = smiler_line_to_conll_dict_v2(line, input_lang, nlp)
+        except:
+            error_count += 1
+            continue
         instance_list.append(instance)
 
+    print(f'Error count: {error_count}')
     with open(output_path, 'x', encoding='utf-8') as f:
         json.dump(instance_list, f)
+
 
 def create_small_train_dev_datasets(train_size: int, test_size: int):
     input_files = [
@@ -450,8 +470,8 @@ def create_small_train_dev_datasets(train_size: int, test_size: int):
             print(f'File {output_path} already exists! Skipping!')
             continue
 
-
         create_small_datasets(f, size, "english", output_path)
+
 
 def filter_json_by_rel_set(rel_set: List, input_path: str, output_dir: str):
     filename = os.path.basename(input_path)
@@ -492,12 +512,13 @@ def create_normalized_test_datasets_with_only_32_rels():
 
 
 if __name__ == '__main__':
-    # create_normalized_test_datasets_with_only_32_rels()
-    # create_small_train_dev_datasets(10000, 3600)
-    # create_small_train_dev_datasets(35000, 3600)
-    # create_standard_dataset()
-    # create_reordered_dataset()
+    # # create_normalized_test_datasets_with_only_32_rels()
+    # # create_small_train_dev_datasets(10000, 3600)
+    # # create_small_train_dev_datasets(35000, 3600)
+    # # create_standard_dataset()
+    # # create_reordered_dataset()
     # create_normalized_test_datasets()
+
     argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
     argparser.add_argument("-s", "--size", type=int, required=True)
 
