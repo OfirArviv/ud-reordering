@@ -58,7 +58,7 @@ do
         mkdir -p "$serialization_dir"
       fi
 
-      sbatch $sbatch_params -J train_re_luke experiments/scripts/train_scripts/train_subscript.sh
+      sbatch $sbatch_params -J smiler_10k experiments/scripts/train_scripts/train_subscript.sh
 
     done
   done
