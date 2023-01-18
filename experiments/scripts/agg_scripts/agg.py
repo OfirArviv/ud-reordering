@@ -86,12 +86,12 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
         else:
             raise NotImplementedError(model_basename)
 
-
         datasets_dirs = glob.glob(f'{model}/*/')
-        datasets_dirs = [d for d in datasets_dirs if d != "predictions"]
 
         for dataset in datasets_dirs:
             dataset_name = os.path.basename(dataset.strip("\\").strip("/"))
+            if dataset_name == "predictions":
+                continue
 
             dataset_lang = get_lang_from_filename(dataset_name)
 
