@@ -57,7 +57,6 @@ def get_lang_from_filename(filename: str):
 
 def run_agg_evaluation(main_models_dir: str, output_dir: str):
     print(main_models_dir)
-    from experiments.scripts.allennlp_evaluate_custom import allennllp_evaluate
 
     # Dict of metric -> dataframe
     val_dict = defaultdict(pd.DataFrame)
