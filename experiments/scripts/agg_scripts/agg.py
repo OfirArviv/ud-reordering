@@ -71,6 +71,9 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
         else:
             model_lang = "english"
 
+        if "HUJI_RASOOLINI" in model_basename:
+            print(f'Skipping {model}')
+
         if "HUJI_combined" in model_basename:
             model_type = "HUJI_ENSEMBLE"
         elif "HUJI" in model_basename:
