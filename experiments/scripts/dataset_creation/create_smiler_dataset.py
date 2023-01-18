@@ -542,14 +542,16 @@ if __name__ == '__main__':
 
     argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
     argparser.add_argument("-s", "--size", type=int, required=True)
-    argparser.add_argument("-l", "--lang", type=str, required=True)
+    argparser.add_argument("-l", "--lang", type=str, required=True, default="none")
 
     args = argparser.parse_args()
 
-    if args.size == 10000:
-        create_reordered_dataset_10000(args.lang)
+    if args.lang == "none":
+        create_small_train_dev_datasets(args.size, 3600)
     else:
-        create_reordered_dataset_35000(args.lang)
+        if args.size == 10000:
+            create_reordered_dataset_10000(args.lang)
+        else:
+            create_reordered_dataset_35000(args.lang)
 
 
-    # create_small_train_dev_datasets(args.size, 3600)
