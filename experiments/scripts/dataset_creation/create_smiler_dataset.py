@@ -499,7 +499,7 @@ if __name__ == '__main__':
     # create_reordered_dataset()
     # create_normalized_test_datasets()
     argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
-    argparser.add_argument("-s", "--size", required=True)
+    argparser.add_argument("-s", "--size", type=int, required=True)
 
     args = argparser.parse_args()
 
