@@ -102,7 +102,7 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
                 continue
 
             agg_file = glob.glob(f'{dataset}/*agg*.json')
-            assert len(agg_file) == 1
+            assert len(agg_file) == 1, f'{model_basename} - {agg_file}'
             agg_file = agg_file[0]
 
             with open(agg_file, 'r', encoding='utf-8') as f:
