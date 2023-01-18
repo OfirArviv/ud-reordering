@@ -542,7 +542,7 @@ if __name__ == '__main__':
 
     argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
     argparser.add_argument("-s", "--size", type=int, required=True)
-    argparser.add_argument("-l", "--lang", type=str, required=True, default="none")
+    argparser.add_argument("-l", "--lang", type=str, required=False, default="none")
 
     args = argparser.parse_args()
 
