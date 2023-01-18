@@ -64,7 +64,7 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
     # Dict of metric -> dataframe
     val_dict = defaultdict(pd.DataFrame)
     model_type = glob.glob(f'{main_models_dir}/*/')
-
+    model_count = None
     for model in model_type:
         model_basename = os.path.basename(model.strip("\\").strip("/"))
 
@@ -110,12 +110,15 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
 
             for metric_k, v in agg_data.items():
                 if metric_k == "model_count":
-                    continue
+                    if model_count is None:
+                        model_count = v
+                    else:
+                        assert model_count == v
                 df = val_dict[metric_k]
                 df.loc[dataset_lang, model_type] = v
 
     for metric, df in val_dict.items():
-        output_path = f'{output_dir}/{metric}.csv'
+        output_path = f'{output_dir}/{metric}_model_count_{model_count}.csv'
         os.makedirs(output_dir, exist_ok=True)
         df.to_csv(output_path)
 
