@@ -16,7 +16,7 @@ export HOME
 
 export model_dir="$MODEL_DIR"/english_standard/
 export output_dir=$OUTPUT_DIR
-export test_dir="experiments/processed_datasets/mtop/non_pointers_format/standard/"
+export test_dir="experiments/processed_datasets/mtop/non_pointer_format/standard/"
 
 if [ "$KILLABLE" ]
  then
