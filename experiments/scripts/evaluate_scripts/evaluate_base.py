@@ -47,8 +47,10 @@ def get_lang_from_filename(filename: str):
         lang = "persian"
     elif filename.startswith("id"):
         lang = "indonesian"
+    elif filename.startswith("ga"):
+        lang = "irish"
     else:
-        raise Exception("Unknown lang")
+        raise Exception(f'Unknown lang: {filename}')
 
     return lang
 
