@@ -74,6 +74,8 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
     else:
         model_lang = "english"
 
+    print(test_files)
+
     for test_file in test_files:
         dataset_name = os.path.basename(test_file)
         dataset_lang = get_lang_from_filename(dataset_name)
