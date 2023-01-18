@@ -268,25 +268,43 @@ def create_standard_dataset():
         smiler_to_conll(f, output_path, lang)
 
 
-def create_reordered_dataset(lang: Optional[str] = None):
+def create_reordered_dataset_10000(lang: str):
     file_paths = [
-        "experiments/processed_datasets/smiler/standard/en-small_corpora_train.tsv.json",
-        "experiments/processed_datasets/smiler/standard/en-small_corpora_test.tsv.json"
+        "experiments/processed_datasets/smiler/train_normalized/en-full_corpora_train.tsv-10000.json",
+        "experiments/processed_datasets/smiler/train_normalized/en-full_corpora_10000-test.tsv-3600.json",
     ]
 
     for file_path in file_paths:
-        for lang in ["german", "spanish", "french", "italian", "dutch", "polish", "portuguese",
-                     "russian"]:  # 'persian', "korean", "arabic",
-            output_dir = f'experiments/processed_datasets/smiler/english_reordered_by_{lang}/'
-            os.makedirs(output_dir, exist_ok=True)
+        output_dir = f'experiments/processed_datasets/smiler/english_10000_reordered_by_{lang}/'
+        os.makedirs(output_dir, exist_ok=True)
 
-            for reorder_algo in [UdReorderingAlgo.ReorderAlgo.HUJI, UdReorderingAlgo.ReorderAlgo.RASOOLINI]:
-                print(
-                    f'Creating seq2seq dataset. lang: {lang}, file: {os.path.basename(file_path)}, algorithm: {reorder_algo.name}')
-                reorder_file(file_path,
-                             lang,
-                             reorder_algo,
-                             output_dir)
+        for reorder_algo in [UdReorderingAlgo.ReorderAlgo.HUJI, UdReorderingAlgo.ReorderAlgo.RASOOLINI]:
+            print(
+                f'Creating seq2seq dataset. lang: {lang}, file: {os.path.basename(file_path)}, algorithm: {reorder_algo.name}')
+            reorder_file(file_path,
+                         lang,
+                         reorder_algo,
+                         output_dir)
+
+def create_reordered_dataset_35000(lang: str):
+    file_paths = [
+        "experiments/processed_datasets/smiler/train_normalized/en-full_corpora_train.tsv-35000.json",
+        "experiments/processed_datasets/smiler/train_normalized/en-full_corpora_35000-test.tsv-3600.json",
+    ]
+
+    for file_path in file_paths:
+        output_dir = f'experiments/processed_datasets/smiler/english_35000_reordered_by_{lang}/'
+        os.makedirs(output_dir, exist_ok=True)
+
+        for reorder_algo in [UdReorderingAlgo.ReorderAlgo.HUJI, UdReorderingAlgo.ReorderAlgo.RASOOLINI]:
+            print(
+                f'Creating seq2seq dataset. lang: {lang}, file: {os.path.basename(file_path)}, algorithm: {reorder_algo.name}')
+            reorder_file(file_path,
+                         lang,
+                         reorder_algo,
+                         output_dir)
+
+
 
 
 def _get_rel_from_tsv_line(line: str) -> str:
@@ -333,8 +351,11 @@ def smiler_to_normalized_conll(input_path: str, output_path: str, input_lang: st
 
     instance_list = []
     for i, line in tqdm(enumerate(normalized_lines_list)):
-        instance = smiler_line_to_conll_dict_v2(line, input_lang, nlp)
-        instance_list.append(instance)
+        try:
+            instance = smiler_line_to_conll_dict_v2(line, input_lang, nlp)
+            instance_list.append(instance)
+        except:
+            continue
 
     with open(output_path, 'x', encoding='utf-8') as f:
         json.dump(instance_list, f)
@@ -512,7 +533,7 @@ def create_normalized_test_datasets_with_only_32_rels():
 
 
 if __name__ == '__main__':
-    # # create_normalized_test_datasets_with_only_32_rels()
+    # create_normalized_test_datasets_with_only_32_rels()
     # # create_small_train_dev_datasets(10000, 3600)
     # # create_small_train_dev_datasets(35000, 3600)
     # # create_standard_dataset()
@@ -521,7 +542,14 @@ if __name__ == '__main__':
 
     argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
     argparser.add_argument("-s", "--size", type=int, required=True)
+    argparser.add_argument("-l", "--lang", type=int, required=True)
 
     args = argparser.parse_args()
 
-    create_small_train_dev_datasets(args.size, 3600)
+    if args.size == 10000:
+        create_reordered_dataset_10000(args.lang)
+    else:
+        create_reordered_dataset_35000(args.lang)
+
+
+    # create_small_train_dev_datasets(args.size, 3600)
