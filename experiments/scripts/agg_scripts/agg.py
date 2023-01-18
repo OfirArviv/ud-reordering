@@ -113,7 +113,7 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
                     if model_count is None:
                         model_count = v
                     else:
-                        assert model_count == v
+                        assert model_count == v, f'{model_basename} - {dataset_name}'
                 else:
                     v = round(v*100, 1)
                     df = val_dict[metric_k]
