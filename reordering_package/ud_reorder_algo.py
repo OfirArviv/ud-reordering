@@ -54,7 +54,12 @@ class UdReorderingAlgo:
             "vietnamese": f'{_estimates_dir}/vi_vtb-ud-train.conllu.estimates.json',
             "italian": f'{_estimates_dir}/it_isdt-ud-train.conllu.estimates.json',
             "arabic": f'{_estimates_dir}/ar_pud-ud-test.conllu.estimates.json',
-            "persian": f'{_estimates_dir}/fa_perdt-ud-train.conllu.estimates.json'
+            "persian": f'{_estimates_dir}/fa_perdt-ud-train.conllu.estimates.json',
+            "dutch": f'{_estimates_dir}/nl_alpino-ud-train.conllu.estimates.json',
+            "polish": f'{_estimates_dir}/pl_pdb-ud-train.conllu.estimates.json',
+            "portuguese": f'{_estimates_dir}/pt_gsd-ud-train.conllu.estimates.json',
+            "russian": f'{_estimates_dir}/ru_gsd-ud-train.conllu.estimates.json',
+            "irish": f'{_estimates_dir}/ga_idt-ud-train.conllu.estimates.json'
         }
 
         _direction_dir = "reordering_package/rasoolini_ud_reorder/data"
@@ -71,7 +76,12 @@ class UdReorderingAlgo:
             "vietnamese": f'{_direction_dir}/vi_vtb-ud-train.conllu.right_direction_prop.json',
             "italian": f'{_direction_dir}/it_isdt-ud-train.conllu.right_direction_prop.json',
             "arabic": f'{_direction_dir}/ar_pud-ud-test.conllu.right_direction_prop.json',
-            "persian": f'{_direction_dir}/fa_perdt-ud-train.conllu.right_direction_prop.json'
+            "persian": f'{_direction_dir}/fa_perdt-ud-train.conllu.right_direction_prop.json',
+            "dutch": f'{_direction_dir}/nl_alpino-ud-train.conllu.right_direction_prop.json',
+            "polish": f'{_direction_dir}/pl_pdb-ud-train.conllu.right_direction_prop.json',
+            "portuguese": f'{_direction_dir}/pt_gsd-ud-train.conllu.right_direction_prop.json',
+            "russian": f'{_direction_dir}/ru_gsd-ud-train.conllu.right_direction_prop.json',
+            "irish": f'{_direction_dir}/ga_idt-ud-train.conllu.right_direction_prop.json'
         }
 
     def _parse_sentence_into_ud(self, sent: str) -> conllu.TokenList:
