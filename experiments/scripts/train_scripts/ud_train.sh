@@ -43,7 +43,7 @@ sbatch $sbatch_params -J train_ud experiments/scripts/train_scripts/train_subscr
 
 # Reordered Models
 combined_postfixes=("" "_combined")
-languages=(arabic irish turkish french german hindi korean persian spanish thai)
+languages=(arabic) # irish turkish french german hindi korean persian spanish thai)
 algo_arr=(HUJI RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
 do
