@@ -114,8 +114,10 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
                         model_count = v
                     else:
                         assert model_count == v
-                df = val_dict[metric_k]
-                df.loc[dataset_lang, model_type] = v
+                else:
+                    v = round(v*100, 1)
+                    df = val_dict[metric_k]
+                    df.loc[dataset_lang, model_type] = v
 
     for metric, df in val_dict.items():
         output_path = f'{output_dir}/{metric}_model_count_{model_count}.csv'
@@ -124,7 +126,7 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
 
 
 if __name__ == '__main__':
-    run_agg_evaluation('experiments_results/evaluation/mtop', "a")
+    # run_agg_evaluation('experiments_results/evaluation/mtop', "a")
     argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
     argparser.add_argument("-m", "--model-dir", required=True)
     argparser.add_argument("-o", "--output-dir", required=True)
