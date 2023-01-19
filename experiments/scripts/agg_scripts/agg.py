@@ -125,7 +125,13 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
 
     for metric, df in val_dict.items():
         df['HUJI_ENSEMBLE-VANILLA'] = df['HUJI_ENSEMBLE'] - df['VANILLA']
-        df = df[['VANILLA', 'HUJI', 'RASOOLINI', 'HUJI_ENSEMBLE', 'RASOOLINI_ENSEMBLE', 'HUJI_ENSEMBLE-VANILLA']]
+        if "RASOOLINI" in df.columns:
+            column_order = ['VANILLA', 'HUJI', 'RASOOLINI', 'HUJI_ENSEMBLE', 'RASOOLINI_ENSEMBLE',
+                            'HUJI_ENSEMBLE-VANILLA']
+        else:
+            column_order = ['VANILLA', 'HUJI', 'HUJI_ENSEMBLE', 'HUJI_ENSEMBLE-VANILLA']
+
+        df = df[column_order]
 
         output_path = f'{output_dir}/{metric}_model_count_{model_count}.csv'
         os.makedirs(output_dir, exist_ok=True)
