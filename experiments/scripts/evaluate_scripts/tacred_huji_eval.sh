@@ -16,7 +16,7 @@ export HOME
 
 export model_dir="$MODEL_DIR"/english_standard/
 export output_dir=$OUTPUT_DIR
-export test_dir="experiments/processed_datasets/tacred_huji/standard/ko_test_sample_v_1_0_trankit.conllu.json"
+export test_dir="experiments/processed_datasets/tacred_huji/standard/"
 
 if [ "$KILLABLE" ]
  then
