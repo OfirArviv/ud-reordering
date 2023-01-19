@@ -16,7 +16,7 @@ export HOME
 
 export model_dir="$MODEL_DIR"/english_standard/
 export output_dir=$OUTPUT_DIR
-export test_dir="experiments/processed_datasets/smiler/test_normalized/"
+export test_dir="experiments/processed_datasets/smiler/normalized_test_sets_50_per_rel/"
 
 if [ "$KILLABLE" ]
  then
