@@ -91,7 +91,7 @@ def create_reorder_ud_dataset(input_file_path: str,
 
 
 def create_reordered_datasets_script():
-    for lang in ['hindi', 'thai', 'french', 'spanish', 'german', 'persian', 'korean']:
+    for lang in ["irish"]:#['hindi', 'thai', 'french', 'spanish', 'german', 'persian', 'korean',,"turkish", "arabic", "indonesian"]:
         output_dir = f'experiments/processed_datasets/ud/conllu_format/'
         output_dir += f'english_reordered_by_{lang}'
         os.makedirs(output_dir, exist_ok=True)
@@ -121,7 +121,9 @@ def copy_standard_datasets():
         "experiments/datasets/ud/ud-treebanks-v2.10/UD_Thai-PUD/th_pud-ud-test.conllu",
         "experiments/datasets/ud/ud-treebanks-v2.10/UD_Turkish-PUD/tr_pud-ud-test.conllu",
         "experiments/datasets/ud/ud-treebanks-v2.10/UD_Indonesian-PUD/id_pud-ud-test.conllu",
-        "experiments/datasets/ud/ud-treebanks-v2.10/UD_Korean-PUD/ko_pud-ud-test.conllu"
+        "experiments/datasets/ud/ud-treebanks-v2.10/UD_Korean-PUD/ko_pud-ud-test.conllu",
+        "experiments/datasets/ud/ud-treebanks-v2.10/UD_Arabic-PUD/ar_pud-ud-test.conllu",
+        "experiments/datasets/ud/ud-treebanks-v2.10/UD_Irish-TwittIrish/ga_twittirish-ud-test.conllu"
     ]
 
     output_dir = "experiments/processed_datasets/ud/conllu_format/standard/"
@@ -160,5 +162,5 @@ def create_ud_vocab():
 
 if __name__ == "__main__":
     copy_standard_datasets()
-    create_ud_vocab()
-    create_reordered_datasets_script()
+    #create_ud_vocab()
+    # create_reordered_datasets_script()

@@ -270,12 +270,12 @@ def create_standard_dataset():
 
 def create_reordered_dataset_10000(lang: str):
     file_paths = [
-        "experiments/processed_datasets/smiler/train_normalized/en-full_corpora_train.tsv-10000.json",
-        "experiments/processed_datasets/smiler/train_normalized/en-full_corpora_10000-test.tsv-3600.json",
+        "experiments/processed_datasets/smiler_10k/standard/en-full_corpora_train.tsv.json",
+        "experiments/processed_datasets/smiler_10k/standard/en-full_corpora_test.tsv.json",
     ]
 
     for file_path in file_paths:
-        output_dir = f'experiments/processed_datasets/smiler/english_10000_reordered_by_{lang}/'
+        output_dir = f'experiments/processed_datasets/smiler_10k/english_reordered_by_{lang}/'
         os.makedirs(output_dir, exist_ok=True)
 
         for reorder_algo in [UdReorderingAlgo.ReorderAlgo.HUJI, UdReorderingAlgo.ReorderAlgo.RASOOLINI]:
@@ -539,6 +539,13 @@ if __name__ == '__main__':
     # # create_standard_dataset()
     # # create_reordered_dataset()
     # create_normalized_test_datasets()
+    # create_reordered_dataset_10000("dutch")
+    # create_reordered_dataset_10000("german")
+    # create_reordered_dataset_10000("swedish")
+    # create_reordered_dataset_10000("french")
+    # create_reordered_dataset_10000("spanish")
+    # create_reordered_dataset_10000("polish")
+
 
     argparser = argparse.ArgumentParser(description="Evaluating method for Universal Dependencies")
     argparser.add_argument("-s", "--size", type=int, required=True)
