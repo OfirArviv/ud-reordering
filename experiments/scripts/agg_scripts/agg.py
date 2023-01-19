@@ -56,7 +56,7 @@ def get_lang_from_filename(filename: str):
 
 
 def run_agg_evaluation(main_models_dir: str, output_dir: str):
-    print(main_models_dir)
+    print(f'main_models_dir:{main_models_dir}')
 
     # Dict of metric -> dataframe
     val_dict = defaultdict(pd.DataFrame)
