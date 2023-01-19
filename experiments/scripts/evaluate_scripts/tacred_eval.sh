@@ -16,7 +16,7 @@ export HOME
 
 export model_dir="$MODEL_DIR"/english_standard/
 export output_dir=$OUTPUT_DIR
-export test_dir="experiments/processed_datasets/tacred_small/test_sets/"
+export test_dir="experiments/processed_datasets/tacred_small/standard"
 
 if [ "$KILLABLE" ]
  then
@@ -29,7 +29,7 @@ sbatch $sbatch_params -J eval_tacred experiments/scripts/evaluate_scripts/eval_s
 
 # Reordered Models
 combined_postfixes=("" "_combined")
-languages=(korean turkish)
+languages=(korean russian)
 algo_arr=(HUJI RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
 do
