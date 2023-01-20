@@ -141,6 +141,8 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
             os.makedirs(output_dir, exist_ok=True)
             df.to_csv(output_path)
         except:
+            print(model_basename)
+            print(dataset_name)
             print(df)
 
 if __name__ == '__main__':
