@@ -5,7 +5,7 @@ import os.path
 
 def run_model_evaluation(main_models_dir: str, expected_models_count: int):
     model = main_models_dir
-    assert os.path.isdir(model)
+    assert os.path.isdir(model), f'{main_models_dir} is not a dir!'
     while model[-1] in ["/", "\\"]:
         model = model[:-1]
 
