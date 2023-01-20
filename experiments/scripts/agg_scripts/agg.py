@@ -133,6 +133,7 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
 
         df = df[column_order]
 
+        metric = metric.replace("/", "_").replace("\\", "_")
         output_path = f'{output_dir}/{metric}_model_count_{model_count}.csv'
         os.makedirs(output_dir, exist_ok=True)
         df.to_csv(output_path)
