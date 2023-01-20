@@ -29,7 +29,7 @@ sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/eval_sub
 
 # Reordered Models
 combined_postfixes=("" "_combined")
-languages=(hindi) # thai french spanish german)
+languages=(hindi thai french spanish german)
 algo_arr=(HUJI RASOOLINI) #  HUJI_RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
 do
