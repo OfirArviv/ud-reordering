@@ -126,7 +126,7 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
     for metric, df in val_dict.items():
         df['HUJI_ENSEMBLE-VANILLA'] = df['HUJI_ENSEMBLE'] - df['VANILLA']
         if "RASOOLINI" in df.columns:
-            column_order = ['VANILLA', 'HUJI', 'RASOOLINI', 'HUJI_ENSEMBLE', 'RASOOLINI_ENSEMBLE',
+            column_order = ['VANILLA', 'HUJI', 'HUJI_ENSEMBLE',  'RASOOLINI', 'RASOOLINI_ENSEMBLE',
                             'HUJI_ENSEMBLE-VANILLA']
         else:
             column_order = ['VANILLA', 'HUJI', 'HUJI_ENSEMBLE', 'HUJI_ENSEMBLE-VANILLA']
