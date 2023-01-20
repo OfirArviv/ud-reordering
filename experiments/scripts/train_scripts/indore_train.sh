@@ -39,7 +39,7 @@ sbatch $sbatch_params -J train_re_luke experiments/scripts/train_scripts/train_s
 
 # Reordered Models
 combined_postfixes=("" "_combined")
-languages=(hindi)
+languages=(telugu) #hindi)
 algo_arr=(HUJI RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
 do
