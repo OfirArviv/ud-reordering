@@ -55,7 +55,7 @@ def get_lang_from_filename(filename: str):
     return lang
 
 
-def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
+def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str, eval_on_all_datasets: bool):
     from experiments.scripts.allennlp_evaluate_custom import allennllp_evaluate
 
     os.makedirs(output_dir, exist_ok=True)
@@ -80,7 +80,7 @@ def run_model_evaluation(main_models_dir: str, output_dir: str, test_dir: str):
         dataset_name = os.path.basename(test_file)
         dataset_lang = get_lang_from_filename(dataset_name)
 
-        if model_lang != "english" and model_lang != dataset_lang:
+        if not eval_on_all_datasets and model_lang != "english" and model_lang != dataset_lang:
             print(f'model lang {model_lang} does not match dataset lang {dataset_lang}')
             print(f'model name: {model_basename}')
             print(f'dataset name: {dataset_name}')
@@ -138,7 +138,8 @@ if __name__ == '__main__':
     argparser.add_argument("-m", "--model-dir", required=True)
     argparser.add_argument("-o", "--output-dir", required=True)
     argparser.add_argument("-t", "--test-dir", required=True)
+    argparser.add_argument("-a", "--eval-on-all", action='store_true', default=False)
 
     args = argparser.parse_args()
 
-    run_model_evaluation(args.model_dir, args.output_dir, args.test_dir)
+    run_model_evaluation(args.model_dir, args.output_dir, args.test_dir, args.eval_on_all)

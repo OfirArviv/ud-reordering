@@ -12,7 +12,10 @@ export HOME
 . ../venv/bin/activate
 export PYTHONPATH=$PYTHONPATH:.
 
-python experiments/scripts/evaluate_scripts/evaluate_base.py -m "$model_dir" -o "$output_dir" -t "$test_dir"
+
+if [ -z "$eval_all" ]; then_args=""; else extra_args="--eval-on-all"; fi
+
+echo python experiments/scripts/evaluate_scripts/evaluate_base.py -m "$model_dir" -o "$output_dir" -t "$test_dir" extra_args
 
 
 

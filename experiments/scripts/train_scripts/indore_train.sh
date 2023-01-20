@@ -17,6 +17,8 @@ export HOME
 export config_file="re_luke.jsonnet"
 MODEL_IDX="$EXPERIMENT_NUM"
 
+export eval_all=true
+
 dataset_dir=experiments/processed_datasets/indore/
 # Standard Order Model
 export train_data_path="$dataset_dir"/standard/english_indore_train.tsv.json
