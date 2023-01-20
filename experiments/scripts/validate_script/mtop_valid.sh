@@ -28,7 +28,7 @@ python experiments/scripts/validate_script/validate_base.py -m "$model_dir" -c "
 # Reordered Models
 combined_postfixes=("" "_combined")
 languages=(hindi thai french spanish german)
-algo_arr=(HUJI RASOOLINI HUJI_RASOOLINI)
+algo_arr=(HUJI RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
 do
   for lang in "${languages[@]}"
