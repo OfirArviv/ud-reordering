@@ -122,7 +122,7 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
                     v = round(v*100, 1)
                     df = val_dict[metric_k]
                     df.loc[dataset_lang, model_type] = v
-
+    print(df)
     for metric, df in val_dict.items():
         df['HUJI_ENSEMBLE-VANILLA'] = df['HUJI_ENSEMBLE'] - df['VANILLA']
         if "RASOOLINI" in df.columns:
