@@ -122,22 +122,26 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
                     v = round(v*100, 1)
                     df = val_dict[metric_k]
                     df.loc[dataset_lang, model_type] = v
-    print(df)
+
     for metric, df in val_dict.items():
-        df['HUJI_ENSEMBLE-VANILLA'] = df['HUJI_ENSEMBLE'] - df['VANILLA']
-        if "RASOOLINI" in df.columns:
-            column_order = ['VANILLA', 'HUJI', 'HUJI_ENSEMBLE',  'RASOOLINI', 'RASOOLINI_ENSEMBLE',
-                            'HUJI_ENSEMBLE-VANILLA']
-        else:
-            column_order = ['VANILLA', 'HUJI', 'HUJI_ENSEMBLE', 'HUJI_ENSEMBLE-VANILLA']
+        try:
+            df['HUJI_ENSEMBLE-VANILLA'] = df['HUJI_ENSEMBLE'] - df['VANILLA']
+            if "RASOOLINI" in df.columns:
+                column_order = ['VANILLA', 'HUJI', 'HUJI_ENSEMBLE',  'RASOOLINI', 'RASOOLINI_ENSEMBLE',
+                                'HUJI_ENSEMBLE-VANILLA']
+            else:
+                column_order = ['VANILLA', 'HUJI', 'HUJI_ENSEMBLE', 'HUJI_ENSEMBLE-VANILLA']
 
-        df = df[column_order]
+            df = df[column_order]
 
-        metric = metric.replace("/", "_").replace("\\", "_")
-        output_path = f'{output_dir}/{metric}_model_count_{model_count}.csv'
-        os.makedirs(output_dir, exist_ok=True)
-        df.to_csv(output_path)
+            continue
 
+            metric = metric.replace("/", "_").replace("\\", "_")
+            output_path = f'{output_dir}/{metric}_model_count_{model_count}.csv'
+            os.makedirs(output_dir, exist_ok=True)
+            df.to_csv(output_path)
+        except:
+            print(df)
 
 if __name__ == '__main__':
     # run_agg_evaluation('experiments_results/evaluation/mtop', "a")
