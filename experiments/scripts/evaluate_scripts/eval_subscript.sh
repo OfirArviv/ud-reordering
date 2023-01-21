@@ -13,7 +13,7 @@ export HOME
 export PYTHONPATH=$PYTHONPATH:.
 
 extra_args=""
-if [ $eval_all=="true" ]
+if [ $eval_all ]
 then
   extra_args="--eval-on-all"
 fi
