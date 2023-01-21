@@ -27,6 +27,7 @@ fi
 
 sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/eval_subscript.sh
 
+exit
 # Reordered Models
 combined_postfixes=("" "_combined")
 languages=(hindi thai french spanish german)
