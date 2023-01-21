@@ -157,5 +157,6 @@ if __name__ == '__main__':
     argparser.add_argument("-a", "--eval-on-all", action='store_true', default=False)
 
     args = argparser.parse_args()
-
-    run_model_evaluation(args.model_dir, args.output_dir, args.test_dir, False)
+    print(args.eval_on_all)
+    exit()
+    # run_model_evaluation(args.model_dir, args.output_dir, args.test_dir, args.eval_on_all)

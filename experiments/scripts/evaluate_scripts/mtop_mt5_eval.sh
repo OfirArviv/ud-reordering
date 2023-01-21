@@ -6,6 +6,7 @@ argparse "$@" <<EOF || exit 1
 parser.add_argument('-m', '--model-dir', required=True)
 parser.add_argument('-o', '--output-dir', required=True)
 parser.add_argument('-k', '--killable', action='store_true', default=False)
+parser.add_argument('-a', '--eval-all', action='store_true', default=False)
 
 EOF
 
@@ -18,6 +19,7 @@ export model_dir="$MODEL_DIR"/english_standard/
 export output_dir=$OUTPUT_DIR
 export test_dir="experiments/processed_datasets/mtop/non_pointer_format/standard/"
 
+export eval_all=$EVAL_ALL
 if [ "$KILLABLE" ]
  then
    sbatch_params="--killable --requeue"
