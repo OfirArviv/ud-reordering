@@ -27,7 +27,7 @@ if [ "$KILLABLE" ]
     sbatch_params=""
 fi
 
-sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/eval_subscript.sh
+# sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/eval_subscript.sh
 
 # Reordered Models
 combined_postfixes=("" "_combined")
