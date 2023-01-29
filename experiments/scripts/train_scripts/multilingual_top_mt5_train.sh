@@ -43,7 +43,7 @@ if [ "$KILLABLE" ]
     sbatch_params=""
 fi
 
-sbatch $sbatch_params -J train_multi_top experiments/scripts/train_scripts/train_subscript.sh
+sbatch $sbatch_params --reservation 5783 -J train_multi_top experiments/scripts/train_scripts/train_subscript.sh
 
 # Reordered Models
 combined_postfixes=("" "_combined")
@@ -67,7 +67,7 @@ do
         mkdir -p "$serialization_dir"
       fi
 
-      sbatch $sbatch_params -J train_multi_top experiments/scripts/train_scripts/train_subscript.sh
+      sbatch $sbatch_params --reservation 5783 -J train_multi_top experiments/scripts/train_scripts/train_subscript.sh
 
     done
   done
