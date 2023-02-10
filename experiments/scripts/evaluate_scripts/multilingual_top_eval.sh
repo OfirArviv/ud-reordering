@@ -26,7 +26,7 @@ if [ "$KILLABLE" ]
     sbatch_params=""
 fi
 
-sbatch $sbatch_params -J eval_multi_top experiments/scripts/evaluate_scripts/eval_subscript.sh
+sbatch $sbatch_params --reservation 5783 -J eval_multi_top experiments/scripts/evaluate_scripts/eval_subscript.sh
 
 # Reordered Models
 combined_postfixes=("" "_combined")
@@ -41,7 +41,7 @@ do
 
       export model_dir="$MODEL_DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/
 
-      sbatch $sbatch_params -J eval_multi_top experiments/scripts/evaluate_scripts/eval_subscript.sh
+      sbatch $sbatch_params  -J eval_multi_top experiments/scripts/evaluate_scripts/eval_subscript.sh
 
     done
   done
