@@ -35,7 +35,7 @@ for lang in "${languages[@]}"
 do
   export train_data_path="$dataset_dir"/standard_small/"$lang"_eval_decoupled_format.tsv
   export valid_data_path=null
-  export test_data_path=="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
+  export test_data_path="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
   export model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/
   export serialization_dir="$DIR"/english_standard_finetuned_"$lang"/model_"$MODEL_IDX"/
   if [ ! -d "$serialization_dir" ]; then
@@ -56,7 +56,7 @@ do
   do
     export train_data_path="$dataset_dir"/standard_small/"$lang"_eval_decoupled_format.tsv
     export valid_data_path=null
-    export test_data_path=="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
+    export test_data_path="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
 
     for algo in "${algo_arr[@]}"
     do
