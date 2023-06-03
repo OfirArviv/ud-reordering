@@ -48,7 +48,7 @@ done
 
 
 combined_postfixes=("" "_combined")
-languages=(hindi thai french spanish german)
+languages=(hindi)
 algo_arr=(HUJI RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
 do
