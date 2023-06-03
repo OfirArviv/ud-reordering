@@ -36,18 +36,14 @@ do
   export train_data_path="$dataset_dir"/standard_small/"$lang"_eval_decoupled_format.tsv
   export valid_data_path=null
   export test_data_path=="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
+  export model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/
+  export serialization_dir="$DIR"/english_standard_finetuned_"$lang"/model_"$MODEL_IDX"/
+  if [ ! -d "$serialization_dir" ]; then
+    echo "$serialization_dir" does not exists. Creating...
+    mkdir -p "$serialization_dir"
+  fi
 
-  for algo in "${algo_arr[@]}"
-  do
-    export $model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/
-    export $serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned/model_"$MODEL_IDX"/
-    if [ ! -d "$serialization_dir" ]; then
-      echo "$serialization_dir" does not exists. Creating...
-      mkdir -p "$serialization_dir"
-    fi
-
-    sbatch $sbatch_params -J finetune_mtop experiments/scripts/train_scripts/finetune_subscript.sh
-  done
+  sbatch $sbatch_params -J finetune_mtop experiments/scripts/train_scripts/finetune_subscript.sh
 done
 
 
@@ -64,9 +60,8 @@ do
 
     for algo in "${algo_arr[@]}"
     do
-      export $model_archive="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
-      export $serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned/model_"$MODEL_IDX"/
-      export $serialization_dir="$DIR"/english_standard_finetuned_"$lang"/model_"$MODEL_IDX"/
+      export model_archive="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
+      export serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned/model_"$MODEL_IDX"/
       if [ ! -d "$serialization_dir" ]; then
         echo "$serialization_dir" does not exists. Creating...
         mkdir -p "$serialization_dir"
