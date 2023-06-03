@@ -29,7 +29,7 @@ export config_file="finetune_mt5.jsonnet"
 
 dataset_dir=experiments/processed_datasets/mtop/non_pointer_format/
 
-languages=(hindi thai french spanish german)
+languages=(hindi)
 algo_arr=(HUJI RASOOLINI)
 for lang in "${languages[@]}"
 do
@@ -39,7 +39,7 @@ do
 
   for algo in "${algo_arr[@]}"
   do
-    export model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/
+    export $model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/
     export $serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned/model_"$MODEL_IDX"/
     if [ ! -d "$serialization_dir" ]; then
       echo "$serialization_dir" does not exists. Creating...
@@ -64,7 +64,7 @@ do
 
     for algo in "${algo_arr[@]}"
     do
-      export model_archive="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
+      export $model_archive="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
       export $serialization_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned/model_"$MODEL_IDX"/
       export $serialization_dir="$DIR"/english_standard_finetuned_"$lang"/model_"$MODEL_IDX"/
       if [ ! -d "$serialization_dir" ]; then
