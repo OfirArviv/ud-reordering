@@ -80,6 +80,7 @@ class Seq2SeqDatasetReaderWithLengthFiltering(DatasetReader):
         source_max_tokens: Optional[int] = None,
         target_max_tokens: Optional[int] = None,
         quoting: int = csv.QUOTE_MINIMAL,
+        max_examples: Optional[int] = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -118,15 +119,22 @@ class Seq2SeqDatasetReaderWithLengthFiltering(DatasetReader):
         self._target_max_exceeded = 0
         self.quoting = quoting
 
+        self._max_examples = max_examples
+        self._examples_count = 0
+
     def _read(self, file_path: str):
         # Reset exceeded counts
         self._source_max_exceeded = 0
         self._target_max_exceeded = 0
+
+        self._examples_count = 0
         with open(cached_path(file_path), "r", encoding='utf-8') as data_file:
             logger.info("Reading instances from lines in file at: %s", file_path)
             for line_num, row in self.shard_iterable(
                 enumerate(csv.reader(data_file, delimiter=self._delimiter, quoting=self.quoting))
             ):
+                if self._max_examples and  self._examples_count >= self._max_examples:
+                    break
                 if len(row) != 2:
                     raise ConfigurationError(
                         "Invalid line format: %s (line number %d)" % (row, line_num + 1)
@@ -142,6 +150,8 @@ class Seq2SeqDatasetReaderWithLengthFiltering(DatasetReader):
                 if self._target_max_tokens and len(tokenized_target) > self._target_max_tokens:
                     self._target_max_exceeded += 1
                     continue
+
+                self._target_max_exceeded += 1
                 yield self.text_to_instance(source_sequence, target_sequence)
         if self._source_max_tokens and self._source_max_exceeded:
             logger.info(
