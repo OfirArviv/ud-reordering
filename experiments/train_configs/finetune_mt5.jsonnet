@@ -6,6 +6,7 @@ local metric_1 = std.extVar('metric_1');
 local metric_2 = std.extVar('metric_2');
 local validation_metric = std.extVar('validation_metric');
 local model_name = std.extVar('model_name');
+local model_archive = std.extVar('model_archive');
 // ================================================================
 {
   "dataset_reader": {
@@ -49,6 +50,10 @@ local model_name = std.extVar('model_name');
   [if valid_data_path != "null" then "validation_data_path" else null]: valid_data_path,
   [if test_data_path != "null" then "test_data_path" else null]: test_data_path,
   [if test_data_path != "null" then "evaluate_on_test" else null]: true,
+"model": {
+    "type": "from_archive",
+    "archive_file": model_archive,
+  },
   "data_loader": {
     "batch_sampler": {
       "type": "bucket",
