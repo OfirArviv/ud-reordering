@@ -61,7 +61,7 @@ do
     for algo in "${algo_arr[@]}"
     do
       export model_archive="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
-      export serialization_dir="$DIR"/finetnued/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned/model_"$MODEL_IDX"/
+      export serialization_dir="$DIR"/finenuned/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned/model_"$MODEL_IDX"/
       if [ ! -d "$serialization_dir" ]; then
         echo "$serialization_dir" does not exists. Creating...
         mkdir -p "$serialization_dir"
