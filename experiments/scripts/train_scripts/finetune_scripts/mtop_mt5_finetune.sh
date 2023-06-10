@@ -38,7 +38,7 @@ do
   export valid_data_path=null
   export test_data_path="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
   export model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/
-  for examples_count in count_arr
+  for examples_count in "${!count_array[@]}"
   do
     export examples_count="$examples_count"
     export serialization_dir="$DIR"/finetuned/english_standard_finetuned_"$lang"_"$examples_count"/model_"$MODEL_IDX"/
@@ -67,7 +67,7 @@ do
     do
       export model_archive="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
 
-      for examples_count in count_arr
+      for examples_count in "${!count_array[@]}"
       do
         export examples_count="$examples_count"
         export serialization_dir="$DIR"/finetuned/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned_"$examples_count"/model_"$MODEL_IDX"/
