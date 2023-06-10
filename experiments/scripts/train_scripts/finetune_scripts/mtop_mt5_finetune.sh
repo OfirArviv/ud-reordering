@@ -40,7 +40,7 @@ do
   export model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/
   for example_count in count_arr
   do
-    export example_count = $example_count
+    export example_count=$example_count
     export serialization_dir="$DIR"/finetuned/english_standard_finetuned_"$lang"_"$example_count"/model_"$MODEL_IDX"/
     if [ ! -d "$serialization_dir" ]; then
       echo "$serialization_dir" does not exists. Creating...
@@ -69,7 +69,7 @@ do
 
       for example_count in count_arr
       do
-        export example_count = $example_count
+        export example_count=$example_count
         export serialization_dir="$DIR"/finetuned/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned_"$example_count"/model_"$MODEL_IDX"/
         if [ ! -d "$serialization_dir" ]; then
           echo "$serialization_dir" does not exists. Creating...
