@@ -21,6 +21,6 @@ do
   do
     idx_dir=${idx_dir%*/}      # remove the trailing "/"
     echo "${idx_dir##*/}"    # print everything after the final "/"
-    tar xvzf $idx_dir"/model.tar.gz
+    tar xvzf "$idx_dir"/model.tar.gz
   done
 done
