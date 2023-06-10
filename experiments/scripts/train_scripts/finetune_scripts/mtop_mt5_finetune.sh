@@ -41,7 +41,7 @@ do
   for examples_count in count_arr
   do
     export examples_count=$examples_count
-    export serialization_dir="$DIR"/finetuned/english_standard_finetuned_"$lang"_"$example_count"/model_"$MODEL_IDX"/
+    export serialization_dir="$DIR"/finetuned/english_standard_finetuned_"$lang"_"$examples_count"/model_"$MODEL_IDX"/
     if [ ! -d "$serialization_dir" ]; then
       echo "$serialization_dir" does not exists. Creating...
       mkdir -p "$serialization_dir"
@@ -70,7 +70,7 @@ do
       for examples_count in count_arr
       do
         export examples_count=$examples_count
-        export serialization_dir="$DIR"/finetuned/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned_"$example_count"/model_"$MODEL_IDX"/
+        export serialization_dir="$DIR"/finetuned/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned_"$examples_count"/model_"$MODEL_IDX"/
         if [ ! -d "$serialization_dir" ]; then
           echo "$serialization_dir" does not exists. Creating...
           mkdir -p "$serialization_dir"
