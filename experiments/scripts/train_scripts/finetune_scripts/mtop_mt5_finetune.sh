@@ -37,13 +37,18 @@ do
   export valid_data_path=null
   export test_data_path="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
   export model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/
-  export serialization_dir="$DIR"/finetuned/english_standard_finetuned_"$lang"/model_"$MODEL_IDX"/
-  if [ ! -d "$serialization_dir" ]; then
-    echo "$serialization_dir" does not exists. Creating...
-    mkdir -p "$serialization_dir"
-  fi
 
-  sbatch $sbatch_params -J finetune_mtop experiments/scripts/train_scripts/train_subscript.sh
+  for example_count in (100 200 300)
+  do
+    export example_count = $example_count
+    export serialization_dir="$DIR"/finetuned/english_standard_finetuned_"$lang"_"$example_count"/model_"$MODEL_IDX"/
+    if [ ! -d "$serialization_dir" ]; then
+      echo "$serialization_dir" does not exists. Creating...
+      mkdir -p "$serialization_dir"
+    fi
+
+    sbatch $sbatch_params -J finetune_mtop experiments/scripts/train_scripts/train_subscript.sh
+  done
 done
 
 
@@ -61,13 +66,18 @@ do
     for algo in "${algo_arr[@]}"
     do
       export model_archive="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
-      export serialization_dir="$DIR"/finetuned/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned/model_"$MODEL_IDX"/
-      if [ ! -d "$serialization_dir" ]; then
-        echo "$serialization_dir" does not exists. Creating...
-        mkdir -p "$serialization_dir"
-      fi
 
-      sbatch $sbatch_params -J finetune_mtop experiments/scripts/train_scripts/train_subscript.sh
+      for example_count in (100 200 300)
+      do
+        export example_count = $example_count
+        export serialization_dir="$DIR"/finetuned/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned_"$example_count"/model_"$MODEL_IDX"/
+        if [ ! -d "$serialization_dir" ]; then
+          echo "$serialization_dir" does not exists. Creating...
+          mkdir -p "$serialization_dir"
+        fi
+
+        sbatch $sbatch_params -J finetune_mtop experiments/scripts/train_scripts/train_subscript.sh
+      done
     done
   done
 done

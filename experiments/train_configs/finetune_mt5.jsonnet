@@ -7,11 +7,12 @@ local metric_2 = std.extVar('metric_2');
 local validation_metric = std.extVar('validation_metric');
 local model_name = std.extVar('model_name');
 local model_archive = std.extVar('model_archive');
+local examples_count = std.extVar('examples_count');
 // ================================================================
 {
   "dataset_reader": {
     "type": "seq2seq_length_filtering",
-    "max_examples": 100,
+    "max_examples": examples_count,
     "source_max_tokens": 100,
     "target_max_tokens": 200,
     "source_add_start_token": false,

@@ -1,4 +1,5 @@
 import csv
+import random
 from typing import Dict, Optional
 import logging
 import copy
@@ -126,14 +127,15 @@ class Seq2SeqDatasetReaderWithLengthFiltering(DatasetReader):
         # Reset exceeded counts
         self._source_max_exceeded = 0
         self._target_max_exceeded = 0
-
-        self._examples_count = 0
+        self._processed_examples = 0
         with open(cached_path(file_path), "r", encoding='utf-8') as data_file:
             logger.info("Reading instances from lines in file at: %s", file_path)
-            for line_num, row in self.shard_iterable(
-                enumerate(csv.reader(data_file, delimiter=self._delimiter, quoting=self.quoting))
-            ):
-                if self._max_examples and  self._examples_count >= self._max_examples:
+            rows = list(csv.reader(data_file, delimiter=self._delimiter, quoting=self.quoting))
+            if self._max_examples is not None:
+                random.shuffle(rows)
+
+            for line_num, row in self.shard_iterable(rows):
+                if self._max_examples is not None and self._processed_examples > self._max_examples:
                     break
                 if len(row) != 2:
                     raise ConfigurationError(
@@ -151,7 +153,7 @@ class Seq2SeqDatasetReaderWithLengthFiltering(DatasetReader):
                     self._target_max_exceeded += 1
                     continue
 
-                self._target_max_exceeded += 1
+                self._processed_examples += 1
                 yield self.text_to_instance(source_sequence, target_sequence)
         if self._source_max_tokens and self._source_max_exceeded:
             logger.info(
