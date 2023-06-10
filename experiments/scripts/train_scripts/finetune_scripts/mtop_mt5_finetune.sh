@@ -31,14 +31,14 @@ dataset_dir=experiments/processed_datasets/mtop/non_pointer_format/
 
 languages=(hindi)
 algo_arr=(HUJI RASOOLINI)
+count_arr = (100 200 300)
 for lang in "${languages[@]}"
 do
   export train_data_path="$dataset_dir"/standard_small/"$lang"_eval_decoupled_format.tsv
   export valid_data_path=null
   export test_data_path="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
   export model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/
-
-  for example_count in (100 200 300)
+  for example_count in count_arr
   do
     export example_count = $example_count
     export serialization_dir="$DIR"/finetuned/english_standard_finetuned_"$lang"_"$example_count"/model_"$MODEL_IDX"/
@@ -67,7 +67,7 @@ do
     do
       export model_archive="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
 
-      for example_count in (100 200 300)
+      for example_count in count_arr
       do
         export example_count = $example_count
         export serialization_dir="$DIR"/finetuned/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned_"$example_count"/model_"$MODEL_IDX"/
