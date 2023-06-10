@@ -38,11 +38,10 @@ do
   export valid_data_path=null
   export test_data_path="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
   export model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/
-  echo "aaa"
-  for examples_count in "${count_array[@]}"
+  for examples_count in "${count_arr[@]}"
   do
-    export examples_count="$examples_count"
     echo "$examples_count"
+    export examples_count="$examples_count"
     export serialization_dir="$DIR"/finetuned/english_standard_finetuned_"$lang"_"$examples_count"/model_"$MODEL_IDX"/
     if [ ! -d "$serialization_dir" ]; then
       echo "$serialization_dir" does not exists. Creating...
@@ -68,8 +67,7 @@ do
     for algo in "${algo_arr[@]}"
     do
       export model_archive="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
-      echo "bbb"
-      for examples_count in "${count_array[@]}"
+      for examples_count in "${count_arr[@]}"
       do
         export examples_count="$examples_count"
         echo "$examples_count"
