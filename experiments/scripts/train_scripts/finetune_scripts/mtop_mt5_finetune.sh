@@ -31,7 +31,7 @@ dataset_dir=experiments/processed_datasets/mtop/non_pointer_format/
 
 languages=(hindi)
 algo_arr=(HUJI RASOOLINI)
-count_arr=(100 200 300)
+count_arr=("100" "200" "300")
 for lang in "${languages[@]}"
 do
   export train_data_path="$dataset_dir"/standard_small/"$lang"_eval_decoupled_format.tsv
