@@ -15,9 +15,12 @@ TMP=$TMPDIR
 TEMP=$TMPDIR
 export HOME
 
-for d in "$DIR"/*/     # list directories in the form "/tmp/dirname/"
+for type_dir in "$DIR"/*/     # list directories in the form "/tmp/dirname/"
 do
-    d=${d%*/}      # remove the trailing "/"
-    echo "${d##*/}"    # print everything after the final "/"
-    tar "–xvzf" "$d"/model.tar.gz
+  for idx_dir in "$type_dir"/*/     # list directories in the form "/tmp/dirname/"
+  do
+    idx_dir=${idx_dir%*/}      # remove the trailing "/"
+    echo "${idx_dir##*/}"    # print everything after the final "/"
+    tar "–xvzf" "$idx_dir"/model.tar.gz
+  done
 done
