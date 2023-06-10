@@ -7,7 +7,7 @@ local metric_2 = std.extVar('metric_2');
 local validation_metric = std.extVar('validation_metric');
 local model_name = std.extVar('model_name');
 local model_archive = std.extVar('model_archive');
-local examples_count = std.extVar('examples_count');
+local examples_count = std.parseInt(std.extVar('examples_count'));
 // ================================================================
 {
   "dataset_reader": {
