@@ -134,7 +134,7 @@ class Seq2SeqDatasetReaderWithLengthFiltering(DatasetReader):
             if self._max_examples is not None:
                 random.shuffle(rows)
 
-            for line_num, row in self.shard_iterable(rows):
+            for line_num, row in enumerate(self.shard_iterable(rows)):
                 if self._max_examples is not None and self._processed_examples > self._max_examples:
                     break
                 if len(row) != 2:
