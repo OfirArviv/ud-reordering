@@ -20,11 +20,13 @@ do
   for idx_dir in "$type_dir"/*/     # list directories in the form "/tmp/dirname/"
   do
     idx_dir=${idx_dir%*/}      # remove the trailing "/"
-    echo "${idx_dir}"
-    tar_file="$idx_dir"/model.tar.gz
-    if [ ! -f "$tar_file" ]
+    echo "Working on ""${idx_dir}"
+    weights_file="$idx_dir"/weights.th
+    if [ ! -f "$weights_file" ]
     then
-      tar xvzf "$tar_file"
+      tar xvzf "$idx_dir"/model.tar.gz
+    else
+      echo "$weights_file"" exists"
     fi
   done
 done
