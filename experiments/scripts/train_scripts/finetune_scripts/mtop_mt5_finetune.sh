@@ -14,6 +14,12 @@ TMP=$TMPDIR
 TEMP=$TMPDIR
 export HOME
 
+if [ "$KILLABLE" ]
+ then
+   sbatch_params="--killable --requeue"
+  else
+    sbatch_params=""
+fi
 
 MODEL_IDX="$EXPERIMENT_NUM"
 
