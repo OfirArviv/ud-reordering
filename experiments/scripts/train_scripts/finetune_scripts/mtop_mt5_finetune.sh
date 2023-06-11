@@ -35,7 +35,7 @@ export config_file="finetune_mt5.jsonnet"
 
 dataset_dir=experiments/processed_datasets/mtop/non_pointer_format/
 
-languages=(hindi french thai)
+languages=(hindi)
 algo_arr=(HUJI RASOOLINI)
 count_arr=(100 200 300 400 500)
 for lang in "${languages[@]}"
