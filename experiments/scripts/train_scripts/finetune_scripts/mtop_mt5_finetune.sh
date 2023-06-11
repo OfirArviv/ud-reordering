@@ -43,7 +43,7 @@ do
   export train_data_path="$dataset_dir"/standard/"$lang"_train_decoupled_format.tsv
   export valid_data_path=null
   export test_data_path="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
-  export model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/
+  export model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/model.tar.gz
   for examples_count in "${count_arr[@]}"
   do
     export examples_count="$examples_count"
@@ -69,7 +69,7 @@ do
 
     for algo in "${algo_arr[@]}"
     do
-      export model_archive="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
+      export model_archive="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/model.tar.gz
       for examples_count in "${count_arr[@]}"
       do
         export examples_count="$examples_count"
