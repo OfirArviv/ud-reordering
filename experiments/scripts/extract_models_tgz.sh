@@ -20,7 +20,13 @@ do
   for idx_dir in "$type_dir"/*/     # list directories in the form "/tmp/dirname/"
   do
     idx_dir=${idx_dir%*/}      # remove the trailing "/"
-    echo "${idx_dir##*/}"    # print everything after the final "/"
+    echo "${idx_dir}"
+    tar_file="$idx_dir"/model.tar.gz
+    if [ -f "$tar_file" ]
+    then
+      echo "exit: ""$tar_file" "exists"
+      exit 0
+    fi
     tar xvzf "$idx_dir"/model.tar.gz
   done
 done
