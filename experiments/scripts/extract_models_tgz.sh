@@ -24,7 +24,7 @@ do
     tar_file="$idx_dir"/model.tar.gz
     if [ ! -f "$tar_file" ]
     then
-      tar xvzf "$idx_dir"/model.tar.gz
+      tar xvzf "$tar_file"
     fi
   done
 done
