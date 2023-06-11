@@ -22,11 +22,9 @@ do
     idx_dir=${idx_dir%*/}      # remove the trailing "/"
     echo "${idx_dir}"
     tar_file="$idx_dir"/model.tar.gz
-    if [ -f "$tar_file" ]
+    if [ ! -f "$tar_file" ]
     then
-      echo "exit: ""$tar_file" "exists"
-      exit 0
+      tar xvzf "$idx_dir"/model.tar.gz
     fi
-    tar xvzf "$idx_dir"/model.tar.gz
   done
 done
