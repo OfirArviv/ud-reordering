@@ -35,7 +35,7 @@ count_arr=(100 200 300)
 for lang in "${languages[@]}"
 do
   export train_data_path="$dataset_dir"/standard_small/"$lang"_eval_decoupled_format.tsv
-  export valid_data_path=null
+  export valid_data_path="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
   export test_data_path="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
   export model_archive="$DIR"/english_standard/model_"$MODEL_IDX"/
   for examples_count in "${count_arr[@]}"
