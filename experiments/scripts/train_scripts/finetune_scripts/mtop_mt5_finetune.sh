@@ -51,8 +51,8 @@ do
   done
 done
 
-
-combined_postfixes=("" "_combined")
+# combined_postfixes=("" "_combined")
+combined_postfixes=("_combined")
 for combined_postfix in "${combined_postfixes[@]}"
 do
   for lang in "${languages[@]}"
