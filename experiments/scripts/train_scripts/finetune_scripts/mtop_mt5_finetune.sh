@@ -57,7 +57,7 @@ for combined_postfix in "${combined_postfixes[@]}"
 do
   for lang in "${languages[@]}"
   do
-    export train_data_path="$dataset_dir"/standard_small/"$lang"_train_decoupled_format.tsv
+    export train_data_path="$dataset_dir"/standard/"$lang"_train_decoupled_format.tsv
     export valid_data_path=null
     export test_data_path="$dataset_dir"/standard/"$lang"_test_decoupled_format.tsv
 
