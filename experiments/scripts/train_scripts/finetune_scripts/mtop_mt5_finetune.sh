@@ -35,9 +35,9 @@ export config_file="finetune_mt5.jsonnet"
 
 dataset_dir=experiments/processed_datasets/mtop/non_pointer_format/
 # french thai
-languages=(hindi)
+languages=(french)
 algo_arr=(HUJI RASOOLINI)
-count_arr=( 800 1000)
+count_arr=( 100 200 300)
 for lang in "${languages[@]}"
 do
   export train_data_path="$dataset_dir"/standard/"$lang"_train_decoupled_format.tsv
