@@ -44,7 +44,7 @@ local examples_count = std.parseInt(std.extVar('examples_count'));
   [if test_data_path != "null" then "test_data_path" else null]: test_data_path,
   [if test_data_path != "null" then "evaluate_on_test" else null]: true,
     "trainer": {
-        "num_epochs": 100,
+        "num_epochs": 50,
            "patience" : 10,
         "checkpointer": {
             "keep_most_recent_by_count": 1
