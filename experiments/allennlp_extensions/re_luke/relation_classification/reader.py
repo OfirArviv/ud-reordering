@@ -1,4 +1,5 @@
 import logging
+from random import random
 from typing import Dict, Optional
 import json
 from pathlib import Path
@@ -70,7 +71,7 @@ def parse_conll_file(path: str):
 class RelationClassificationReader(DatasetReader):
     def __init__(
         self, tokenizer: Tokenizer, token_indexers: Dict[str, TokenIndexer], use_entity_feature: bool = False,
-            source_max_tokens: Optional[int] = None, **kwargs,
+            source_max_tokens: Optional[int] = None, max_examples: Optional[int] = None, **kwargs,
     ):
         super().__init__(**kwargs)
 
@@ -84,6 +85,7 @@ class RelationClassificationReader(DatasetReader):
 
         self._source_max_tokens = source_max_tokens
         self._source_max_exceeded = 0
+        self._max_examples = max_examples
 
     def text_to_instance(self, sentence: str, label: str = None):
         texts = [t.text for t in self.tokenizer.tokenize(sentence)]
@@ -112,7 +114,16 @@ class RelationClassificationReader(DatasetReader):
         return Instance(fields)
 
     def _read(self, file_path: str):
-        for data in self.parser(file_path):
+        self._processed_examples = 0
+        data_list = self.parser(file_path)
+        if self._max_examples is not None:
+            assert len(data_list) >= self._max_examples
+            random.shuffle(data_list)
+
+        for data in data_list:
+            if self._max_examples is not None and self._processed_examples > self._max_examples:
+                break
+
             tokenized_source_len = len([t.text for t in self.tokenizer.tokenize(data["sentence"])])
             if self._source_max_tokens and tokenized_source_len > self._source_max_tokens:
                 self._source_max_exceeded += 1
@@ -120,6 +131,7 @@ class RelationClassificationReader(DatasetReader):
 
             # if data['label'] not in self.labels:
             #     continue
+            self._processed_examples += 1
             yield self.text_to_instance(data["sentence"], data["label"])
 
         if self._source_max_tokens and self._source_max_exceeded:
