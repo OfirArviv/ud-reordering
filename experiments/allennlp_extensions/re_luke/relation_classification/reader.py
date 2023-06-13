@@ -1,5 +1,5 @@
 import logging
-from random import random
+from random import random, shuffle
 from typing import Dict, Optional
 import json
 from pathlib import Path
@@ -115,10 +115,10 @@ class RelationClassificationReader(DatasetReader):
 
     def _read(self, file_path: str):
         self._processed_examples = 0
-        data_list = self.parser(file_path)
+        data_list = list(self.parser(file_path))
         if self._max_examples is not None:
             assert len(data_list) >= self._max_examples
-            random.shuffle(data_list)
+            shuffle(data_list)
 
         for data in data_list:
             if self._max_examples is not None and self._processed_examples > self._max_examples:
