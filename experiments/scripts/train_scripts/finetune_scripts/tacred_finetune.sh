@@ -71,7 +71,7 @@ do
           mkdir -p "$serialization_dir"
         fi
 
-        sbatch $sbatch_params -J ft_indore experiments/scripts/train_scripts/finetune_scripts/finetune_subscript.sh
+        sbatch $sbatch_params -J ft_tacred experiments/scripts/train_scripts/finetune_scripts/finetune_subscript.sh
       done
     done
   done
