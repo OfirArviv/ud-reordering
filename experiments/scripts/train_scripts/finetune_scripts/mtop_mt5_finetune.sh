@@ -53,7 +53,7 @@ do
       mkdir -p "$serialization_dir"
     fi
 
-    sbatch $sbatch_params -J finetune_mtop experiments/scripts/train_scripts/train_subscript.sh
+    sbatch $sbatch_params -J ft_mtop experiments/scripts/train_scripts/finetune_scripts/finetune_subscript.sh
   done
 done
 
@@ -79,7 +79,7 @@ do
           mkdir -p "$serialization_dir"
         fi
 
-        sbatch $sbatch_params -J finetune_mtop experiments/scripts/train_scripts/train_subscript.sh
+        sbatch $sbatch_params -J ft_mtop experiments/scripts/train_scripts/finetune_scripts/finetune_subscript.sh
       done
     done
   done
