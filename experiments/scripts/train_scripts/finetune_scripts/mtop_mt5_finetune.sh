@@ -16,7 +16,7 @@ export HOME
 
 if [ "$KILLABLE" ]
  then
-   sbatch_params="--killable" #--requeue"
+   sbatch_params="--killable --requeue"
   else
     sbatch_params=""
 fi
