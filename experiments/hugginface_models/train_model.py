@@ -234,6 +234,7 @@ if __name__ == '__main__':
     parser_train.add_argument('--train-dataset-path', required=True, type=str)
     parser_train.add_argument('--dev-dataset-path', required=True, type=str)
     parser_train.add_argument('--output-dir', required=True, type=str)
+    parser_train.add_argument("--qlora", action="store_true", type=bool)
     parser_train.add_argument('--seed', required=True, type=int)
     parser_train.add_argument('--cache-dir', type=str, default=None, help='cache dir.')
 
@@ -249,5 +250,5 @@ if __name__ == '__main__':
                            train_dataset,
                            dev_dataset, args['output-dir'],
                            train_with_lora=True,
-                           train_in_4_bit=True,
+                           train_in_4_bit=args['qlora'],
                            cache_dir=cache_dir)
