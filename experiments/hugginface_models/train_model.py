@@ -347,7 +347,7 @@ def train_model(model_id: str,
         config = LoraConfig(
             r=8,
             lora_alpha=32,
-            # target_modules=["q_proj", "v_proj"],
+            target_modules=["q_proj", "v_proj"], #for xglm
             lora_dropout=0.05,
             bias="none",
             task_type=task_type
@@ -522,8 +522,8 @@ if __name__ == '__main__':
     else:
         cache_dir = None
 
-    print(find_all_linear_names("facebook/xglm-7.5B", 4))
-    exit()
+    # print(find_all_linear_names("facebook/xglm-7.5B", 4))
+    # exit()
 
     model_list_causal = ["decapoda-research/llama-65b-hf",
                          "facebook/xglm-7.5B",
