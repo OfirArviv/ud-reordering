@@ -29,4 +29,4 @@ if [ "$KILLABLE" ]
     sbatch_params=""
 fi
 
-sbatch $sbatch_params -J liat temp_liat_paper/run_subscript.sh
+sbatch $sbatch_params -J experiments/hugginface_models/run_subscript.sh
