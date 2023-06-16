@@ -1,0 +1,14 @@
+,VANILLA,HUJI,HUJI_ENSEMBLE,RASOOLINI,RASOOLINI_ENSEMBLE,HUJI_ENSEMBLE-VANILLA
+french,0.5,1.6,0.3,0.5,0.3,-0.2
+irish,0.2,0.2,0.2,0.1,0.2,0.0
+korean,0.1,0.2,0.1,0.1,0.1,0.0
+persian,0.2,0.3,0.1,0.1,0.1,-0.1
+arabic,0.2,0.2,0.2,0.2,0.1,0.0
+spanish,0.4,1.1,0.3,0.2,0.6,-0.10000000000000003
+_,0.1,,,,,
+english,0.5,,,,,
+hindi,0.2,0.2,0.1,0.1,0.1,-0.1
+turkish,0.1,,,,,
+german,0.7,0.7,0.4,0.3,0.4,-0.29999999999999993
+indonesian,0.5,,,,,
+thai,0.1,0.3,0.2,0.2,0.0,0.1
