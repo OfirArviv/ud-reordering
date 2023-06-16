@@ -36,7 +36,7 @@ if __name__ == '__main__':
     seed = args.seed
     dataset_key = selected_dataset_dir.split("/")[-1]
     model_id = "google/flan-t5-xxl"
-    output_dir = f'{args.output_dir}/{model_id}_dataset_{dataset_key}_seed_{seed}'
+    output_dir = f'{args.output_dir}/{model_id.replace("/","_")}_dataset_{dataset_key}_seed_{seed}'
 
     train_model(model_id=model_id,
                 is_seq2seq_model=True,
