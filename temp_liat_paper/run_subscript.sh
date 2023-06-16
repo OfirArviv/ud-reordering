@@ -11,6 +11,7 @@ export HOME
 
 . ../venv_hf/bin/activate
 
+export PYTHONPATH=.:$PYTHONPATH
 python "$PWD"/temp_liat_paper/run.py --output-dir "$output_dir" --dataset-id "$dataset_id" --seed "$RANDOM"
 
 
