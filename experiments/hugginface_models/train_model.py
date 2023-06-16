@@ -18,6 +18,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedTokenize
 from transformers.trainer_utils import get_last_checkpoint
 from experiments.hugginface_models.causlTrainer import CausalTrainer
 
+
 # region temp
 def get_summarization_preference_datasets(cache_dir: str, model_type: str) -> Tuple[Dataset, Dataset]:
     dataset = datasets.load_dataset("JeremyAlain/SLF5K", cache_dir=cache_dir)
@@ -490,12 +491,10 @@ def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
                 train_in_4_bit=True,
                 cache_dir=cache_dir)
 
+    exit()
+
+
 if __name__ == '__main__':
-    model_list_causal = ["decapoda-research/llama-65b-hf",
-                         "facebook/xglm-7.5B",
-                         "tiiuae/falcon-7b-instruct"]
-    model_list_seq2seq = ["google/flan-t5-xxl"]
-    DEBUG = False
     if os.path.exists('/dccstor'):
         cache_dir = '/dccstor/gmc/users/ofir.arviv/transformers_cache'
     if os.path.exists('/cs/labs/oabend'):
@@ -503,8 +502,13 @@ if __name__ == '__main__':
     else:
         cache_dir = None
 
-    debug_run("gpt2", False, cache_dir)
-    exit()
+    model_list_causal = ["decapoda-research/llama-65b-hf",
+                         "facebook/xglm-7.5B",
+                         "tiiuae/falcon-7b-instruct"]
+    model_list_seq2seq = ["google/flan-t5-xxl"]
+
+    DEBUG = False
+    # debug_run("gpt2", False, cache_dir)
 
     # region argparser
     parser = argparse.ArgumentParser()
@@ -529,9 +533,9 @@ if __name__ == '__main__':
         "model-id": "facebook/xglm-7.5B",
         "train-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv",
         "dev-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv",
-        "output-dir": "../temp/reorder",
+        "output-dir": "temp_reorder_mtop_xglm",
         "seed": 42,
-        "qlora": False,
+        "qlora": True,
         "is_seq2seq": True
     }
 
@@ -540,25 +544,11 @@ if __name__ == '__main__':
         train_dataset = load_mtop_dataset(args['train-dataset-path'])
         dev_dataset = load_mtop_dataset(args['dev-dataset-path'])
 
-        if DEBUG:
-            train_dataset = train_dataset.select(range(100))
-            dev_dataset = train_dataset
-
-            dataset_name = "cardiffnlp/tweet_sentiment_multilingual"
-            dataset = load_dataset(dataset_name, "english")
-            classes = [k.replace("_", " ") for k in dataset["train"].features["label"].names]
-            dataset = dataset.rename_column("label", "temp")
-            dataset = dataset.map(
-                lambda x: {"label": [classes[label] for label in x["temp"]]},
-                batched=True,
-                num_proc=1,
-            )
-            train_dataset = dataset['train'].select(range(1000))
-            dev_dataset = dataset['train'].select(range(1000))
-
         train_model(args['model-id'],
-                           train_dataset,
-                           dev_dataset, args['output-dir'],
-                           train_with_lora=True,
-                           train_in_4_bit=args['qlora'],
-                           cache_dir=cache_dir)
+                    False,
+                    train_dataset,
+                    dev_dataset,
+                    args['output-dir'],
+                    train_with_lora=True,
+                    train_in_4_bit=args['qlora'],
+                    cache_dir=cache_dir)
