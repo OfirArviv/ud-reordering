@@ -146,13 +146,14 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
             output_path = f'{output_dir}/{metric}_model_count_{model_count}.csv'
             os.makedirs(output_dir, exist_ok=True)
             df.to_csv(output_path)
-        except:
+        except Exception as e:
             print("-------------")
-            print(model_basename)
-            print(model_lang)
-            print(dataset_name)
-            print(dataset_lang)
-            print(df)
+            # print(str(e))
+            # print(model_basename)
+            # print(model_lang)
+            # print(dataset_name)
+            # print(dataset_lang)
+            # print(df)
 
 if __name__ == '__main__':
     # run_agg_evaluation('experiments_results/evaluation/mtop', "a")
