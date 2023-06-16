@@ -12,7 +12,7 @@ from datasets import Dataset, load_dataset
 from peft import LoraConfig, TaskType, get_peft_model, prepare_model_for_kbit_training, PeftConfig, PeftModel
 from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedTokenizerBase, \
     EvalPrediction, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
-    EarlyStoppingCallback, BitsAndBytesConfig, set_seed
+    EarlyStoppingCallback, BitsAndBytesConfig, set_seed, AutoModelForSeq2SeqLM, Seq2SeqTrainer
 from transformers.trainer_utils import get_last_checkpoint
 from causlTrainer import CausalTrainer
 
@@ -221,14 +221,15 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
     return eval_func
 
 
-def train_causal_model(model_id: str,
-                       train_dataset: Dataset,
-                       eval_dataset: Dataset,
-                       output_dir: str,
-                       train_in_4_bit: bool,
-                       train_with_lora: bool,
-                       cache_dir: str
-                       ):
+def train_model(model_id: str,
+                is_seq2seq_model: bool,
+                train_dataset: Dataset,
+                eval_dataset: Dataset,
+                output_dir: str,
+                train_in_4_bit: bool,
+                train_with_lora: bool,
+                cache_dir: str
+                ):
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
 
     if train_in_4_bit:
@@ -239,11 +240,16 @@ def train_causal_model(model_id: str,
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
+    if is_seq2seq_model:
+        preprocess_func = tokenize_dataset
+    else:
+        preprocess_func = preprocess_dataset_for_causal_lm
+
     train_dataset = train_dataset.map(
-        lambda examples: preprocess_dataset_for_causal_lm(examples, tokenizer, "text", "label"),
+        lambda examples: preprocess_func(examples, tokenizer, "text", "label"),
         batched=True, remove_columns=train_dataset.column_names)
     eval_dataset = eval_dataset.map(
-        lambda examples: preprocess_dataset_for_causal_lm(examples, tokenizer, "text", "label"),
+        lambda examples: preprocess_func(examples, tokenizer, "text", "label"),
         batched=True, remove_columns=eval_dataset.column_names)
 
     # endregion
@@ -259,17 +265,24 @@ def train_causal_model(model_id: str,
     else:
         bnb_config = None
 
-    model = AutoModelForCausalLM.from_pretrained(model_id,
-                                                 quantization_config=bnb_config,
-                                                 cache_dir=cache_dir,
-                                                 trust_remote_code=True)
+    model_loading_args = {
+        "pretrained_model_name_or_path": model_id,
+        "quantization_config": bnb_config,
+        "cache_dir": cache_dir,
+        "trust_remote_code": True
+    }
+
+    if is_seq2seq_model:
+        model = AutoModelForSeq2SeqLM.from_pretrained(**model_loading_args)
+    else:
+        model = AutoModelForCausalLM.from_pretrained(**model_loading_args)
 
     if train_in_4_bit:
         model.gradient_checkpointing_enable()
         model = prepare_model_for_kbit_training(model)
 
     if train_with_lora:
-        task_type = TaskType.CAUSAL_LM
+        task_type = TaskType.SEQ_2_SEQ_LM if is_seq2seq_model else TaskType.CAUSAL_LM
 
         config = LoraConfig(
             r=8,
@@ -285,6 +298,12 @@ def train_causal_model(model_id: str,
 
     # endregion
 
+    data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer,
+                                           model=model,
+                                           padding=True,
+                                           # label_pad_token_id=tokenizer.eos_token_id,
+                                           label_pad_token_id=-100)
+
     training_args = Seq2SeqTrainingArguments(
         output_dir=output_dir,
         num_train_epochs=50,
@@ -292,24 +311,24 @@ def train_causal_model(model_id: str,
         per_device_eval_batch_size=4,
         logging_strategy='epoch',
         evaluation_strategy='epoch',
-        save_total_limit=2,
         save_strategy='epoch',
-        optim="adamw_hf",
-        lr_scheduler_type="linear",
-        learning_rate=3e-5,
+        save_total_limit=2,
         load_best_model_at_end=True,
         metric_for_best_model="exact_match",
+        predict_with_generate=True,
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
         gradient_accumulation_steps=4,
         eval_accumulation_steps=1,
         use_mps_device=device.type == "mps",
-        predict_with_generate=True
+        optim="paged_adamw_8bit" if train_in_4_bit else "adamw_hf",
+        lr_scheduler_type="linear",
+        learning_rate=2e-4 if train_in_4_bit else 3e-5,
+        warmup_steps=2
     )
 
-    data_collator = DataCollatorForSeq2Seq(tokenizer, label_pad_token_id=tokenizer.eos_token_id)
-
-    trainer = CausalTrainer(
+    trainer_cls = Seq2SeqTrainer if is_seq2seq_model else CausalTrainer
+    trainer = trainer_cls(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
@@ -317,7 +336,7 @@ def train_causal_model(model_id: str,
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=get_eval_func(tokenizer, "exact_match"),
-        # callbacks=[EarlyStoppingCallback(early_stopping_patience=5)],
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)],
     )
 
     checkpoint = get_last_checkpoint(output_dir)
@@ -390,11 +409,14 @@ def load_mtop_dataset(dataset_path: str):
 
 
 if __name__ == '__main__':
-    model_list = ["decapoda-research/llama-65b-hf",
-                  "facebook/xglm-7.5B"]
+    model_list_causal = ["decapoda-research/llama-65b-hf",
+                         "facebook/xglm-7.5B"]
+    model_list_seq2seq = ["google/flan-t5-xxl"]
     DEBUG = False
     if os.path.exists('/dccstor'):
         cache_dir = '/dccstor/gmc/users/ofir.arviv/transformers_cache'
+    if os.path.exists('/cs/labs/oabend'):
+        cache_dir = '/cs/labs/oabend/ofir.arviv/transformers_cache'
     else:
         cache_dir = None
 
@@ -411,9 +433,10 @@ if __name__ == '__main__':
     parser_train.add_argument('--output-dir', required=True, type=str)
     parser_train.add_argument("--qlora", action="store_true")
     parser_train.add_argument('--seed', required=True, type=int)
+    parser_train.add_argument('--cache-dir', required=False, type=str, default=None)
     # endregion
 
-    # args = parser.parse_args()
+    args = parser.parse_args()
 
     args = {
         "which": "train",
@@ -422,7 +445,8 @@ if __name__ == '__main__':
         "dev-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv",
         "output-dir": "../temp/reorder",
         "seed": 42,
-        "qlora": False
+        "qlora": False,
+        "is_seq2seq": True
     }
 
     if args['which'] == "train":
@@ -446,7 +470,7 @@ if __name__ == '__main__':
             train_dataset = dataset['train'].select(range(1000))
             dev_dataset = dataset['train'].select(range(1000))
 
-        train_causal_model(args['model-id'],
+        train_model(args['model-id'],
                            train_dataset,
                            dev_dataset, args['output-dir'],
                            train_with_lora=True,
