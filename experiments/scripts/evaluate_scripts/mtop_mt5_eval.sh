@@ -27,11 +27,11 @@ if [ "$KILLABLE" ]
     sbatch_params=""
 fi
 
-# sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/eval_subscript.sh
+sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/eval_subscript.sh
 
 # Reordered Models
 combined_postfixes=("" "_combined")
-languages=(french spanish german) #hindi thai
+languages=(hindi thai french spanish german)
 algo_arr=(HUJI RASOOLINI) #  HUJI_RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
 do
