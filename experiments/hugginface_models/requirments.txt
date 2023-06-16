@@ -18,7 +18,6 @@ accelerate
 streamlit
 python-slugify
 sentencepiece
-git+https://github.com/huggingface/peft
 scikit-learn
 deepspeed
 
