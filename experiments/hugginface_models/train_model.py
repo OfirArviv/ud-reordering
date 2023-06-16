@@ -275,6 +275,8 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
         metric = evaluate.load(metric_id)
         res = metric.compute(references=decoded_labels, predictions=decoded_preds)
 
+        print(decoded_labels)
+
         return res
 
     return eval_func
