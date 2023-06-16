@@ -18,14 +18,9 @@ then
   exit 0
 fi
 
-best_model_file="$serialization_dir"/"best.th"
-if [ -f "$best_model_file" ]
-then
-  echo "delete: ""$best_model_file"
-  rm -rf "$serialization_dir"/*
-fi
+rm -rf "$serialization_dir"/*
 
-  allennlp train "$PWD"/experiments/train_configs/"$config_file" --serialization-dir "$serialization_dir" --include-package experiments.allennlp_extensions --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
+allennlp train "$PWD"/experiments/train_configs/"$config_file" --serialization-dir "$serialization_dir" --include-package experiments.allennlp_extensions --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
 
 
 
