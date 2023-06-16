@@ -148,7 +148,7 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
             df.to_csv(output_path)
         except Exception as e:
             print("-------------")
-            # print(str(e))
+            print(str(e))
             # print(model_basename)
             # print(model_lang)
             # print(dataset_name)
