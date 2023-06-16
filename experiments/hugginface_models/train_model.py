@@ -503,7 +503,7 @@ if __name__ == '__main__':
     else:
         cache_dir = None
 
-    debug_run("tiiuae/falcon-7b-instruct", False, cache_dir)
+    debug_run("gpt2", False, cache_dir)
     exit()
 
     # region argparser
