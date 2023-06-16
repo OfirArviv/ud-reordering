@@ -26,8 +26,7 @@ do
   for examples_count in "${count_arr[@]}"
   do
     export examples_count="$examples_count"
-    export model_dir="$DIR"/finetuned/english_standard_finetuned_"$lang"_"$examples_count"/
-
+    export model_dir="$PWD"/"$DIR"/finetuned/english_standard_finetuned_"$lang"_"$examples_count"/
     python experiments/scripts/validate_script/validate_base.py -m "$model_dir" -c "$expected_models_count"
   done
 done
@@ -44,7 +43,7 @@ do
       for examples_count in "${count_arr[@]}"
       do
         export examples_count="$examples_count"
-        export model_dir="$DIR"/finetuned/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned_"$examples_count"/
+        export model_dir="$PWD"/"$DIR"/finetuned/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned_"$examples_count"/
         python experiments/scripts/validate_script/validate_base.py -m "$model_dir" -c "$expected_models_count"
       done
     done
