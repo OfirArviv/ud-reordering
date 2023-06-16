@@ -443,7 +443,26 @@ def evaluate_causal_model(model_name_or_path: str,
         model = PeftModel.from_pretrained(model, peft_model_name_or_path)
 
 
-def find_all_linear_names(model, bits=4):
+def find_all_linear_names(model_id, bits=4):
+    if bits == 4:
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            # bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.bfloat16
+        )
+    else:
+        bnb_config = None
+
+    model_loading_args = {
+        "pretrained_model_name_or_path": model_id,
+        "quantization_config": bnb_config,
+        "cache_dir": cache_dir,
+        "trust_remote_code": True
+    }
+
+    model = AutoModelForCausalLM.from_pretrained(**model_loading_args)
+
     import bitsandbytes as bnb
     cls = bnb.nn.Linear4bit if bits == 4 else (bnb.nn.Linear8bitLt if bits == 8 else torch.nn.Linear)
     lora_module_names = set()
@@ -502,6 +521,9 @@ if __name__ == '__main__':
         cache_dir = '/cs/labs/oabend/ofir.arviv/transformers_cache'
     else:
         cache_dir = None
+
+    print(find_all_linear_names("facebook/xglm-7.5B", 4))
+    exit()
 
     model_list_causal = ["decapoda-research/llama-65b-hf",
                          "facebook/xglm-7.5B",
