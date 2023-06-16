@@ -1,0 +1,12 @@
+{
+  "accuracy": 0.7923976608187134,
+  "macro_fscore": 0.8605283611604676,
+  "micro_fscore": 0.805921052631579,
+  "label_has-occupation_fscore": 0.8,
+  "label_has-edu_fscore": 0.8536585365853657,
+  "label_has-type_fscore": 0.6388888888888888,
+  "label_has-genre_fscore": 0.923076923076923,
+  "label_has-population_fscore": 0.99009900990099,
+  "label_event-year_fscore": 0.9574468085106383,
+  "loss": 1.0185743563554503
+}

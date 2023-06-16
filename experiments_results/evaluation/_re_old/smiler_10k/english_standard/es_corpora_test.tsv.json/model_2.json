@@ -1,0 +1,19 @@
+{
+  "accuracy": 0.8946608946608947,
+  "macro_fscore": 0.9207613651434663,
+  "micro_fscore": 0.8981481481481483,
+  "label_from-country_fscore": 0.7317073170731708,
+  "label_is-where_fscore": 0.9347826086956522,
+  "label_org-has-member_fscore": 0.9803921568627451,
+  "label_org-has-founder_fscore": 0.8723404255319149,
+  "label_birth-place_fscore": 0.8173913043478259,
+  "label_has-occupation_fscore": 1.0,
+  "label_has-type_fscore": 0.9032258064516128,
+  "label_movie-has-director_fscore": 0.98,
+  "label_headquarters_fscore": 0.970873786407767,
+  "label_has-genre_fscore": 0.9591836734693877,
+  "label_has-author_fscore": 0.9387755102040817,
+  "label_has-parent_fscore": 0.945054945054945,
+  "label_is-member-of_fscore": 0.9361702127659575,
+  "loss": 0.47870667438573117
+}

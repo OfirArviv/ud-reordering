@@ -1,0 +1,17 @@
+{
+    "model_count": 5,
+    "accuracy_mean": 0.837,
+    "accuracy_std": 0.014404860290887946,
+    "macro_fscore_mean": 0.8597471353598996,
+    "macro_fscore_std": 0.005918451135160967,
+    "micro_fscore_mean": 0.8187012210402235,
+    "micro_fscore_std": 0.01091060830065264,
+    "label_has-type_fscore_mean": 0.8283931478179987,
+    "label_has-type_fscore_std": 0.007054732695470002,
+    "label_has-genre_fscore_mean": 0.828752848720746,
+    "label_has-genre_fscore_std": 0.008163202649380759,
+    "label_has-occupation_fscore_mean": 0.9220954095409541,
+    "label_has-occupation_fscore_std": 0.016658142608589225,
+    "loss_mean": 0.6404943355000936,
+    "loss_std": 0.06283178796481356
+}

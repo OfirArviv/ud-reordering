@@ -1,0 +1,23 @@
+{
+    "model_count": 5,
+    "accuracy_mean": 0.7742690058479532,
+    "accuracy_std": 0.010420192796026576,
+    "macro_fscore_mean": 0.8505522708900439,
+    "macro_fscore_std": 0.007289469971241406,
+    "micro_fscore_mean": 0.793466538831383,
+    "micro_fscore_std": 0.007500146433679736,
+    "label_has-population_fscore_mean": 0.996039603960396,
+    "label_has-population_fscore_std": 0.005422995618863096,
+    "label_has-edu_fscore_mean": 0.8413654618473895,
+    "label_has-edu_fscore_std": 0.00449009634036098,
+    "label_has-genre_fscore_mean": 0.8947220694411706,
+    "label_has-genre_fscore_std": 0.01775302213254086,
+    "label_has-type_fscore_mean": 0.6162380342662033,
+    "label_has-type_fscore_std": 0.022951675780518214,
+    "label_has-occupation_fscore_mean": 0.7824993896111824,
+    "label_has-occupation_fscore_std": 0.005112642426714278,
+    "label_event-year_fscore_mean": 0.9724490662139219,
+    "label_event-year_fscore_std": 0.019517462836382816,
+    "loss_mean": 1.0647832040082326,
+    "loss_std": 0.19779315676372364
+}

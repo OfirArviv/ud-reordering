@@ -1,0 +1,9 @@
+{
+  "accuracy": 0.805,
+  "macro_fscore": 0.8158449483392275,
+  "micro_fscore": 0.7672131147540984,
+  "label_has-occupation_fscore": 0.9090909090909091,
+  "label_has-genre_fscore": 0.8210526315789474,
+  "label_has-type_fscore": 0.717391304347826,
+  "loss": 0.6942713719147903
+}

@@ -1,0 +1,1 @@
+{"model_count": 5, "accuracy_mean": 0.925984251968504, "accuracy_std": 0.01632790657742342, "macro_fscore_mean": 0.5521219355523788, "macro_fscore_std": 0.1345095908686772, "micro_fscore_mean": 0.9337166653672929, "micro_fscore_std": 0.012481072751153528, "loss_mean": 0.2977981478092261, "loss_std": 0.02149145730377465}
