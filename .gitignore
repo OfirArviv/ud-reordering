@@ -1,11 +1,5 @@
 experiments/datasets/
 /venv/
 /cache/
-/experiments/processed_datasets/rebel/
-/experiments/processed_datasets/rlex/
-/experiments/processed_datasets/klue_re/
-/experiments/processed_datasets/smiler/
-/experiments/processed_datasets/smiler_10k/
-/experiments/processed_datasets/tacred_old/
 /re_tryout/
 /pairwise_constrains/
