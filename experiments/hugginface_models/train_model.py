@@ -1,7 +1,6 @@
 import argparse
 import csv
 import os
-import resource
 import sys
 
 import datasets
@@ -130,6 +129,7 @@ def peak_cpu_memory() -> Dict[str, str]:
     Only works on OSX and Linux, otherwise the result will be 0.0 for every worker.
     Code taken from: https://github.com/allenai/allennlp/blob/main/allennlp/common/util.py
     """
+    import resource
     if resource is None or sys.platform not in ("linux", "darwin"):
         peak_bytes = 0
     else:
@@ -517,6 +517,9 @@ def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
 
 
 if __name__ == '__main__':
+    # d = datasets.load_dataset("BuffetFS/BUFFET")
+
+
     if os.path.exists('/dccstor'):
         cache_dir = '/dccstor/gmc/users/ofir.arviv/transformers_cache'
     if os.path.exists('/cs/labs/oabend'):
@@ -533,7 +536,8 @@ if __name__ == '__main__':
     model_list_seq2seq = ["google/flan-t5-xxl"]
 
     DEBUG = False
-    # debug_run("gpt2", False, cache_dir)
+    debug_run("facebook/xglm-7.5B", False, cache_dir)
+    exit()
 
     # region argparser
     parser = argparse.ArgumentParser()
