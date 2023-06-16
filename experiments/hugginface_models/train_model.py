@@ -558,10 +558,9 @@ if __name__ == '__main__':
         "model-id": "facebook/xglm-7.5B",
         "train-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv",
         "dev-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv",
-        "output-dir": "temp_reorder_mtop_xglm",
+        "output-dir": "output_temp_model_reorder_mtop_xglm",
         "seed": 42,
         "qlora": True,
-        "is_seq2seq": True
     }
 
     if args['which'] == "train":
