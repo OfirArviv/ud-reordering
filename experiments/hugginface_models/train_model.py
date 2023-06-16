@@ -1,21 +1,19 @@
 import argparse
 import csv
 import os
-from typing import Tuple, Callable, Optional, Any, Union
-import datasets
+import resource
+import sys
+import torch.distributed as dist
+from typing import Callable, Dict
 import evaluate
 import numpy as np
 import torch
-from attr import dataclass
 from datasets import Dataset, load_dataset
-from peft import LoraConfig, TaskType, get_peft_model, prepare_model_for_kbit_training
-from torch.utils.data import DataLoader
-from tqdm import tqdm
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline, AutoModelForCausalLM, PreTrainedTokenizerBase, \
-    EvalPrediction, Seq2SeqTrainingArguments, Seq2SeqTrainer, DataCollatorWithPadding, DataCollatorForSeq2Seq, \
-    EarlyStoppingCallback, BitsAndBytesConfig, default_data_collator, set_seed
-from transformers.pipelines.base import KeyDataset
-from transformers.utils import PaddingStrategy
+from peft import LoraConfig, TaskType, get_peft_model, prepare_model_for_kbit_training, PeftConfig, PeftModel
+from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedTokenizerBase, \
+    EvalPrediction, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
+    EarlyStoppingCallback, BitsAndBytesConfig, set_seed
+from transformers.trainer_utils import get_last_checkpoint
 from causlTrainer import CausalTrainer
 
 
@@ -33,6 +31,140 @@ def print_trainable_parameters(model):
     print(
         f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param}"
     )
+
+
+def bytes_to_human_readable_str(size: int) -> str:
+    """
+    Format a size (in bytes) for humans.
+    Code taken from: https://github.com/allenai/allennlp/blob/main/allennlp/common/util.py
+    """
+    GBs = size / (1024 * 1024 * 1024)
+    if GBs >= 10:
+        return f"{int(round(GBs, 0))}G"
+    if GBs >= 1:
+        return f"{round(GBs, 1):.1f}G"
+    MBs = size / (1024 * 1024)
+    if MBs >= 10:
+        return f"{int(round(MBs, 0))}M"
+    if MBs >= 1:
+        return f"{round(MBs, 1):.1f}M"
+    KBs = size / 1024
+    if KBs >= 10:
+        return f"{int(round(KBs, 0))}K"
+    if KBs >= 1:
+        return f"{round(KBs, 1):.1f}K"
+    return f"{size}B"
+
+
+def is_distributed() -> bool:
+    """
+    Checks if the distributed process group is available and has been initialized
+    Code taken from: https://github.com/allenai/allennlp/blob/main/allennlp/common/util.py
+    """
+    return dist.is_available() and dist.is_initialized()
+
+
+def peak_cpu_memory() -> Dict[str, str]:
+    """
+    Get peak memory usage for each worker, as measured by max-resident-set size:
+    https://unix.stackexchange.com/questions/30940/getrusage-system-call-what-is-maximum-resident-set-size
+    Only works on OSX and Linux, otherwise the result will be 0.0 for every worker.
+    Code taken from: https://github.com/allenai/allennlp/blob/main/allennlp/common/util.py
+    """
+    if resource is None or sys.platform not in ("linux", "darwin"):
+        peak_bytes = 0
+    else:
+        peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        if sys.platform == "darwin":
+            # On OSX the result is in bytes.
+            peak_bytes = peak
+        else:
+            # On Linux the result is in kilobytes.
+            peak_bytes = peak * 1_024
+
+    if is_distributed():
+        global_rank = dist.get_rank()
+        world_size = dist.get_world_size()
+
+        peak_bytes_tensor = torch.tensor([global_rank, peak_bytes])
+        # All of these tensors will be gathered into this list.
+        gather_results = [torch.tensor([0, 0]) for _ in range(world_size)]
+
+        # If the backend is 'nccl', this means we're training on GPUs, so these tensors
+        # need to be on GPU.
+        if dist.get_backend() == "nccl":
+            peak_bytes_tensor = peak_bytes_tensor.cuda()
+            gather_results = [x.cuda() for x in gather_results]
+
+        dist.all_gather(gather_results, peak_bytes_tensor)
+
+        results_dict: Dict[int, int] = {}
+        for peak_bytes_tensor in gather_results:
+            results_dict[int(peak_bytes_tensor[0])] = int(peak_bytes_tensor[1])
+
+    else:
+        results_dict = {0: peak_bytes}
+
+    formatted_results_dict = {}
+    for cpu, memory in results_dict.items():
+        formatted_results_dict[f'cpu_{cpu}_memory_usage'] = bytes_to_human_readable_str(memory)
+
+    return formatted_results_dict
+
+
+def peak_gpu_memory() -> Dict[str, str]:
+    """
+    Get the peak GPU memory usage in bytes by device.
+    # Returns
+    `Dict[int, int]`
+        Keys are device ids as integers.
+        Values are memory usage as integers in bytes.
+        Returns an empty `dict` if GPUs are not available.
+
+    Code taken from: https://github.com/allenai/allennlp/blob/main/allennlp/common/util.py
+    """
+    if not torch.cuda.is_available():
+        return {}
+
+    device = torch.cuda.current_device()
+
+    results_dict: Dict[int, int] = {}
+    if is_distributed():
+        # If the backend is not 'nccl', we're training on CPU.
+        if dist.get_backend() != "nccl":
+            return {}
+
+        global_rank = dist.get_rank()
+        world_size = dist.get_world_size()
+        peak_bytes = torch.cuda.max_memory_allocated(device)
+        peak_bytes_tensor = torch.tensor([global_rank, peak_bytes], device=device)
+        # All of these tensors will be gathered into this list.
+        gather_results = [torch.tensor([0, 0], device=device) for _ in range(world_size)]
+
+        dist.all_gather(gather_results, peak_bytes_tensor)
+
+        for peak_bytes_tensor in gather_results:
+            results_dict[int(peak_bytes_tensor[0])] = int(peak_bytes_tensor[1])
+    else:
+        results_dict = {0: torch.cuda.max_memory_allocated()}
+
+    # Reset peak stats.
+    torch.cuda.reset_max_memory_allocated(device)
+
+    formatted_results_dict = {}
+    for gpu, memory in results_dict.items():
+        formatted_results_dict[f'gpu_{gpu}_memory_usage'] = bytes_to_human_readable_str(memory)
+
+    return formatted_results_dict
+
+
+def get_memory_metrics(split: str) -> Dict[str, str]:
+    res = {}
+    mem_metrics = peak_cpu_memory()
+    mem_metrics.update(peak_gpu_memory())
+    for k, v in mem_metrics.items():
+        res[f'{split}_{k}'] = v
+    return res
 
 
 # endregion
@@ -96,7 +228,7 @@ def train_causal_model(model_id: str,
                        train_in_4_bit: bool,
                        train_with_lora: bool,
                        cache_dir: str
-                        ):
+                       ):
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
 
     if train_in_4_bit:
@@ -140,9 +272,9 @@ def train_causal_model(model_id: str,
         task_type = TaskType.CAUSAL_LM
 
         config = LoraConfig(
-            r=16,
+            r=8,
             lora_alpha=32,
-            target_modules=["query_key_value"],  # what happens if its None?
+            target_modules=["q_proj", "v_proj"],
             lora_dropout=0.05,
             bias="none",
             task_type=task_type
@@ -185,10 +317,51 @@ def train_causal_model(model_id: str,
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=get_eval_func(tokenizer, "exact_match"),
-        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)],
+        # callbacks=[EarlyStoppingCallback(early_stopping_patience=5)],
     )
 
-    trainer.train()
+    checkpoint = get_last_checkpoint(output_dir)
+    train_result = trainer.train(resume_from_checkpoint=checkpoint)
+
+    metrics = train_result.metrics
+    metrics.update(get_memory_metrics('train'))
+
+    # TODO: Why do we need that?
+    trainer.log_metrics("train", metrics)
+    trainer.save_metrics("train", metrics)
+
+    #  TODO: Why do we need that? It saves the best model and so we can delete the checkpoint
+    #     trainer.save_model()  # Saves the tokenizer too for easy upload
+    # TODO: Why do we need that?
+    trainer.save_state()
+
+
+def evaluate_causal_model(model_name_or_path: str,
+                          eval_dataset: Dataset,
+                          output_dir: str,
+                          model_4_bit: bool,
+                          lora_model: bool,
+                          cache_dir: str
+                          ):
+    if model_4_bit:
+        assert lora_model
+
+    device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
+
+    if lora_model:
+        peft_model_name_or_path = model_name_or_path
+        config = PeftConfig.from_pretrained(peft_model_name_or_path)
+        model_name_or_path = config.base_model_name_or_path
+
+    bnb_config = None
+    model = AutoModelForCausalLM.from_pretrained(model_name_or_path,
+                                                 quantization_config=bnb_config,
+                                                 cache_dir=cache_dir,
+                                                 trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
+
+    if lora_model:
+        model = PeftModel.from_pretrained(model, peft_model_name_or_path)
 
 
 def find_all_linear_names(model, bits=4):
@@ -217,6 +390,8 @@ def load_mtop_dataset(dataset_path: str):
 
 
 if __name__ == '__main__':
+    model_list = ["decapoda-research/llama-65b-hf",
+                  "facebook/xglm-7.5B"]
     DEBUG = False
     if os.path.exists('/dccstor'):
         cache_dir = '/dccstor/gmc/users/ofir.arviv/transformers_cache'
@@ -234,18 +409,43 @@ if __name__ == '__main__':
     parser_train.add_argument('--train-dataset-path', required=True, type=str)
     parser_train.add_argument('--dev-dataset-path', required=True, type=str)
     parser_train.add_argument('--output-dir', required=True, type=str)
-    parser_train.add_argument("--qlora", action="store_true", type=bool)
+    parser_train.add_argument("--qlora", action="store_true")
     parser_train.add_argument('--seed', required=True, type=int)
-    parser_train.add_argument('--cache-dir', type=str, default=None, help='cache dir.')
-
     # endregion
 
-    args = parser.parse_args()
+    # args = parser.parse_args()
 
-    if args.which == "train":
+    args = {
+        "which": "train",
+        "model-id": "facebook/xglm-7.5B",
+        "train-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv",
+        "dev-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv",
+        "output-dir": "../temp/reorder",
+        "seed": 42,
+        "qlora": False
+    }
+
+    if args['which'] == "train":
         set_seed(args['seed'])
-        train_dataset = load_mtop_dataset(args['train-dataset'])
-        dev_dataset = load_mtop_dataset(args['dev-dataset'])
+        train_dataset = load_mtop_dataset(args['train-dataset-path'])
+        dev_dataset = load_mtop_dataset(args['dev-dataset-path'])
+
+        if DEBUG:
+            train_dataset = train_dataset.select(range(100))
+            dev_dataset = train_dataset
+
+            dataset_name = "cardiffnlp/tweet_sentiment_multilingual"
+            dataset = load_dataset(dataset_name, "english")
+            classes = [k.replace("_", " ") for k in dataset["train"].features["label"].names]
+            dataset = dataset.rename_column("label", "temp")
+            dataset = dataset.map(
+                lambda x: {"label": [classes[label] for label in x["temp"]]},
+                batched=True,
+                num_proc=1,
+            )
+            train_dataset = dataset['train'].select(range(1000))
+            dev_dataset = dataset['train'].select(range(1000))
+
         train_causal_model(args['model-id'],
                            train_dataset,
                            dev_dataset, args['output-dir'],

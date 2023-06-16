@@ -5,6 +5,8 @@ datasets
 git+https://github.com/huggingface/peft
 bitsandbytes
 
+scipy
+
 protobuf==3.20
 sentencepiece
 pandas
