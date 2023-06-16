@@ -3,8 +3,10 @@ import csv
 import os
 import resource
 import sys
+
+import datasets
 import torch.distributed as dist
-from typing import Callable, Dict
+from typing import Callable, Dict, Tuple
 import evaluate
 import numpy as np
 import torch
@@ -15,6 +17,62 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedTokenize
     EarlyStoppingCallback, BitsAndBytesConfig, set_seed, AutoModelForSeq2SeqLM, Seq2SeqTrainer
 from transformers.trainer_utils import get_last_checkpoint
 from .causlTrainer import CausalTrainer
+
+# region temp
+def get_summarization_preference_datasets(cache_dir: str, model_type: str) -> Tuple[Dataset, Dataset]:
+    dataset = datasets.load_dataset("JeremyAlain/SLF5K", cache_dir=cache_dir)
+
+    comparison_dataset_lists_dict = {}
+    for split in ['train', 'validation']:
+        split_dataset = dataset[split]
+        comparison_dataset_lists_dict[split] = []
+        for i in split_dataset:
+            post = i['post']
+            post = post.replace("\n", "")
+            summary_A = i['generated_summary_for_comparison_A']
+            summary_B = i['generated_summary_for_comparison_B']
+            _, label = i['comparison_preference'].split("Summary ")
+            if label not in ['A', 'B']:
+                continue
+            if "stanfordnlp/SteamSHP-flan-t5" in model_type:
+                comparison_prompt = f'POST: {post}\n\n' \
+                                    f'RESPONSE A: {summary_A}\n\n' \
+                                    f'RESPONSE B: {summary_B}\n\n' \
+                                    f'Which response is better? RESPONSE'
+            else:
+                sys_prompt = "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, " \
+                             "detailed, and polite answers to the user's questions."
+                instruct_intro = f'Here is a the text of a post from Reddit, and two summaries of that post. Summary A and summary B.' \
+                                 ' Remember, you will be asked to determine which summary is the better one.' \
+                                 ' A good summary is a short piece of text that has the essence of the original text.' \
+                                 ' A good summary tries to accomplish the same purpose and conveys the same information as the original' \
+                                 ' text. An excellent summary is coherent, accurate, concise, and detailed.'
+                reminder_struct = f' Remember, you will be asked to determine which summary is the better one.'
+
+                comparison_prompt = f'{sys_prompt}' \
+                                    f'{instruct_intro}' \
+                                    f'Text: {post}\n\n' \
+                                    f'Summary A: {summary_A}\n\n' \
+                                    f'{reminder_struct}\n\n' \
+                                    f'Summary B: {summary_B}\n\n' \
+                                    f'Question: Which summary is the better one? An excellent summary is coherent, accurate, concise, and detailed. Answer with A or B.\n\n' \
+                                    f'Answer: '
+            if "OpenAssistant" in model_type:
+                comparison_prompt = f'<|prompter|>{comparison_prompt}<|endoftext|><|assistant|>'
+
+            instance_dict = {
+                'text': comparison_prompt,
+                'label': label
+            }
+            comparison_dataset_lists_dict[split].append(instance_dict)
+
+    train_dataset = Dataset.from_list(comparison_dataset_lists_dict['train'])
+    valid_dataset = Dataset.from_list(comparison_dataset_lists_dict['validation'])
+
+    return train_dataset, valid_dataset
+
+
+# endregion
 
 
 # region utils
@@ -408,9 +466,34 @@ def load_mtop_dataset(dataset_path: str):
         return ds
 
 
+def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
+    dataset_name = "cardiffnlp/tweet_sentiment_multilingual"
+    dataset = load_dataset(dataset_name, "english")
+    classes = [k.replace("_", " ") for k in dataset["train"].features["label"].names]
+    dataset = dataset.rename_column("label", "temp")
+    dataset = dataset.map(
+        lambda x: {"label": [classes[label] for label in x["temp"]]},
+        batched=True,
+        num_proc=1,
+    )
+    train_dataset = dataset['train'].select(range(1000))
+    dev_dataset = dataset['train'].select(range(1000))
+
+    output_dir = "temp"
+
+    train_model(model_id,
+                is_seq2seq,
+                train_dataset,
+                dev_dataset,
+                output_dir,
+                train_with_lora=True,
+                train_in_4_bit=True,
+                cache_dir=cache_dir)
+
 if __name__ == '__main__':
     model_list_causal = ["decapoda-research/llama-65b-hf",
-                         "facebook/xglm-7.5B"]
+                         "facebook/xglm-7.5B",
+                         "tiiuae/falcon-7b-instruct"]
     model_list_seq2seq = ["google/flan-t5-xxl"]
     DEBUG = False
     if os.path.exists('/dccstor'):
@@ -419,6 +502,9 @@ if __name__ == '__main__':
         cache_dir = '/cs/labs/oabend/ofir.arviv/transformers_cache'
     else:
         cache_dir = None
+
+    debug_run("tiiuae/falcon-7b-instruct", False, cache_dir)
+    exit()
 
     # region argparser
     parser = argparse.ArgumentParser()
