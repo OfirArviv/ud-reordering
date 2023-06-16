@@ -29,4 +29,4 @@ if [ "$KILLABLE" ]
     sbatch_params=""
 fi
 
-sbatch $sbatch_params -J experiments/hugginface_models/run_subscript.sh
+sbatch $sbatch_params -J hf experiments/hugginface_models/run_subscript.sh
