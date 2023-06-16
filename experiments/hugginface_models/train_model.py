@@ -290,6 +290,7 @@ def train_model(model_id: str,
                 cache_dir: str
                 ):
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
+    print(device)
 
     if train_in_4_bit:
         assert train_with_lora
