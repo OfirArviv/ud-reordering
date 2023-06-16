@@ -16,7 +16,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedTokenize
     EvalPrediction, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
     EarlyStoppingCallback, BitsAndBytesConfig, set_seed, AutoModelForSeq2SeqLM, Seq2SeqTrainer
 from transformers.trainer_utils import get_last_checkpoint
-from .causlTrainer import CausalTrainer
+from experiments.hugginface_models.causlTrainer import CausalTrainer
 
 # region temp
 def get_summarization_preference_datasets(cache_dir: str, model_type: str) -> Tuple[Dataset, Dataset]:
