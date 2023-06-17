@@ -431,32 +431,105 @@ def train_model(model_id: str,
     trainer.save_state()
 
 
-def evaluate_causal_model(model_name_or_path: str,
-                          eval_dataset: Dataset,
-                          output_dir: str,
-                          model_4_bit: bool,
-                          lora_model: bool,
-                          cache_dir: str
-                          ):
-    if model_4_bit:
-        assert lora_model
-
+def evaluate_model(model_id: str,
+                   is_seq2seq_model: bool,
+                   train_in_4_bit: bool,
+                   train_with_lora: bool,
+                   eval_dataset: Dataset,
+                   output_dir: str,
+                   cache_dir: str
+                   ):
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
+    print(device)
 
-    if lora_model:
-        peft_model_name_or_path = model_name_or_path
-        config = PeftConfig.from_pretrained(peft_model_name_or_path)
-        model_name_or_path = config.base_model_name_or_path
+    # region model preparation
+    if train_in_4_bit:
+        assert train_with_lora
 
-    bnb_config = None
-    model = AutoModelForCausalLM.from_pretrained(model_name_or_path,
-                                                 quantization_config=bnb_config,
-                                                 cache_dir=cache_dir,
-                                                 trust_remote_code=True)
-    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
+    if train_with_lora:
+        peft_model_name_or_path = model_id
+        peft_config = PeftConfig.from_pretrained(peft_model_name_or_path)
+        model_id = peft_config.base_model_name_or_path
 
-    if lora_model:
+    if train_in_4_bit:
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            # bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.bfloat16
+        )
+    else:
+        bnb_config = None
+
+    model_loading_args = {
+        "pretrained_model_name_or_path": model_id,
+        "quantization_config": bnb_config,
+        "cache_dir": cache_dir,
+        "trust_remote_code": True
+    }
+
+    if is_seq2seq_model:
+        model = AutoModelForSeq2SeqLM.from_pretrained(**model_loading_args)
+    else:
+        model = AutoModelForCausalLM.from_pretrained(**model_loading_args)
+
+    if train_with_lora:
         model = PeftModel.from_pretrained(model, peft_model_name_or_path)
+
+    # endregion
+
+    # region tokenizer and dataset preparation
+
+    tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir=cache_dir)
+    if tokenizer.pad_token_id is None:
+        tokenizer.pad_token_id = tokenizer.eos_token_id
+
+    if is_seq2seq_model:
+        preprocess_func = tokenize_dataset
+    else:
+        preprocess_func = preprocess_dataset_for_causal_lm
+
+    eval_dataset = eval_dataset.map(
+        lambda examples: preprocess_func(examples, tokenizer, "text", "label"),
+        batched=True, remove_columns=train_dataset.column_names)
+
+    # endregion
+
+    data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer,
+                                           model=model,
+                                           padding=True,
+                                           # label_pad_token_id=tokenizer.eos_token_id,
+                                           label_pad_token_id=-100)
+
+    training_args = Seq2SeqTrainingArguments(
+        output_dir=output_dir,
+        per_device_eval_batch_size=4,
+        predict_with_generate=True,
+        # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
+        # fp16=device != "mps",
+        eval_accumulation_steps=1,
+        use_mps_device=device.type == "mps",
+        report_to="none"
+    )
+
+    trainer_cls = Seq2SeqTrainer if is_seq2seq_model else CausalTrainer
+    trainer = trainer_cls(
+        model=model,
+        args=training_args,
+        eval_dataset=eval_dataset,
+        tokenizer=tokenizer,
+        data_collator=data_collator,
+        compute_metrics=get_eval_func(tokenizer, "exact_match")
+    )
+
+    metrics = trainer.evaluate(eval_dataset)
+    print(metrics)
+
+    # TODO: Why do we need that?
+    # trainer.log_metrics("train", metrics)
+    # trainer.save_metrics("train", metrics)
+
+
 
 
 def find_all_linear_names(model_id, bits=4):
@@ -503,6 +576,35 @@ def load_mtop_dataset(dataset_path: str):
         return ds
 
 
+def load_nli_dataset(dataset_path: str):
+    def get_prompt(premise: str, hypothesis: str) -> str:
+        return f'In the Natural Language Inference (NLI) task, given a premise and an hypothesis, ' \
+               f'the goal is to determine the logical relationship between the premise and the hypothesis. ' \
+               f'Please label the logical relationship between the premise and the hypothesis as ' \
+               f'either "entailment", "contradiction", or "neutral".\n\n' \
+               f'Premise: {premise}\n\n' \
+               f'Hypothesis: {hypothesis}\n\n' \
+               f'Label: '
+
+    label_id_to_str = {
+        0: "entailment",
+        1: "neutral",
+        2: "contradiction"
+    }
+
+    dataset = datasets.load_dataset(dataset_path, "csv")
+
+    dataset = dataset.map(
+        lambda x: {
+            "text": [get_prompt(premise, hypothesis) for premise, hypothesis in zip(x["premise"], x["hypothesis"])],
+            "label": [label_id_to_str[label] for label in x["label"]]},
+        batched=True,
+        num_proc=1, remove_columns=["premise", "hypothesis"]
+    )
+
+    return dataset
+
+
 def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
     dataset_name = "cardiffnlp/tweet_sentiment_multilingual"
     dataset = load_dataset(dataset_name, "english")
@@ -531,7 +633,22 @@ def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
 
 
 if __name__ == '__main__':
+
     print("hi there!")
+
+    ds_path = "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv"
+    dev_dataset = load_mtop_dataset(ds_path)
+    evaluate_model("temp/checkpoint-979",
+                   False,
+                   True,
+                   True,
+                   dev_dataset,
+                   "temp",
+                   None)
+
+    exit()
+
+
     if os.path.exists('/dccstor'):
         cache_dir = '/dccstor/gmc/users/ofir.arviv/transformers_cache'
     if os.path.exists('/cs/labs/oabend'):
