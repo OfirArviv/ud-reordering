@@ -129,10 +129,10 @@ def peak_cpu_memory() -> Dict[str, str]:
     Only works on OSX and Linux, otherwise the result will be 0.0 for every worker.
     Code taken from: https://github.com/allenai/allennlp/blob/main/allennlp/common/util.py
     """
-    import resource
-    if resource is None or sys.platform not in ("linux", "darwin"):
+    if sys.platform not in ("linux", "darwin"):
         peak_bytes = 0
     else:
+        import resource
         peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         if sys.platform == "darwin":
             # On OSX the result is in bytes.
@@ -252,10 +252,8 @@ def preprocess_dataset_for_causal_lm(examples: Dataset, tokenizer: PreTrainedTok
     labels = tokenizer(targets)
     for i in range(batch_size):
         sample_input_ids = model_inputs["input_ids"][i]
-        label_input_ids = labels["input_ids"][i] + [
-            tokenizer.pad_token_id]  # TODO: Why we add the padding? Is it suppose to be eos token?
-        model_inputs["input_ids"][
-            i] = sample_input_ids + label_input_ids  # TODO: This is so the label and input will be differnet tokens. I think?
+        label_input_ids = labels["input_ids"][i] + [tokenizer.eos_token_id] #  [tokenizer.pad_token_id]  # TODO: Why we add the padding? Is it suppose to be eos token?
+        model_inputs["input_ids"][i] = sample_input_ids + label_input_ids  # TODO: This is so the label and input will be differnet tokens. I think?
         model_inputs["attention_mask"][i] = [1] * len(model_inputs["input_ids"][i])
         labels["input_ids"][i] = [-100] * len(sample_input_ids) + label_input_ids
     model_inputs['labels'] = labels["input_ids"]
@@ -511,7 +509,7 @@ def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
                 dev_dataset,
                 output_dir,
                 train_with_lora=True,
-                train_in_4_bit=True,
+                train_in_4_bit=False,
                 cache_dir=cache_dir)
 
     exit()
@@ -525,7 +523,7 @@ if __name__ == '__main__':
     else:
         cache_dir = None
 
-    debug_run("bigscience/bloom-7b1", False, cache_dir)
+    debug_run("facebook/xglm-564m", False, cache_dir)
     exit()
 
     # print(find_all_linear_names("facebook/xglm-7.5B", 4))
