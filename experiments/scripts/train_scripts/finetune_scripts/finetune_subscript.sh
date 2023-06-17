@@ -14,6 +14,7 @@ export HOME
 metrics_file="$serialization_dir"/"metrics.json"
 if [ -f "$metrics_file" ]
 then
+  rm -rf "$serialization_dir"/*.th
   echo "exit: ""$metrics_file"
   exit 0
 fi
