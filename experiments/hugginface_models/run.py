@@ -595,7 +595,7 @@ if __name__ == '__main__':
     # region Train argparser
     parser_train = subparsers.add_parser('train')
     parser_train.set_defaults(which='train')
-    parser_train.add_argument('--model-id', required=True, type=int)
+    parser_train.add_argument('--model-id', required=True, type=str)
     parser_train.add_argument('--train-dataset-path', required=True, type=str)
     parser_train.add_argument('--dev-dataset-path', required=True, type=str)
     parser_train.add_argument('--output-dir', required=True, type=str)
@@ -606,6 +606,10 @@ if __name__ == '__main__':
     # endregion
 
     args = parser.parse_args()
+
+    print(args['lora'])
+    print(args['qlora'])
+    exit()
 
     model_list_causal = ["decapoda-research/llama-65b-hf",
                          "facebook/xglm-7.5B",
