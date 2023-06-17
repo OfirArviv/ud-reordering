@@ -413,7 +413,8 @@ def evaluate_model(model_id: str,
                    train_with_lora: bool,
                    eval_dataset: Dataset,
                    output_dir: str,
-                   cache_dir: str
+                   cache_dir: str,
+                   label: str
                    ):
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
     print(device)
@@ -508,8 +509,8 @@ def evaluate_model(model_id: str,
     print(decoded_predictions)
 
     # TODO: Why do we need that?
-    # trainer.log_metrics("train", metrics)
-    # trainer.save_metrics("train", metrics)
+    trainer.log_metrics(f'test_{label}', metrics)
+    trainer.save_metrics(f'test_{label}', metrics)
 
 
 def load_mtop_dataset(dataset_path: str):
@@ -605,6 +606,17 @@ if __name__ == '__main__':
     parser_train.add_argument('--cache-dir', required=False, type=str, default=None)
     # endregion
 
+    # region Eval argparser
+    parser_eval = subparsers.add_parser('eval')
+    parser_eval.set_defaults(which='eval')
+    parser_eval.add_argument('--model-id', required=True, type=str)
+    parser_eval.add_argument('--eval-dataset-path', required=True, type=str)
+    parser_eval.add_argument('--output-dir', required=True, type=str)
+    parser_eval.add_argument('--seq2seq', action="store_true", default=False)
+    parser_eval.add_argument("--lora", action="store_true", default=False)
+    parser_eval.add_argument("--qlora", action="store_true", default=False)
+    parser_eval.add_argument('--cache-dir', required=False, type=str, default=None)
+    # endregion
     args = parser.parse_args()
 
     model_list_causal = ["decapoda-research/llama-65b-hf",
@@ -637,3 +649,22 @@ if __name__ == '__main__':
                     train_with_lora=args.lora,
                     train_in_4_bit=args.qlora,
                     cache_dir=cache_dir)
+
+    if args.which == "eval":
+        eval_dataset_path = args.eval_dataset_path
+        if "mtop" in eval_dataset_path:
+            eval_dataset = load_mtop_dataset(eval_dataset_path)
+        elif "xnli" in eval_dataset_path:
+            eval_dataset = load_nli_dataset(eval_dataset_path)
+        else:
+            raise NotImplementedError(eval_dataset_path)
+
+        label = os.path.basename(eval_dataset_path)
+        evaluate_model(model_id=args.model_id,
+                       is_seq2seq_model=args.seq2seq,
+                       train_with_lora=args.lora,
+                       train_in_4_bit=args.qlora,
+                       eval_dataset=eval_dataset,
+                       output_dir=args.output_dir,
+                       cache_dir=cache_dir,
+                       label=label)
