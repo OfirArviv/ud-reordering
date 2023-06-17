@@ -10,8 +10,8 @@ export model_id="google/mt5-base"
 export train_dataset_path="experiments/processed_datasets/xnli/standard/english_xnli_train.csv"
 export dev_dataset_path="experiments/processed_datasets/xnli/standard/english_xnli_eval.csv"
 export output_dir="temp_outputs/mt5_xnli/en_standard"
-export use_lora=null
-export use_qlora=null
+# export use_lora=null
+# export use_qlora=null
 
 
 if [ ! -d "$output_dir" ]; then
