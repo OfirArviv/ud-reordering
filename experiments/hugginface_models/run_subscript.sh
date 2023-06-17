@@ -17,12 +17,12 @@ export PYTHONPATH=.:$PYTHONPATH
 extra_params=""
 if [ "$use_lora" ]
  then
-   extra_params="extra_params"" --lora"
+   extra_params="$extra_params"" --lora"
 fi
 
 if [ "$use_qlora" ]
  then
-   extra_params="extra_params"" --qlora"
+   extra_params="$extra_params"" --qlora"
 fi
 
 python "$PWD"/experiments/hugginface_models/run.py train --model-id  "$model_id" --train-dataset-path "$train_dataset_path" --dev-dataset-path "$dev_dataset_path" --output-dir "$output_dir" --seed "$RANDOM" $extra_params
