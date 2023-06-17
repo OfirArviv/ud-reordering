@@ -14,18 +14,17 @@ export HOME
 module load cuda/11.7
 export PYTHONPATH=.:$PYTHONPATH
 
-run_params=" --model-id ""$model_id"" --train-dataset-path ""$train_dataset_path"" --dev-dataset-path ""$dev_dataset_path"" --output-dir ""$output_dir"" --seed ""$RANDOM"
-
+extra_params=""
 if [ "$use_lora" ]
  then
-   run_params="$run_params"" --lora"
+   extra_params="extra_params"" --lora"
 fi
 
 if [ "$use_qlora" ]
  then
-   run_params="$run_params"" --qlora"
+   extra_params="extra_params"" --qlora"
 fi
 
-python "$PWD"/experiments/hugginface_models/run.py train $run_params
+python "$PWD"/experiments/hugginface_models/run.py train --model-id  "$model_id" --train-dataset-path "$train_dataset_path" --dev-dataset-path "$dev_dataset_path" --output-dir "$output_dir" --seed "$RANDOM" $extra_params
 
 
