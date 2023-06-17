@@ -539,7 +539,7 @@ def load_nli_dataset(dataset_path: str):
         2: "contradiction"
     }
 
-    dataset = datasets.load_dataset(dataset_path, "csv")
+    dataset = datasets.load_dataset("csv", data_files=dataset_path)['train']
 
     dataset = dataset.map(
         lambda x: {

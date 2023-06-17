@@ -7,9 +7,9 @@ export HOME
 
 export action="train"
 export model_id="facebook/xglm-7.5B"
-export train_dataset_path="experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv"
-export dev_dataset_path="experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv"
-export output_dir="temp_outputs/xglm_mtop_tryout/en_standard_1"
+export train_dataset_path="experiments/processed_datasets/xnli/standard/english_xnli_train.csv"
+export dev_dataset_path="experiments/processed_datasets/xnli/standard/english_xnli_eval.csv"
+export output_dir="temp_outputs/xglm_xnli_tryout/en_standard_1"
 export use_lora=1
 export use_qlora=1
 
