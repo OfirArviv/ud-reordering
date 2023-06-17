@@ -257,15 +257,17 @@ def preprocess_dataset_for_causal_lm(examples: Dataset, tokenizer: PreTrainedTok
         # happens in xglm for some reason
         if sample_input_ids[0] == tokenizer.eos_token_id:
             sample_input_ids = sample_input_ids[1:]
-        # The original code appended  [tokenizer.pad_token_id], and gpt2 did converge with this. But bloom did not.
-        # With  [tokenizer.eos_token_id] it does, and it seems a more natural choice.
+
         label_input_ids = labels["input_ids"][i]
         if label_input_ids[0] == tokenizer.eos_token_id:
             label_input_ids = label_input_ids[1:]
-        label_input_ids = label_input_ids + [
-            tokenizer.eos_token_id]  # [tokenizer.pad_token_id]  # TODO: Why we add the padding? Is it suppose to be eos token?
-        model_inputs["input_ids"][
-            i] = sample_input_ids + label_input_ids  # TODO: This is so the label and input will be differnet tokens. I think?
+
+        # The original code appended  [tokenizer.pad_token_id], and gpt2 did converge with this. But bloom did not.
+        # With  [tokenizer.eos_token_id] it does, and it seems a more natural choice.
+        # TODO: Why we add the padding? Is it suppose to be eos token?
+        label_input_ids = label_input_ids + [tokenizer.eos_token_id]  # [tokenizer.pad_token_id]
+        # TODO: This is so the label and input will be differnet tokens. I think?
+        model_inputs["input_ids"][i] = sample_input_ids + label_input_ids
         model_inputs["attention_mask"][i] = [1] * len(model_inputs["input_ids"][i])
         labels["input_ids"][i] = [-100] * len(sample_input_ids) + label_input_ids
     model_inputs['labels'] = labels["input_ids"]
@@ -494,7 +496,7 @@ def load_mtop_dataset(dataset_path: str):
     with open(dataset_path, "r", encoding='utf-8') as f:
         rows = list(csv.reader(f, delimiter='\t', quoting=csv.QUOTE_MINIMAL))
         dataset_dict = {
-            "text": [r[0] for r in rows],
+            "text": [f'Parse the following sentence: {[0]} Answer: ' for r in rows],
             "label": [r[1] for r in rows]
         }
         ds = Dataset.from_dict(dataset_dict)
