@@ -19,7 +19,7 @@ then
 fi
 
 rm -rf "$serialization_dir"/*
-exit 0
+
 allennlp train "$PWD"/experiments/train_configs/"$config_file" --serialization-dir "$serialization_dir" --include-package experiments.allennlp_extensions --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
 
 
