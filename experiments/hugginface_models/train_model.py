@@ -525,11 +525,12 @@ def evaluate_model(model_id: str,
     metrics = trainer.evaluate(eval_dataset)
     print(metrics)
 
+    prediction = trainer.predict(eval_dataset)
+    print(prediction)
+
     # TODO: Why do we need that?
     # trainer.log_metrics("train", metrics)
     # trainer.save_metrics("train", metrics)
-
-
 
 
 def find_all_linear_names(model_id, bits=4):
@@ -569,7 +570,7 @@ def load_mtop_dataset(dataset_path: str):
     with open(dataset_path, "r", encoding='utf-8') as f:
         rows = list(csv.reader(f, delimiter='\t', quoting=csv.QUOTE_MINIMAL))
         dataset_dict = {
-            "text": [f'Parse the following sentence: {[0]} Answer: ' for r in rows],
+            "text": [f'Parse the following sentence: {r[0]} Answer: ' for r in rows],
             "label": [r[1] for r in rows]
         }
         ds = Dataset.from_dict(dataset_dict)
@@ -633,22 +634,6 @@ def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
 
 
 if __name__ == '__main__':
-
-    print("hi there!")
-
-    ds_path = "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv"
-    dev_dataset = load_mtop_dataset(ds_path)
-    evaluate_model("temp/checkpoint-979",
-                   False,
-                   True,
-                   True,
-                   dev_dataset,
-                   "temp",
-                   None)
-
-    exit()
-
-
     if os.path.exists('/dccstor'):
         cache_dir = '/dccstor/gmc/users/ofir.arviv/transformers_cache'
     if os.path.exists('/cs/labs/oabend'):
@@ -661,7 +646,7 @@ if __name__ == '__main__':
         "model-id": "facebook/xglm-7.5B",
         "train-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv",
         "dev-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv",
-        "output-dir": "output_temp_model_reorder_mtop_xglm",
+        "output-dir": "output_temp_model_reorder_mtop_xglm_fix",
         "seed": 42,
         "qlora": True,
     }
@@ -670,6 +655,9 @@ if __name__ == '__main__':
         set_seed(args['seed'])
         train_dataset = load_mtop_dataset(args['train-dataset-path'])
         dev_dataset = load_mtop_dataset(args['dev-dataset-path'])
+
+        train_dataset = train_dataset.select(range(1000))
+        dev_dataset = train_dataset
 
         train_model(args['model-id'],
                     False,
