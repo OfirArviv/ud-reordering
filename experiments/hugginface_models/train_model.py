@@ -525,7 +525,7 @@ if __name__ == '__main__':
     else:
         cache_dir = None
 
-    debug_run("facebook/xglm-7.5B", False, cache_dir)
+    debug_run("bigscience/bloom-7b1", False, cache_dir)
     exit()
 
     # print(find_all_linear_names("facebook/xglm-7.5B", 4))
