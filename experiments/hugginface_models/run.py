@@ -620,11 +620,11 @@ if __name__ == '__main__':
         if "mtop" in train_dataset_path:
             train_dataset = load_mtop_dataset(train_dataset_path)
             dev_dataset = load_mtop_dataset(dev_dataset_path)
-        elif "xnli" in train_dataset:
+        elif "xnli" in train_dataset_path:
             train_dataset = load_nli_dataset(train_dataset_path)
             dev_dataset = load_nli_dataset(dev_dataset_path)
         else:
-            raise NotImplementedError(train_dataset)
+            raise NotImplementedError(train_dataset_path)
 
         model_id = args.model_id
         assert model_id in (model_list_seq2seq + model_list_causal)
