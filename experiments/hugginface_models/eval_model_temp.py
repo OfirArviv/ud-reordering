@@ -525,6 +525,9 @@ def evaluate_model(model_id: str,
     metrics = trainer.evaluate(eval_dataset)
     print(metrics)
 
+    predictions = trainer.predict(eval_dataset)
+    print(predictions)
+
     # TODO: Why do we need that?
     # trainer.log_metrics("train", metrics)
     # trainer.save_metrics("train", metrics)
