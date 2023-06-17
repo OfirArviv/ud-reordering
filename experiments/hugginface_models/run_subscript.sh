@@ -13,6 +13,6 @@ export HOME
 
 module load cuda/11.7
 export PYTHONPATH=.:$PYTHONPATH
-python "$PWD"/experiments/hugginface_models/train_model.py
+python "$PWD"/experiments/hugginface_models/eval_model_temp.py
 
 
