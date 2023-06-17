@@ -569,7 +569,7 @@ def load_mtop_dataset(dataset_path: str):
     with open(dataset_path, "r", encoding='utf-8') as f:
         rows = list(csv.reader(f, delimiter='\t', quoting=csv.QUOTE_MINIMAL))
         dataset_dict = {
-            "text": [f'Parse the following sentence: {[0]} Answer: ' for r in rows],
+            "text": [f'Parse the following sentence: {r[0]} Answer: ' for r in rows],
             "label": [r[1] for r in rows]
         }
         ds = Dataset.from_dict(dataset_dict)
