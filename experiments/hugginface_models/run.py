@@ -20,64 +20,41 @@ from transformers.utils import logging
 from experiments.hugginface_models.causlTrainer import CausalTrainer
 
 
-# region temp
-def get_summarization_preference_datasets(cache_dir: str, model_type: str) -> Tuple[Dataset, Dataset]:
-    dataset = datasets.load_dataset("JeremyAlain/SLF5K", cache_dir=cache_dir)
-
-    comparison_dataset_lists_dict = {}
-    for split in ['train', 'validation']:
-        split_dataset = dataset[split]
-        comparison_dataset_lists_dict[split] = []
-        for i in split_dataset:
-            post = i['post']
-            post = post.replace("\n", "")
-            summary_A = i['generated_summary_for_comparison_A']
-            summary_B = i['generated_summary_for_comparison_B']
-            _, label = i['comparison_preference'].split("Summary ")
-            if label not in ['A', 'B']:
-                continue
-            if "stanfordnlp/SteamSHP-flan-t5" in model_type:
-                comparison_prompt = f'POST: {post}\n\n' \
-                                    f'RESPONSE A: {summary_A}\n\n' \
-                                    f'RESPONSE B: {summary_B}\n\n' \
-                                    f'Which response is better? RESPONSE'
-            else:
-                sys_prompt = "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, " \
-                             "detailed, and polite answers to the user's questions."
-                instruct_intro = f'Here is a the text of a post from Reddit, and two summaries of that post. Summary A and summary B.' \
-                                 ' Remember, you will be asked to determine which summary is the better one.' \
-                                 ' A good summary is a short piece of text that has the essence of the original text.' \
-                                 ' A good summary tries to accomplish the same purpose and conveys the same information as the original' \
-                                 ' text. An excellent summary is coherent, accurate, concise, and detailed.'
-                reminder_struct = f' Remember, you will be asked to determine which summary is the better one.'
-
-                comparison_prompt = f'{sys_prompt}' \
-                                    f'{instruct_intro}' \
-                                    f'Text: {post}\n\n' \
-                                    f'Summary A: {summary_A}\n\n' \
-                                    f'{reminder_struct}\n\n' \
-                                    f'Summary B: {summary_B}\n\n' \
-                                    f'Question: Which summary is the better one? An excellent summary is coherent, accurate, concise, and detailed. Answer with A or B.\n\n' \
-                                    f'Answer: '
-            if "OpenAssistant" in model_type:
-                comparison_prompt = f'<|prompter|>{comparison_prompt}<|endoftext|><|assistant|>'
-
-            instance_dict = {
-                'text': comparison_prompt,
-                'label': label
-            }
-            comparison_dataset_lists_dict[split].append(instance_dict)
-
-    train_dataset = Dataset.from_list(comparison_dataset_lists_dict['train'])
-    valid_dataset = Dataset.from_list(comparison_dataset_lists_dict['validation'])
-
-    return train_dataset, valid_dataset
-
-
-# endregion
-
-
 # region utils
+
+def find_all_linear_names(model_id, bits=4):
+    if bits == 4:
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            # bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.bfloat16
+        )
+    else:
+        bnb_config = None
+
+    model_loading_args = {
+        "pretrained_model_name_or_path": model_id,
+        "quantization_config": bnb_config,
+        "cache_dir": cache_dir,
+        "trust_remote_code": True
+    }
+
+    model = AutoModelForCausalLM.from_pretrained(**model_loading_args)
+
+    import bitsandbytes as bnb
+    cls = bnb.nn.Linear4bit if bits == 4 else (bnb.nn.Linear8bitLt if bits == 8 else torch.nn.Linear)
+    lora_module_names = set()
+    for name, module in model.named_modules():
+        if isinstance(module, cls):
+            names = name.split('.')
+            lora_module_names.add(names[0] if len(names) == 1 else names[-1])
+
+    if 'lm_head' in lora_module_names:  # needed for 16-bit
+        lora_module_names.remove('lm_head')
+    return list(lora_module_names)
+
+
 def print_trainable_parameters(model):
     """
     Prints the number of trainable parameters in the model.
@@ -230,7 +207,6 @@ def get_memory_metrics(split: str) -> Dict[str, str]:
 
 # endregion
 
-
 # region dataset processing
 def tokenize_dataset(examples: Dataset, tokenizer: PreTrainedTokenizerBase,
                      text_column: str, label_column: str):
@@ -381,7 +357,7 @@ def train_model(model_id: str,
 
     training_args = Seq2SeqTrainingArguments(
         output_dir=output_dir,
-        num_train_epochs=50,
+        num_train_epochs=20,
         per_device_train_batch_size=4,
         per_device_eval_batch_size=4,
         logging_strategy='epoch',
@@ -525,45 +501,15 @@ def evaluate_model(model_id: str,
     metrics = trainer.evaluate(eval_dataset)
     print(metrics)
 
-    prediction = trainer.predict(eval_dataset)
-    print(prediction)
+    predictions = trainer.predict(eval_dataset)
+    print(predictions)
+
+    decoded_predictions = tokenizer.batch_decode(predictions)
+    print(decoded_predictions)
 
     # TODO: Why do we need that?
     # trainer.log_metrics("train", metrics)
     # trainer.save_metrics("train", metrics)
-
-
-def find_all_linear_names(model_id, bits=4):
-    if bits == 4:
-        bnb_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            # bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.bfloat16
-        )
-    else:
-        bnb_config = None
-
-    model_loading_args = {
-        "pretrained_model_name_or_path": model_id,
-        "quantization_config": bnb_config,
-        "cache_dir": cache_dir,
-        "trust_remote_code": True
-    }
-
-    model = AutoModelForCausalLM.from_pretrained(**model_loading_args)
-
-    import bitsandbytes as bnb
-    cls = bnb.nn.Linear4bit if bits == 4 else (bnb.nn.Linear8bitLt if bits == 8 else torch.nn.Linear)
-    lora_module_names = set()
-    for name, module in model.named_modules():
-        if isinstance(module, cls):
-            names = name.split('.')
-            lora_module_names.add(names[0] if len(names) == 1 else names[-1])
-
-    if 'lm_head' in lora_module_names:  # needed for 16-bit
-        lora_module_names.remove('lm_head')
-    return list(lora_module_names)
 
 
 def load_mtop_dataset(dataset_path: str):
@@ -641,49 +587,8 @@ if __name__ == '__main__':
     else:
         cache_dir = None
 
-    args = {
-        "which": "train",
-        "model-id": "facebook/xglm-7.5B",
-        "train-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv",
-        "dev-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv",
-        "output-dir": "output_temp_model_reorder_mtop_xglm_fix",
-        "seed": 42,
-        "qlora": True,
-    }
-
-    if args['which'] == "train":
-        set_seed(args['seed'])
-        train_dataset = load_mtop_dataset(args['train-dataset-path'])
-        dev_dataset = load_mtop_dataset(args['dev-dataset-path'])
-
-        train_dataset = train_dataset.select(range(1000))
-        dev_dataset = train_dataset
-
-        train_model(args['model-id'],
-                    False,
-                    train_dataset,
-                    dev_dataset,
-                    args['output-dir'],
-                    train_with_lora=True,
-                    train_in_4_bit=args['qlora'],
-                    cache_dir=cache_dir)
-    exit()
-
-    # facebook/xglm-564M , bigscience/bloom-650m
-    # debug_run("facebook/xglm-564m", False, cache_dir)
-    # exit()
-
-    # print(find_all_linear_names("facebook/xglm-7.5B", 4))
-    # exit()
-
-    model_list_causal = ["decapoda-research/llama-65b-hf",
-                         "facebook/xglm-7.5B",
-                         "tiiuae/falcon-7b-instruct"]
-    model_list_seq2seq = ["google/flan-t5-xxl"]
-
-    DEBUG = False
-
     # region argparser
+
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='sub-command help')
 
@@ -694,33 +599,40 @@ if __name__ == '__main__':
     parser_train.add_argument('--train-dataset-path', required=True, type=str)
     parser_train.add_argument('--dev-dataset-path', required=True, type=str)
     parser_train.add_argument('--output-dir', required=True, type=str)
-    parser_train.add_argument("--qlora", action="store_true")
+    parser_train.add_argument("--lora", action="store_true", default=False)
+    parser_train.add_argument("--qlora", action="store_true", default=False)
     parser_train.add_argument('--seed', required=True, type=int)
     parser_train.add_argument('--cache-dir', required=False, type=str, default=None)
     # endregion
 
     args = parser.parse_args()
 
-    args = {
-        "which": "train",
-        "model-id": "facebook/xglm-7.5B",
-        "train-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv",
-        "dev-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv",
-        "output-dir": "output_temp_model_reorder_mtop_xglm",
-        "seed": 42,
-        "qlora": True,
-    }
+    model_list_causal = ["decapoda-research/llama-65b-hf",
+                         "facebook/xglm-7.5B",
+                         "tiiuae/falcon-7b-instruct"]
+    model_list_seq2seq = ["google/flan-t5-xxl",
+                          "google/mt-base"]
 
-    if args['which'] == "train":
+    if args.which == "train":
         set_seed(args['seed'])
-        train_dataset = load_mtop_dataset(args['train-dataset-path'])
-        dev_dataset = load_mtop_dataset(args['dev-dataset-path'])
+        train_dataset = args['train-dataset-path']
+        if "mtop" in train_dataset:
+            train_dataset = load_mtop_dataset(args['train-dataset-path'])
+            dev_dataset = load_mtop_dataset(args['dev-dataset-path'])
+        elif "xnli" in train_dataset:
+            train_dataset = load_nli_dataset(args['train-dataset-path'])
+            dev_dataset = load_nli_dataset(args['dev-dataset-path'])
+        else:
+            raise NotImplementedError(train_dataset)
 
-        train_model(args['model-id'],
-                    False,
+        model_id = args['model-id']
+        assert model_id in (model_list_seq2seq + model_list_causal)
+        is_seq2seq_model = model_id in model_list_seq2seq
+        train_model(model_id,
+                    is_seq2seq_model,
                     train_dataset,
                     dev_dataset,
                     args['output-dir'],
-                    train_with_lora=True,
+                    train_with_lora=args['lora'],
                     train_in_4_bit=args['qlora'],
                     cache_dir=cache_dir)
