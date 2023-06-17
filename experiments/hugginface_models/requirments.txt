@@ -4,26 +4,10 @@ evaluate
 datasets
 git+https://github.com/huggingface/peft
 bitsandbytes
+# git+https://github.com/Keith-Hon/bitsandbytes-windows.git
+
+# for xglm model
+sentencepiece
+protobuf==3.2
 
 scipy
-
-protobuf==3.20
-sentencepiece
-pandas
-rouge_score
-nltk
-deepspeed
-mpi4py
-accelerate
-streamlit
-python-slugify
-sentencepiece
-scikit-learn
-deepspeed
-
-accelerate
-xformers
-trl
-sentencepiece
-protobuf==3.20
-git+ssh://git@github.ibm.com/CVAR-DL-DET/pyutils.git

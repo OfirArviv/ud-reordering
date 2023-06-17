@@ -1,7 +1,6 @@
 import argparse
 import csv
 import os
-import resource
 import sys
 
 import datasets
@@ -130,6 +129,7 @@ def peak_cpu_memory() -> Dict[str, str]:
     Only works on OSX and Linux, otherwise the result will be 0.0 for every worker.
     Code taken from: https://github.com/allenai/allennlp/blob/main/allennlp/common/util.py
     """
+    import resource
     if resource is None or sys.platform not in ("linux", "darwin"):
         peak_bytes = 0
     else:
@@ -386,7 +386,8 @@ def train_model(model_id: str,
         optim="paged_adamw_8bit" if train_in_4_bit else "adamw_hf",
         lr_scheduler_type="linear",
         learning_rate=2e-4 if train_in_4_bit else 3e-5,
-        warmup_steps=2
+        warmup_steps=2,
+        report_to="none"
     )
 
     trainer_cls = Seq2SeqTrainer if is_seq2seq_model else CausalTrainer
@@ -502,7 +503,7 @@ def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
     train_dataset = dataset['train'].select(range(1000))
     dev_dataset = dataset['train'].select(range(1000))
 
-    output_dir = "temp"
+    output_dir = "hf_try_temp"
 
     train_model(model_id,
                 is_seq2seq,
@@ -523,6 +524,9 @@ if __name__ == '__main__':
         cache_dir = '/cs/labs/oabend/ofir.arviv/transformers_cache'
     else:
         cache_dir = None
+
+    debug_run("facebook/xglm-7.5B", False, cache_dir)
+    exit()
 
     # print(find_all_linear_names("facebook/xglm-7.5B", 4))
     # exit()
