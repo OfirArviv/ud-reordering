@@ -14,7 +14,7 @@ export HOME
 module load cuda/11.7
 export PYTHONPATH=.:$PYTHONPATH
 
-run_params=$action --model-id $model_id --train-dataset-path $train_dataset_path --dev-dataset-path $dev_dataset_path --output-dir $output_dir --seed $RANDOM
+run_params=$action "--model-id" $model_id "--train-dataset-path" $train_dataset_path "--dev-dataset-path" $dev_dataset_path "--output-dir" $output_dir "--seed" $RANDOM
 
 if [ "$use_lora" ]
  then
