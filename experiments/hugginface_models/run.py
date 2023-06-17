@@ -607,10 +607,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    print(args.lora)
-    print(args.qlora)
-    exit()
-
     model_list_causal = ["decapoda-research/llama-65b-hf",
                          "facebook/xglm-7.5B",
                          "tiiuae/falcon-7b-instruct"]
