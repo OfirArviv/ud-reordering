@@ -617,7 +617,7 @@ if __name__ == '__main__':
         set_seed(args.seed)
         train_dataset_path = args.train_dataset_path
         dev_dataset_path = args.dev_dataset_path
-        if "mtop" in train_dataset:
+        if "mtop" in train_dataset_path:
             train_dataset = load_mtop_dataset(train_dataset_path)
             dev_dataset = load_mtop_dataset(dev_dataset_path)
         elif "xnli" in train_dataset:
