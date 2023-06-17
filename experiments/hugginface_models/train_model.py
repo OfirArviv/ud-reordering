@@ -349,7 +349,7 @@ def train_model(model_id: str,
         config = LoraConfig(
             r=8,
             lora_alpha=32,
-            target_modules=["q_proj", "v_proj"], #for xglm
+            target_modules=["q_proj", "v_proj"] if "xglm" in model_id else None, #for xglm
             lora_dropout=0.05,
             bias="none",
             task_type=task_type
