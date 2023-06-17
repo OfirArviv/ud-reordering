@@ -4,7 +4,7 @@ ARGPARSE_DESCRIPTION="Sample script description"      # this is optional
 source /cs/labs/oabend/ofir.arviv/argparse.bash || exit 1
 argparse "$@" <<EOF || exit 1
 parser.add_argument('-d', '--dir', required=True)
-parser.add_argument('-i', '--dataset-id', required=False)
+parser.add_argument('-i', '--dataset-id', required=True)
 parser.add_argument('-k', '--killable', action='store_true', default=False)
 
 EOF
