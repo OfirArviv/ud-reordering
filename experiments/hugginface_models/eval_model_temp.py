@@ -491,7 +491,7 @@ def evaluate_model(model_id: str,
 
     eval_dataset = eval_dataset.map(
         lambda examples: preprocess_func(examples, tokenizer, "text", "label"),
-        batched=True, remove_columns=train_dataset.column_names)
+        batched=True, remove_columns=eval_dataset.column_names)
 
     # endregion
 
@@ -647,7 +647,6 @@ if __name__ == '__main__':
 
     exit()
 
-
     if os.path.exists('/dccstor'):
         cache_dir = '/dccstor/gmc/users/ofir.arviv/transformers_cache'
     if os.path.exists('/cs/labs/oabend'):
@@ -657,12 +656,12 @@ if __name__ == '__main__':
 
     args = {
         "which": "train",
-        "model-id": "facebook/xglm-7.5B",
+        "model-id": "facebook/xglm-360m",
         "train-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv",
         "dev-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv",
         "output-dir": "output_temp_model_reorder_mtop_xglm",
         "seed": 42,
-        "qlora": True,
+        "qlora": False,
     }
 
     if args['which'] == "train":
