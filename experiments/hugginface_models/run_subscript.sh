@@ -26,6 +26,6 @@ if [ "$use_qlora" ]
    run_params="$run_params"" --qlora"
 fi
 
-python "$PWD"/experiments/hugginface_models/run.py "$run_params"
+echo "$PWD"/experiments/hugginface_models/run.py "$run_params"
 
 
