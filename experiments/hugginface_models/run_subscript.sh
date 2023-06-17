@@ -18,12 +18,12 @@ run_params="$action" "--model-id" "$model_id" "--train-dataset-path" "$train_dat
 
 if [ "$use_lora" ]
  then
-   run_params=""$run_params"" "--lora"
+   run_params="$run_params"" --lora"
 fi
 
 if [ "$use_qlora" ]
  then
-   run_params=""$run_params"" "--qlora"
+   run_params="$run_params"" --qlora"
 fi
 
 echo "$PWD"/experiments/hugginface_models/run.py "$run_params"
