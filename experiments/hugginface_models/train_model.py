@@ -15,6 +15,8 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedTokenize
     EvalPrediction, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
     EarlyStoppingCallback, BitsAndBytesConfig, set_seed, AutoModelForSeq2SeqLM, Seq2SeqTrainer
 from transformers.trainer_utils import get_last_checkpoint
+from transformers.utils import logging
+
 from experiments.hugginface_models.causlTrainer import CausalTrainer
 
 
@@ -282,9 +284,9 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
         decoded_labels = tokenizer.batch_decode(labels.tolist(), skip_special_tokens=True)
         metric = evaluate.load(metric_id)
         res = metric.compute(references=decoded_labels, predictions=decoded_preds)
-
-        print(decoded_labels)
-        print(decoded_preds)
+        logger = logging.get_logger()
+        logger.info(decoded_labels)
+        logger.info(decoded_preds)
 
         return res
 
