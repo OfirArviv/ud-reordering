@@ -527,6 +527,7 @@ def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
 
 
 if __name__ == '__main__':
+    print("hi there!")
     if os.path.exists('/dccstor'):
         cache_dir = '/dccstor/gmc/users/ofir.arviv/transformers_cache'
     if os.path.exists('/cs/labs/oabend'):
@@ -557,6 +558,7 @@ if __name__ == '__main__':
                     train_with_lora=True,
                     train_in_4_bit=args['qlora'],
                     cache_dir=cache_dir)
+    exit()
 
     # facebook/xglm-564M , bigscience/bloom-650m
     # debug_run("facebook/xglm-564m", False, cache_dir)
