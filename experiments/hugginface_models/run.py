@@ -611,7 +611,7 @@ if __name__ == '__main__':
                          "facebook/xglm-7.5B",
                          "tiiuae/falcon-7b-instruct"]
     model_list_seq2seq = ["google/flan-t5-xxl",
-                          "google/mt-base"]
+                          "google/mt5-base"]
 
     if args.which == "train":
         set_seed(args['seed'])
