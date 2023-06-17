@@ -252,8 +252,18 @@ def preprocess_dataset_for_causal_lm(examples: Dataset, tokenizer: PreTrainedTok
     labels = tokenizer(targets)
     for i in range(batch_size):
         sample_input_ids = model_inputs["input_ids"][i]
-        label_input_ids = labels["input_ids"][i] + [tokenizer.eos_token_id] #  [tokenizer.pad_token_id]  # TODO: Why we add the padding? Is it suppose to be eos token?
-        model_inputs["input_ids"][i] = sample_input_ids + label_input_ids  # TODO: This is so the label and input will be differnet tokens. I think?
+        # happens in xglm for some reason
+        if sample_input_ids[0] == tokenizer.eos_token_id:
+            sample_input_ids = sample_input_ids[1:]
+        # The original code appended  [tokenizer.pad_token_id], and gpt2 did converge with this. But bloom did not.
+        # With  [tokenizer.eos_token_id] it does, and it seems a more natural choice.
+        label_input_ids = labels["input_ids"][i]
+        if label_input_ids[0] == tokenizer.eos_token_id:
+            label_input_ids = label_input_ids[1:]
+        label_input_ids = label_input_ids + [
+            tokenizer.eos_token_id]  # [tokenizer.pad_token_id]  # TODO: Why we add the padding? Is it suppose to be eos token?
+        model_inputs["input_ids"][
+            i] = sample_input_ids + label_input_ids  # TODO: This is so the label and input will be differnet tokens. I think?
         model_inputs["attention_mask"][i] = [1] * len(model_inputs["input_ids"][i])
         labels["input_ids"][i] = [-100] * len(sample_input_ids) + label_input_ids
     model_inputs['labels'] = labels["input_ids"]
@@ -274,6 +284,7 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
         res = metric.compute(references=decoded_labels, predictions=decoded_preds)
 
         print(decoded_labels)
+        print(decoded_preds)
 
         return res
 
@@ -347,7 +358,7 @@ def train_model(model_id: str,
         config = LoraConfig(
             r=8,
             lora_alpha=32,
-            target_modules=["q_proj", "v_proj"] if "xglm" in model_id else None, #for xglm
+            target_modules=["q_proj", "v_proj"] if "xglm" in model_id else None,  # for xglm
             lora_dropout=0.05,
             bias="none",
             task_type=task_type
@@ -523,8 +534,33 @@ if __name__ == '__main__':
     else:
         cache_dir = None
 
-    debug_run("facebook/xglm-564m", False, cache_dir)
-    exit()
+    args = {
+        "which": "train",
+        "model-id": "facebook/xglm-7.5B",
+        "train-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv",
+        "dev-dataset-path": "experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv",
+        "output-dir": "output_temp_model_reorder_mtop_xglm",
+        "seed": 42,
+        "qlora": True,
+    }
+
+    if args['which'] == "train":
+        set_seed(args['seed'])
+        train_dataset = load_mtop_dataset(args['train-dataset-path'])
+        dev_dataset = load_mtop_dataset(args['dev-dataset-path'])
+
+        train_model(args['model-id'],
+                    False,
+                    train_dataset,
+                    dev_dataset,
+                    args['output-dir'],
+                    train_with_lora=True,
+                    train_in_4_bit=args['qlora'],
+                    cache_dir=cache_dir)
+
+    # facebook/xglm-564M , bigscience/bloom-650m
+    # debug_run("facebook/xglm-564m", False, cache_dir)
+    # exit()
 
     # print(find_all_linear_names("facebook/xglm-7.5B", 4))
     # exit()
@@ -535,7 +571,6 @@ if __name__ == '__main__':
     model_list_seq2seq = ["google/flan-t5-xxl"]
 
     DEBUG = False
-    # debug_run("gpt2", False, cache_dir)
 
     # region argparser
     parser = argparse.ArgumentParser()
