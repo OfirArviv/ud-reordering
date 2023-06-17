@@ -607,8 +607,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    print(args['lora'])
-    print(args['qlora'])
+    print(args.lora)
+    print(args.qlora)
     exit()
 
     model_list_causal = ["decapoda-research/llama-65b-hf",
@@ -618,25 +618,26 @@ if __name__ == '__main__':
                           "google/mt5-base"]
 
     if args.which == "train":
-        set_seed(args['seed'])
-        train_dataset = args['train-dataset-path']
+        set_seed(args.seed)
+        train_dataset_path = args.train_dataset_path
+        dev_dataset_path = args.dev_dataset_path
         if "mtop" in train_dataset:
-            train_dataset = load_mtop_dataset(args['train-dataset-path'])
-            dev_dataset = load_mtop_dataset(args['dev-dataset-path'])
+            train_dataset = load_mtop_dataset(train_dataset_path)
+            dev_dataset = load_mtop_dataset(dev_dataset_path)
         elif "xnli" in train_dataset:
-            train_dataset = load_nli_dataset(args['train-dataset-path'])
-            dev_dataset = load_nli_dataset(args['dev-dataset-path'])
+            train_dataset = load_nli_dataset(train_dataset_path)
+            dev_dataset = load_nli_dataset(dev_dataset_path)
         else:
             raise NotImplementedError(train_dataset)
 
-        model_id = args['model-id']
+        model_id = args.model_id
         assert model_id in (model_list_seq2seq + model_list_causal)
         is_seq2seq_model = model_id in model_list_seq2seq
         train_model(model_id,
                     is_seq2seq_model,
                     train_dataset,
                     dev_dataset,
-                    args['output-dir'],
-                    train_with_lora=args['lora'],
-                    train_in_4_bit=args['qlora'],
+                    args.output_dir,
+                    train_with_lora=args.lora,
+                    train_in_4_bit=args.qlora,
                     cache_dir=cache_dir)
