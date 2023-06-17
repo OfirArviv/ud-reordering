@@ -633,10 +633,11 @@ def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
 
 
 if __name__ == '__main__':
+    print("hi there!")
 
     ds_path = "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv"
     dev_dataset = load_mtop_dataset(ds_path)
-    evaluate_model("temp/checkpoint-979",
+    evaluate_model("output_temp_model_reorder_mtop_xglm/checkpoint-979",
                    False,
                    True,
                    True,
@@ -647,7 +648,6 @@ if __name__ == '__main__':
     exit()
 
 
-    print("hi there!")
     if os.path.exists('/dccstor'):
         cache_dir = '/dccstor/gmc/users/ofir.arviv/transformers_cache'
     if os.path.exists('/cs/labs/oabend'):
