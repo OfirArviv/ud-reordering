@@ -19,4 +19,4 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch -J hf_xnli experiments/hugginface_models/run_subscript.sh
+sbatch -J hf_xnli_4bit experiments/hugginface_models/run_subscript.sh
