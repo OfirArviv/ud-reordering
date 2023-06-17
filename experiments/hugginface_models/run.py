@@ -336,7 +336,7 @@ def train_model(model_id: str,
         task_type = TaskType.SEQ_2_SEQ_LM if is_seq2seq_model else TaskType.CAUSAL_LM
 
         config = LoraConfig(
-            r=8,
+            r=16,
             lora_alpha=32,
             target_modules=["q_proj", "v_proj"] if "xglm" in model_id else None,  # for xglm
             lora_dropout=0.05,
@@ -358,8 +358,8 @@ def train_model(model_id: str,
     training_args = Seq2SeqTrainingArguments(
         output_dir=output_dir,
         num_train_epochs=20,
-        per_device_train_batch_size=4,
-        per_device_eval_batch_size=4,
+        per_device_train_batch_size=1,
+        per_device_eval_batch_size=1,
         logging_strategy='epoch',
         evaluation_strategy='epoch',
         save_strategy='epoch',
@@ -621,6 +621,7 @@ if __name__ == '__main__':
 
     model_list_causal = ["decapoda-research/llama-65b-hf",
                          "facebook/xglm-7.5B",
+                         "facebook/xglm-564M"
                          "tiiuae/falcon-7b-instruct"]
     model_list_seq2seq = ["google/flan-t5-xxl",
                           "google/mt5-base"]
