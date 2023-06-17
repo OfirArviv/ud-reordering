@@ -636,7 +636,7 @@ if __name__ == '__main__':
     print("hi there!")
 
     ds_path = "experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv"
-    dev_dataset = load_mtop_dataset(ds_path)
+    dev_dataset = load_mtop_dataset(ds_path).select(range(10))
     evaluate_model("output_temp_model_reorder_mtop_xglm/checkpoint-979",
                    False,
                    True,
