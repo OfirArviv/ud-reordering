@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 
 ARGPARSE_DESCRIPTION="Sample script description"      # this is optional
@@ -24,7 +25,7 @@ fi
 
 MODEL_IDX="$EXPERIMENT_NUM"
 
-export model_id="google/flan-ul2"
+export model_id="google/flan-t5-xxl"
 export max_length=200
 export use_lora=1
 export use_qlora=1
