@@ -13,7 +13,7 @@ from datasets import Dataset, load_dataset
 from peft import LoraConfig, TaskType, get_peft_model, prepare_model_for_kbit_training, PeftConfig, PeftModel
 from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedTokenizerBase, \
     EvalPrediction, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
-    EarlyStoppingCallback, BitsAndBytesConfig, set_seed, AutoModelForSeq2SeqLM, Seq2SeqTrainer
+    EarlyStoppingCallback, BitsAndBytesConfig, set_seed, AutoModelForSeq2SeqLM, Seq2SeqTrainer, GenerationConfig
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import logging
 
@@ -270,7 +270,6 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
 
     return eval_func
 
-
 def train_model(model_id: str,
                 is_seq2seq_model: bool,
                 train_dataset: Dataset,
@@ -280,6 +279,7 @@ def train_model(model_id: str,
                 train_with_lora: bool,
                 cache_dir: str
                 ):
+    logger=logging.get_logger()
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
     print(device)
 
@@ -367,6 +367,7 @@ def train_model(model_id: str,
         load_best_model_at_end=True,
         metric_for_best_model="exact_match",
         predict_with_generate=True,
+        generation_max_length=2048,
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
         gradient_accumulation_steps=4,
@@ -392,6 +393,8 @@ def train_model(model_id: str,
     )
 
     checkpoint = get_last_checkpoint(output_dir)
+    if checkpoint is not None:
+        logger.debug(f'Resuming training from checkpoint: {checkpoint}')
     train_result = trainer.train(resume_from_checkpoint=checkpoint)
 
     metrics = train_result.metrics
@@ -468,7 +471,7 @@ def evaluate_model(model_id: str,
 
     eval_dataset = eval_dataset.map(
         lambda examples: preprocess_func(examples, tokenizer, "text", "label"),
-        batched=True, remove_columns=train_dataset.column_names)
+        batched=True, remove_columns=eval_dataset.column_names)
 
     # endregion
 
