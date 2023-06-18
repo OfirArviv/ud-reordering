@@ -386,20 +386,20 @@ def train_model(model_id: str,
     training_args = Seq2SeqTrainingArguments(
         output_dir=output_dir,
         num_train_epochs=20,
-        per_device_train_batch_size=1,
-        per_device_eval_batch_size=1,
+        per_device_train_batch_size=16 if "base" in model_id else 1,
+        per_device_eval_batch_size=16 if "base" in model_id else 1,
         logging_strategy='epoch',
-        evaluation_strategy='epoch',
+        evaluation_strategy=None if "base" in model_id else 'epoch',
         save_strategy='epoch',
         save_total_limit=2,
-        load_best_model_at_end=True,
-        metric_for_best_model="exact_match",
+        load_best_model_at_end=False if "base" in model_id else True,
+        metric_for_best_model=None if "base" in model_id else "exact_match",
         predict_with_generate=True,
         generation_max_length=max_length + 10,
         generation_num_beams=1,
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
-        gradient_accumulation_steps=4,
+        gradient_accumulation_steps=1 if "base" in model_id else 4,
         eval_accumulation_steps=1,
         use_mps_device=device.type == "mps",
         optim="paged_adamw_8bit" if train_in_4_bit else "adamw_hf",
@@ -428,6 +428,10 @@ def train_model(model_id: str,
 
     metrics = train_result.metrics
     metrics.update(get_memory_metrics('train'))
+
+    if eval_dataset:
+        dev_metrics = trainer.evaluate(eval_dataset)
+        metrics.update(dev_metrics)
 
     # TODO: Why do we need that?
     trainer.log_metrics("train", metrics)
@@ -540,6 +544,8 @@ def evaluate_model(model_id: str,
     pred_output = trainer.predict(eval_dataset)
     metrics = pred_output.metrics
     metrics.update(get_memory_metrics('test'))
+
+
 
     predictions = pred_output.predictions
     decoded_predictions = tokenizer.batch_decode(predictions, skip_special_tokens=True)
