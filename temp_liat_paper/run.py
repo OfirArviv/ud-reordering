@@ -3,7 +3,7 @@ import os
 
 from datasets import load_dataset
 
-from experiments.hugginface_models.train_model import train_model
+from experiments.hugginface_models.run import train_model
 
 if __name__ == '__main__':
     if os.path.exists('/dccstor'):
