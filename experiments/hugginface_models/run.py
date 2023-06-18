@@ -732,6 +732,7 @@ if __name__ == '__main__':
     parser_train.add_argument('--train-dataset-path', required=True, type=str)
     parser_train.add_argument('--eval-dataset-path', required=False, type=str)
     parser_train.add_argument('--test-dataset-path', required=False, type=str)
+    parser_train.add_argument('--seed', required=True, type=int)
     add_common_args(parser_train)
     # endregion
 
