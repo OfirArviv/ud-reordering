@@ -719,7 +719,7 @@ if __name__ == '__main__':
                     train_with_lora=args.lora,
                     train_in_4_bit=args.qlora,
                     cache_dir=cache_dir,
-                    generation_max_length=args.max_length)
+                    max_length=args.max_length)
 
     if args.which == "evaluate":
         eval_dataset_path = args.eval_dataset_path
@@ -750,4 +750,4 @@ if __name__ == '__main__':
                        output_dir=args.output_dir,
                        cache_dir=cache_dir,
                        label=label,
-                       generation_max_length=args.max_length)
+                       max_length=args.max_length)
