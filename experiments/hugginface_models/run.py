@@ -262,9 +262,10 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
         decoded_labels = tokenizer.batch_decode(labels.tolist(), skip_special_tokens=True)
         metric = evaluate.load(metric_id)
         res = metric.compute(references=decoded_labels, predictions=decoded_preds)
+
         logger = logging.get_logger()
-        logger.debug(decoded_labels)
-        logger.debug(decoded_preds)
+        logger.debug(f'_debug_  decoded labels: \n{decoded_labels}\n')
+        logger.debug(f'_debug_  decoded preds: \n{decoded_preds}\n')
 
         return res
 
@@ -281,7 +282,8 @@ def train_model(model_id: str,
                 ):
     logger=logging.get_logger()
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
-    print(device)
+
+    logger.log(f'_debug_ device: {device}')
 
     if train_in_4_bit:
         assert train_with_lora
@@ -394,7 +396,7 @@ def train_model(model_id: str,
 
     checkpoint = get_last_checkpoint(output_dir)
     if checkpoint is not None:
-        logger.debug(f'Resuming training from checkpoint: {checkpoint}')
+        logger.debug(f'_debug_ Resuming training from checkpoint: {checkpoint}')
     train_result = trainer.train(resume_from_checkpoint=checkpoint)
 
     metrics = train_result.metrics
@@ -485,6 +487,7 @@ def evaluate_model(model_id: str,
         output_dir=output_dir,
         per_device_eval_batch_size=4,
         predict_with_generate=True,
+        generation_max_length=2048,
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
         eval_accumulation_steps=1,
@@ -651,15 +654,15 @@ if __name__ == '__main__':
         assert model_id in (model_list_seq2seq + model_list_causal)
         is_seq2seq_model = model_id in model_list_seq2seq
 
-        logger.info(f'!!!!!!!!!! Training model !!!!!!!!!!'
-                    f'model id: {model_id}'
-                    f'train dataset path:: {train_dataset_path}'
-                    f'dev dataset path: {dev_dataset_path}'
-                    f'output dir: {args.output_dir}'
-                    f'train with lora: {args.lora}'
-                    f'train with qlora: {args.qlora}'
-                    f'cache dir: {cache_dir}'
-                    f'!!!!!!!!!!!!!!!!!')
+        logger.info(f'\n\n!!!!!!!!!! Training model !!!!!!!!!!\n\n'
+                    f'model id: {model_id}\n'
+                    f'train dataset path:: {train_dataset_path}\n'
+                    f'dev dataset path: {dev_dataset_path}\n'
+                    f'output dir: {args.output_dir}\n'
+                    f'train with lora: {args.lora}\n'
+                    f'train with qlora: {args.qlora}\n'
+                    f'cache dir: {cache_dir}\n'
+                    f'!!!!!!!!!!!!!!!!!\n\n')
         train_model(model_id,
                     is_seq2seq_model,
                     train_dataset,
@@ -680,14 +683,14 @@ if __name__ == '__main__':
 
         label = os.path.basename(eval_dataset_path)
 
-        logger.info(f'!!!!!!!!!! Evaluating model !!!!!!!!!!'
-                    f'model id: {args.model_id}'
-                    f'eval dataset path:: {eval_dataset_path}'
-                    f'output dir: {args.output_dir}'
-                    f'using lora: {args.lora}'
-                    f'using qlora: {args.qlora}'
-                    f'cache dir: {cache_dir}'
-                    f'!!!!!!!!!!!!!!!!!')
+        logger.info(f'\n\n!!!!!!!!!! Evaluating model !!!!!!!!!!\n\n'
+                    f'model id: {args.model_id}\n'
+                    f'eval dataset path:: {eval_dataset_path}\n'
+                    f'output dir: {args.output_dir}\n'
+                    f'using lora: {args.lora}\n'
+                    f'using qlora: {args.qlora}\n'
+                    f'cache dir: {cache_dir}\n'
+                    f'!!!!!!!!!!!!!!!!!\n\n')
         evaluate_model(model_id=args.model_id,
                        is_seq2seq_model=args.seq2seq,
                        train_with_lora=args.lora,
