@@ -629,7 +629,7 @@ if __name__ == '__main__':
 
     # region Eval argparser
     parser_eval = subparsers.add_parser('evaluate')
-    parser_eval.set_defaults(which='eval')
+    parser_eval.set_defaults(which='evaluate')
     parser_eval.add_argument('--model-id', required=True, type=str)
     parser_eval.add_argument('--eval-dataset-path', required=True, type=str)
     parser_eval.add_argument('--output-dir', required=True, type=str)
