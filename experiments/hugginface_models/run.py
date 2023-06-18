@@ -389,7 +389,7 @@ def train_model(model_id: str,
         per_device_train_batch_size=16 if "base" in model_id else 1,
         per_device_eval_batch_size=16 if "base" in model_id else 1,
         logging_strategy='epoch',
-        evaluation_strategy=None if "base" in model_id else 'epoch',
+        evaluation_strategy="no" if "base" in model_id else 'epoch',
         save_strategy='epoch',
         save_total_limit=2,
         load_best_model_at_end=False if "base" in model_id else True,
@@ -418,7 +418,7 @@ def train_model(model_id: str,
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=get_eval_func(tokenizer, "exact_match") if eval_dataset else None,
-        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)] if eval_dataset else [],
+        # callbacks=[EarlyStoppingCallback(early_stopping_patience=5)] if eval_dataset else [],
     )
 
     checkpoint = get_last_checkpoint(output_dir)
@@ -565,9 +565,6 @@ def load_mtop_dataset(dataset_path: str):
         }
         ds = Dataset.from_dict(dataset_dict)
         return ds
-
-
-
 
 def load_nli_dataset(dataset_path: str, add_instruction: bool):
     def get_prompt(premise: str, hypothesis: str) -> str:
