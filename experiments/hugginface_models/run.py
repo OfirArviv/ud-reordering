@@ -283,7 +283,7 @@ def train_model(model_id: str,
     logger=logging.get_logger()
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
 
-    logger.log(f'_debug_ device: {device}')
+    logger.debug(f'_debug_ device: {device}')
 
     if train_in_4_bit:
         assert train_with_lora
