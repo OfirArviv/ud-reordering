@@ -23,7 +23,7 @@ export output_dir="temp_outputs/mt5_base_xnli/en_reordered_by_thai_""$ID"
 # export use_lora=null
 # export use_qlora=null
 # export add_instruct=nul
-export max_length=300
+export max_length=200
 
 
 if [ ! -d "$output_dir" ]; then
