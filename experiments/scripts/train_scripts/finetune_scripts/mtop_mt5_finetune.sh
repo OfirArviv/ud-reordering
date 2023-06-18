@@ -59,7 +59,6 @@ do
       sbatch $sbatch_params -J ft_mtop experiments/scripts/train_scripts/finetune_scripts/finetune_subscript.sh
     fi
 
-    sbatch $sbatch_params -J ft_mtop experiments/scripts/train_scripts/finetune_scripts/finetune_subscript.sh
   done
 done
 
