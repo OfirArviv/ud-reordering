@@ -263,8 +263,8 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
         metric = evaluate.load(metric_id)
         res = metric.compute(references=decoded_labels, predictions=decoded_preds)
         logger = logging.get_logger()
-        logger.info(decoded_labels)
-        logger.info(decoded_preds)
+        logger.debug(decoded_labels)
+        logger.debug(decoded_preds)
 
         return res
 
@@ -581,6 +581,9 @@ def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
 
 
 if __name__ == '__main__':
+    logger = logging.get_logger()
+    logger.setLevel(logging.DEBUG)
+
     if os.path.exists('/dccstor'):
         cache_dir = '/dccstor/gmc/users/ofir.arviv/transformers_cache'
     if os.path.exists('/cs/labs/oabend'):
@@ -644,6 +647,16 @@ if __name__ == '__main__':
         model_id = args.model_id
         assert model_id in (model_list_seq2seq + model_list_causal)
         is_seq2seq_model = model_id in model_list_seq2seq
+
+        logger.info(f'!!!!!!!!!! Training model !!!!!!!!!!'
+                    f'model id: {model_id}'
+                    f'train dataset path:: {train_dataset_path}'
+                    f'dev dataset path: {dev_dataset_path}'
+                    f'output dir: {args.output_dir}'
+                    f'train with lora: {args.lora}'
+                    f'train with qlora: {args.qlora}'
+                    f'cache dir: {cache_dir}'
+                    f'!!!!!!!!!!!!!!!!!')
         train_model(model_id,
                     is_seq2seq_model,
                     train_dataset,
@@ -663,6 +676,15 @@ if __name__ == '__main__':
             raise NotImplementedError(eval_dataset_path)
 
         label = os.path.basename(eval_dataset_path)
+
+        logger.info(f'!!!!!!!!!! Evaluating model !!!!!!!!!!'
+                    f'model id: {args.model_id}'
+                    f'eval dataset path:: {eval_dataset_path}'
+                    f'output dir: {args.output_dir}'
+                    f'using lora: {args.lora}'
+                    f'using qlora: {args.qlora}'
+                    f'cache dir: {cache_dir}'
+                    f'!!!!!!!!!!!!!!!!!')
         evaluate_model(model_id=args.model_id,
                        is_seq2seq_model=args.seq2seq,
                        train_with_lora=args.lora,
