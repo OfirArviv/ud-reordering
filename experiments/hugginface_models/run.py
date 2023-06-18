@@ -424,7 +424,6 @@ def evaluate_model(model_id: str,
                    generation_max_length: int = 1024
                    ):
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
-    print(device)
 
     # region model preparation
     if train_in_4_bit:
@@ -514,10 +513,9 @@ def evaluate_model(model_id: str,
 
     metrics = trainer.evaluate(eval_dataset)
     metrics.update(get_memory_metrics('test'))
-    print(metrics)
 
-    # predictions = trainer.predict(eval_dataset)
-    # print(predictions)
+    predictions = trainer.predict(eval_dataset)
+    logger.info(predictions)
     #
     # decoded_predictions = tokenizer.batch_decode(predictions)
     # print(decoded_predictions)
