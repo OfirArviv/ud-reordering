@@ -5,7 +5,7 @@ import sys
 
 import datasets
 import torch.distributed as dist
-from typing import Callable, Dict, Tuple
+from typing import Callable, Dict, Tuple, Optional
 import evaluate
 import numpy as np
 import torch
@@ -298,7 +298,7 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
 def train_model(model_id: str,
                 is_seq2seq_model: bool,
                 train_dataset: Dataset,
-                eval_dataset: Dataset,
+                eval_dataset: Optional[Dataset],
                 output_dir: str,
                 train_in_4_bit: bool,
                 train_with_lora: bool,
@@ -326,9 +326,10 @@ def train_model(model_id: str,
     train_dataset = train_dataset.map(
         lambda examples: preprocess_func(examples, tokenizer, "text", "label", max_length),
         batched=True, remove_columns=train_dataset.column_names)
-    eval_dataset = eval_dataset.map(
-        lambda examples: preprocess_func(examples, tokenizer, "text", "label", max_length),
-        batched=True, remove_columns=eval_dataset.column_names)
+    if eval_dataset:
+        eval_dataset = eval_dataset.map(
+            lambda examples: preprocess_func(examples, tokenizer, "text", "label", max_length),
+            batched=True, remove_columns=eval_dataset.column_names)
 
     # endregion
 
@@ -416,8 +417,8 @@ def train_model(model_id: str,
         eval_dataset=eval_dataset,
         tokenizer=tokenizer,
         data_collator=data_collator,
-        compute_metrics=get_eval_func(tokenizer, "exact_match"),
-        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)],
+        compute_metrics=get_eval_func(tokenizer, "exact_match") if eval_dataset else None,
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)] if eval_dataset else [],
     )
 
     checkpoint = get_last_checkpoint(output_dir)
@@ -640,7 +641,7 @@ if __name__ == '__main__':
     parser_train.set_defaults(which='train')
     parser_train.add_argument('--model-id', required=True, type=str)
     parser_train.add_argument('--train-dataset-path', required=True, type=str)
-    parser_train.add_argument('--dev-dataset-path', required=True, type=str)
+    parser_train.add_argument('--dev-dataset-path', required=False, type=str)
     parser_train.add_argument('--output-dir', required=True, type=str)
     parser_train.add_argument("--lora", action="store_true", default=False)
     parser_train.add_argument("--qlora", action="store_true", default=False)
@@ -684,10 +685,16 @@ if __name__ == '__main__':
         dev_dataset_path = args.dev_dataset_path
         if "mtop" in train_dataset_path:
             train_dataset = load_mtop_dataset(train_dataset_path)
-            dev_dataset = load_mtop_dataset(dev_dataset_path)
+            if dev_dataset_path:
+                dev_dataset = load_mtop_dataset(dev_dataset_path)
+            else:
+                dev_dataset = None
         elif "xnli" in train_dataset_path:
             train_dataset = load_nli_dataset(train_dataset_path, args.add_instruction)
-            dev_dataset = load_nli_dataset(dev_dataset_path, args.add_instruction)
+            if dev_dataset_path:
+                dev_dataset = load_nli_dataset(dev_dataset_path, args.add_instruction)
+            else:
+                dev_dataset = None
         else:
             raise NotImplementedError(train_dataset_path)
 
