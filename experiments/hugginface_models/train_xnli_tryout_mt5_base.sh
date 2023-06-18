@@ -15,13 +15,33 @@ export HOME
 
 export action="train"
 export model_id="google/mt5-base"
+
+
+export train_dataset_path="experiments/processed_datasets/xnli/english_reordered_by_thai/english_xnli_train_reordered_by_thai_HUJI.csv"
+export dev_dataset_path="experiments/processed_datasets/xnli/english_reordered_by_thai/english_xnli_eval_reordered_by_thai_HUJI.csv"
+export output_dir="temp_outputs/mt5_base_xnli/en_reordered_by_thai_""$ID"
+# export use_lora=null
+# export use_qlora=null
+# export add_instruct=nul
+export max_length=1024
+
+
+if [ ! -d "$output_dir" ]; then
+ echo "$output_dir" does not exists. Creating...
+ mkdir -p "$output_dir"
+fi
+
+sbatch -J hf_xnli experiments/hugginface_models/run_subscript.sh
+
+exit 0
+
+
 export train_dataset_path="experiments/processed_datasets/xnli/standard/english_xnli_train.csv"
 export dev_dataset_path="experiments/processed_datasets/xnli/standard/english_xnli_eval.csv"
 export output_dir="temp_outputs/mt5_base_xnli/en_standard_""$ID"
 # export use_lora=null
 # export use_qlora=null
 # export add_instruct=null
-export max_length=1024
 
 if [ ! -d "$output_dir" ]; then
  echo "$output_dir" does not exists. Creating...
