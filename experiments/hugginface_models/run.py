@@ -209,32 +209,53 @@ def get_memory_metrics(split: str) -> Dict[str, str]:
 
 # region dataset processing
 def tokenize_dataset(examples: Dataset, tokenizer: PreTrainedTokenizerBase,
-                     text_column: str, label_column: str):
-    model_inputs = tokenizer(examples[text_column])
-    with tokenizer.as_target_tokenizer():
-        labels = tokenizer(examples[label_column])
+                     text_column: str, label_column: str, max_length: int):
+    batch_size = len(examples[text_column])
+    model_inputs = {
+        "input_ids": [],
+        "attention_mask": [],
+        "labels": []
+    }
 
-    model_inputs["labels"] = labels["input_ids"]
+    tokenized_inputs = tokenizer(examples[text_column])
+    with tokenizer.as_target_tokenizer():
+        tokenized_labels = tokenizer(examples[label_column])
+
+    for i in range(batch_size):
+        tok_inpt_ids = tokenized_inputs['input_ids'][i]
+        inpt_mask = tokenized_inputs['attention_mask'][i]
+        tok_lbl_ids = tokenized_labels['input_ids'][i]
+
+        if len(tok_inpt_ids) < max_length and len(tok_lbl_ids) < max_length:
+            model_inputs['input_ids'].append(tok_inpt_ids)
+            model_inputs['attention_mask'].append(inpt_mask)
+            model_inputs['label'].append(inpt_mask)
 
     return model_inputs
 
 
 def preprocess_dataset_for_causal_lm(examples: Dataset, tokenizer: PreTrainedTokenizerBase,
-                                     text_column: str, label_column: str):
+                                     text_column: str, label_column: str, max_length: int):
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
     batch_size = len(examples[text_column])
     inputs = [f'{x}' for x in examples[text_column]]
     targets = [f'{x}' for x in examples[label_column]]
-    model_inputs = tokenizer(inputs)
-    labels = tokenizer(targets)
+    tokenized_inputs = tokenizer(inputs)
+    tokenized_labels = tokenizer(targets)
+
+    model_inputs = {
+        "input_ids": [],
+        "attention_mask": [],
+        "labels": []
+    }
     for i in range(batch_size):
-        sample_input_ids = model_inputs["input_ids"][i]
+        sample_input_ids = tokenized_inputs["input_ids"][i]
         # happens in xglm for some reason
         if sample_input_ids[0] == tokenizer.eos_token_id:
             sample_input_ids = sample_input_ids[1:]
 
-        label_input_ids = labels["input_ids"][i]
+        label_input_ids = tokenized_labels["input_ids"][i]
         if label_input_ids[0] == tokenizer.eos_token_id:
             label_input_ids = label_input_ids[1:]
 
@@ -243,10 +264,12 @@ def preprocess_dataset_for_causal_lm(examples: Dataset, tokenizer: PreTrainedTok
         # TODO: Why we add the padding? Is it suppose to be eos token?
         label_input_ids = label_input_ids + [tokenizer.eos_token_id]  # [tokenizer.pad_token_id]
         # TODO: This is so the label and input will be differnet tokens. I think?
-        model_inputs["input_ids"][i] = sample_input_ids + label_input_ids
-        model_inputs["attention_mask"][i] = [1] * len(model_inputs["input_ids"][i])
-        labels["input_ids"][i] = [-100] * len(sample_input_ids) + label_input_ids
-    model_inputs['labels'] = labels["input_ids"]
+
+        if len(sample_input_ids + label_input_ids) < max_length:
+            inpt = sample_input_ids + label_input_ids
+            model_inputs["input_ids"].append(inpt)
+            model_inputs["attention_mask"].append([1] * len(inpt))
+            model_inputs["labels"].append([-100] * len(sample_input_ids) + label_input_ids)
     return model_inputs
 
 
@@ -280,7 +303,7 @@ def train_model(model_id: str,
                 train_in_4_bit: bool,
                 train_with_lora: bool,
                 cache_dir: str,
-                generation_max_length: int = 1024
+                max_length: int
                 ):
     logger = logging.get_logger()
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
@@ -301,10 +324,10 @@ def train_model(model_id: str,
         preprocess_func = preprocess_dataset_for_causal_lm
 
     train_dataset = train_dataset.map(
-        lambda examples: preprocess_func(examples, tokenizer, "text", "label"),
+        lambda examples: preprocess_func(examples, tokenizer, "text", "label", max_length),
         batched=True, remove_columns=train_dataset.column_names)
     eval_dataset = eval_dataset.map(
-        lambda examples: preprocess_func(examples, tokenizer, "text", "label"),
+        lambda examples: preprocess_func(examples, tokenizer, "text", "label", max_length),
         batched=True, remove_columns=eval_dataset.column_names)
 
     # endregion
@@ -371,7 +394,8 @@ def train_model(model_id: str,
         load_best_model_at_end=True,
         metric_for_best_model="exact_match",
         predict_with_generate=True,
-        generation_max_length=generation_max_length,
+        generation_max_length=max_length + 10,
+        generation_num_beams=1,
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
         gradient_accumulation_steps=4,
@@ -422,7 +446,7 @@ def evaluate_model(model_id: str,
                    output_dir: str,
                    cache_dir: str,
                    label: str,
-                   generation_max_length: int = 1024
+                   max_length: int
                    ):
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
     logger = logging.get_logger()
@@ -479,7 +503,7 @@ def evaluate_model(model_id: str,
         preprocess_func = preprocess_dataset_for_causal_lm
 
     eval_dataset = eval_dataset.map(
-        lambda examples: preprocess_func(examples, tokenizer, "text", "label"),
+        lambda examples: preprocess_func(examples, tokenizer, "text", "label", max_length),
         batched=True, remove_columns=eval_dataset.column_names)
 
     # endregion
@@ -494,7 +518,7 @@ def evaluate_model(model_id: str,
         output_dir=output_dir,
         per_device_eval_batch_size=4,
         predict_with_generate=True,
-        generation_max_length=generation_max_length,
+        generation_max_length=max_length+10,
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
         eval_accumulation_steps=1,
@@ -636,7 +660,7 @@ if __name__ == '__main__':
     parser_eval.add_argument("--lora", action="store_true", default=False)
     parser_eval.add_argument("--qlora", action="store_true", default=False)
     parser_eval.add_argument("--add-instruction", action="store_true", default=False)
-    parser_eval.add_argument('--max-length', required=False, type=int, default=1024)
+    parser_eval.add_argument('--max-length', required=False, type=int, default=248)
     parser_eval.add_argument('--cache-dir', required=False, type=str, default=None)
     # endregion
     args = parser.parse_args()
