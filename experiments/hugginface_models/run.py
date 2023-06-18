@@ -291,6 +291,9 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
         logger.debug(f'_debug_  decoded labels: \n{decoded_labels}\n')
         logger.debug(f'_debug_  decoded preds: \n{decoded_preds}\n')
 
+        memory_metrics = get_memory_metrics('train')
+        res.update(memory_metrics)
+
         return res
 
     return eval_func
