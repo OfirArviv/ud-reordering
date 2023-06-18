@@ -229,7 +229,7 @@ def tokenize_dataset(examples: Dataset, tokenizer: PreTrainedTokenizerBase,
         if len(tok_inpt_ids) < max_length and len(tok_lbl_ids) < max_length:
             model_inputs['input_ids'].append(tok_inpt_ids)
             model_inputs['attention_mask'].append(inpt_mask)
-            model_inputs['label'].append(inpt_mask)
+            model_inputs['labels'].append(inpt_mask)
 
     return model_inputs
 
