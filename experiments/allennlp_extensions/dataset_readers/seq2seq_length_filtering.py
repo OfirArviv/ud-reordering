@@ -133,7 +133,6 @@ class Seq2SeqDatasetReaderWithLengthFiltering(DatasetReader):
             rows = list(csv.reader(data_file, delimiter=self._delimiter, quoting=self.quoting))
             if self._max_examples is not None:
                 assert len(rows) >= self._max_examples
-                random.shuffle(rows)
 
             for line_num, row in enumerate(self.shard_iterable(rows)):
                 if self._max_examples is not None and self._processed_examples > self._max_examples:
