@@ -13,6 +13,7 @@ export output_dir="temp_outputs/xglm_7_5_xnli/en_standard_1"
 export use_lora=1
 export use_qlora=1
 export add_instruct=1
+export max_length = 2048
 
 
 if [ ! -d "$output_dir" ]; then

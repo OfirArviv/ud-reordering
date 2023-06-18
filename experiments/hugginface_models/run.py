@@ -430,8 +430,11 @@ def evaluate_model(model_id: str,
     if train_in_4_bit:
         assert train_with_lora
 
+    # TODO: remove in the future and just save the best model to the main dir
+    model_dir_path = get_last_checkpoint(model_id)
+
     if train_with_lora:
-        peft_model_name_or_path = model_id
+        peft_model_name_or_path = model_dir_path
         peft_config = PeftConfig.from_pretrained(peft_model_name_or_path)
         model_id = peft_config.base_model_name_or_path
 
@@ -624,7 +627,7 @@ if __name__ == '__main__':
     # endregion
 
     # region Eval argparser
-    parser_eval = subparsers.add_parser('eval')
+    parser_eval = subparsers.add_parser('evaluate')
     parser_eval.set_defaults(which='eval')
     parser_eval.add_argument('--model-id', required=True, type=str)
     parser_eval.add_argument('--eval-dataset-path', required=True, type=str)
@@ -686,7 +689,7 @@ if __name__ == '__main__':
                     cache_dir=cache_dir,
                     generation_max_length=args.max_length)
 
-    if args.which == "eval":
+    if args.which == "evaluate":
         eval_dataset_path = args.eval_dataset_path
         if "mtop" in eval_dataset_path:
             eval_dataset = load_mtop_dataset(eval_dataset_path)

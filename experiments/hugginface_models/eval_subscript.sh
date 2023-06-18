@@ -30,11 +30,16 @@ if [ "$add_instruct" ]
    extra_params="$extra_params"" --add-instruction"
 fi
 
+if [ "$seq2seq" ]
+ then
+   extra_params="$extra_params"" --seq2seq"
+fi
+
 if [ "$max_length" ]
  then
    extra_params="$extra_params"" --max_length"" $max_length"
 fi
 
-python "$PWD"/experiments/hugginface_models/run.py train --model-id  "$model_id" --train-dataset-path "$train_dataset_path" --dev-dataset-path "$dev_dataset_path" --output-dir "$output_dir" --seed "$RANDOM" $extra_params
+python "$PWD"/experiments/hugginface_models/run.py evaluate --model-id  "$model_id" --eval-dataset-path "$eval_dataset_path"  --output-dir "$output_dir"  $extra_params
 
 
