@@ -635,8 +635,8 @@ if __name__ == '__main__':
     parser_eval.add_argument('--seq2seq', action="store_true", default=False)
     parser_eval.add_argument("--lora", action="store_true", default=False)
     parser_eval.add_argument("--qlora", action="store_true", default=False)
-    parser_train.add_argument("--add-instruction", action="store_true", default=False)
-    parser_train.add_argument('--max-length', required=False, type=int, default=1024)
+    parser_eval.add_argument("--add-instruction", action="store_true", default=False)
+    parser_eval.add_argument('--max-length', required=False, type=int, default=1024)
     parser_eval.add_argument('--cache-dir', required=False, type=str, default=None)
     # endregion
     args = parser.parse_args()
@@ -676,6 +676,7 @@ if __name__ == '__main__':
                     f'output dir: {args.output_dir}\n'
                     f'train with lora: {args.lora}\n'
                     f'train with qlora: {args.qlora}\n'
+                    f'max length: {args.max_length}\n'
                     f'add instruction: {args.add_instruction}\n'
                     f'cache dir: {cache_dir}\n'
                     f'!!!!!!!!!!!!!!!!!\n\n')
@@ -706,6 +707,7 @@ if __name__ == '__main__':
                     f'output dir: {args.output_dir}\n'
                     f'using lora: {args.lora}\n'
                     f'using qlora: {args.qlora}\n'
+                    f'max length: {args.max_length}\n'
                     f'add instruction: {args.add_instruction}\n'
                     f'cache dir: {cache_dir}\n'
                     f'!!!!!!!!!!!!!!!!!\n\n')
