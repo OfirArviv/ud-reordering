@@ -37,7 +37,7 @@ fi
 
 if [ "$max_length" ]
  then
-   extra_params="$extra_params"" --max_length"" $max_length"
+   extra_params="$extra_params"" --max-length"" $max_length"
 fi
 
 python "$PWD"/experiments/hugginface_models/run.py evaluate --model-id  "$model_id" --eval-dataset-path "$eval_dataset_path"  --output-dir "$output_dir"  $extra_params
