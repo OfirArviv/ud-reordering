@@ -28,7 +28,7 @@ def train():
     train_model(model_id,
                 is_seq2seq_model,
                 train_dataset,
-                dev_dataset,
+                None,
                 output_dir,
                 train_with_lora=True,
                 train_in_4_bit=False,
