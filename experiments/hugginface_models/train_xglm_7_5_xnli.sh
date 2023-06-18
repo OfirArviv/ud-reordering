@@ -12,6 +12,7 @@ export dev_dataset_path="experiments/processed_datasets/xnli/standard/english_xn
 export output_dir="temp_outputs/xglm_7_5_xnli/en_standard_1"
 export use_lora=1
 export use_qlora=1
+export add_instruct=1
 
 
 if [ ! -d "$output_dir" ]; then

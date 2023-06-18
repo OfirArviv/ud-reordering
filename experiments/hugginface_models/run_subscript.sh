@@ -25,6 +25,11 @@ if [ "$use_qlora" ]
    extra_params="$extra_params"" --qlora"
 fi
 
+if [ "$add_instruct" ]
+ then
+   extra_params="$extra_params"" --add-instruction"
+fi
+
 python "$PWD"/experiments/hugginface_models/run.py train --model-id  "$model_id" --train-dataset-path "$train_dataset_path" --dev-dataset-path "$dev_dataset_path" --output-dir "$output_dir" --seed "$RANDOM" $extra_params
 
 

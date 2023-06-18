@@ -20,6 +20,7 @@ export dev_dataset_path="experiments/processed_datasets/xnli/standard/english_xn
 export output_dir="temp_outputs/mt5_base_xnli/en_standard_""$ID"
 # export use_lora=null
 # export use_qlora=null
+# export add_instruct=null
 
 
 if [ ! -d "$output_dir" ]; then
