@@ -715,15 +715,16 @@ if __name__ == '__main__':
 
     # region argparser
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--model-id', required=True, type=str)
-    parser.add_argument('--output-dir', required=True, type=str)
-    parser.add_argument("--lora", action="store_true", default=False)
-    parser.add_argument("--qlora", action="store_true", default=False)
-    parser.add_argument("--add-instruction", action="store_true", default=False)
-    parser.add_argument('--max-length', required=False, type=int, default=1024)
-    parser.add_argument('--cache-dir', required=False, type=str, default=None)
+    def add_common_args(input_parser):
+        input_parser.add_argument('--model-id', required=True, type=str)
+        input_parser.add_argument('--output-dir', required=True, type=str)
+        input_parser.add_argument("--lora", action="store_true", default=False)
+        input_parser.add_argument("--qlora", action="store_true", default=False)
+        input_parser.add_argument("--add-instruction", action="store_true", default=False)
+        input_parser.add_argument('--max-length', required=False, type=int, default=1024)
+        input_parser.add_argument('--cache-dir', required=False, type=str, default=None)
 
+    parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='sub-command help')
     # region Train argparser
     parser_train = subparsers.add_parser('train')
@@ -731,6 +732,7 @@ if __name__ == '__main__':
     parser_train.add_argument('--train-dataset-path', required=True, type=str)
     parser_train.add_argument('--eval-dataset-path', required=False, type=str)
     parser_train.add_argument('--test-dataset-path', required=False, type=str)
+    add_common_args(parser_train)
     # endregion
 
     # region Eval argparser
@@ -738,6 +740,7 @@ if __name__ == '__main__':
     parser_eval.set_defaults(which='evaluate')
     parser_eval.add_argument('--eval-dataset-path', required=True, type=str)
     parser_eval.add_argument('--seq2seq', action="store_true", default=False)
+    add_common_args(parser_eval)
 
     # endregion
     args = parser.parse_args()
