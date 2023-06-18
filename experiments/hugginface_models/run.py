@@ -271,6 +271,7 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
 
     return eval_func
 
+
 def train_model(model_id: str,
                 is_seq2seq_model: bool,
                 train_dataset: Dataset,
@@ -281,7 +282,7 @@ def train_model(model_id: str,
                 cache_dir: str,
                 generation_max_length: int = 1024
                 ):
-    logger=logging.get_logger()
+    logger = logging.get_logger()
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
 
     logger.debug(f'_debug_ device: {device}')
@@ -378,7 +379,7 @@ def train_model(model_id: str,
         use_mps_device=device.type == "mps",
         optim="paged_adamw_8bit" if train_in_4_bit else "adamw_hf",
         lr_scheduler_type="linear",
-        learning_rate=3e5, # 2e-4 if train_in_4_bit else 3e-5,
+        learning_rate=3e5,  # 2e-4 if train_in_4_bit else 3e-5,
         warmup_steps=2,
         report_to="none"
     )
@@ -424,7 +425,7 @@ def evaluate_model(model_id: str,
                    generation_max_length: int = 1024
                    ):
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
-
+    logger = logging.get_logger()
     # region model preparation
     if train_in_4_bit:
         assert train_with_lora
@@ -511,14 +512,13 @@ def evaluate_model(model_id: str,
         compute_metrics=get_eval_func(tokenizer, "exact_match")
     )
 
-    metrics = trainer.evaluate(eval_dataset)
+    pred_output = trainer.predict(eval_dataset)
+    metrics = pred_output.metrics
     metrics.update(get_memory_metrics('test'))
 
-    predictions = trainer.predict(eval_dataset)
-    logger.info(predictions)
-    #
-    # decoded_predictions = tokenizer.batch_decode(predictions)
-    # print(decoded_predictions)
+    predictions = pred_output.predictions
+    decoded_predictions = tokenizer.batch_decode(predictions, skip_special_tokens=True)
+    logger.info(decoded_predictions)
 
     # TODO: Why do we need that?
     trainer.log_metrics(f'test_{label}', metrics)
@@ -539,8 +539,8 @@ def load_mtop_dataset(dataset_path: str):
 def load_nli_dataset(dataset_path: str, add_instruction: bool):
     def get_prompt(premise: str, hypothesis: str) -> str:
         prompt_str = f'Premise: {premise}\n\n' \
-                    f'Hypothesis: {hypothesis}\n\n' \
-                    f'Label: '
+                     f'Hypothesis: {hypothesis}\n\n' \
+                     f'Label: '
         if add_instruction:
             instruct_str = f'In the Natural Language Inference (NLI) task, given a premise and an hypothesis, ' \
                            f'the goal is to determine the logical relationship between the premise and the hypothesis. ' \
