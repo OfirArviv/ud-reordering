@@ -698,7 +698,7 @@ if __name__ == '__main__':
         else:
             raise NotImplementedError(eval_dataset_path)
 
-        label = os.path.basename(eval_dataset_path)
+        label = f'{os.path.basename(eval_dataset_path)}'
 
         logger.info(f'\n\n!!!!!!!!!! Evaluating model !!!!!!!!!!\n\n'
                     f'model id: {args.model_id}\n'
