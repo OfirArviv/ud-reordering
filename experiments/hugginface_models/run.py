@@ -702,7 +702,7 @@ if __name__ == '__main__':
 
         logger.info(f'\n\n!!!!!!!!!! Training model !!!!!!!!!!\n\n'
                     f'model id: {model_id}\n'
-                    f'train dataset path:: {train_dataset_path}\n'
+                    f'train dataset path: {train_dataset_path}\n'
                     f'dev dataset path: {dev_dataset_path}\n'
                     f'output dir: {args.output_dir}\n'
                     f'train with lora: {args.lora}\n'
@@ -734,7 +734,7 @@ if __name__ == '__main__':
 
         logger.info(f'\n\n!!!!!!!!!! Evaluating model !!!!!!!!!!\n\n'
                     f'model id: {args.model_id}\n'
-                    f'eval dataset path:: {eval_dataset_path}\n'
+                    f'eval dataset path: {eval_dataset_path}\n'
                     f'output dir: {args.output_dir}\n'
                     f'using lora: {args.lora}\n'
                     f'using qlora: {args.qlora}\n'
