@@ -561,6 +561,8 @@ def load_mtop_dataset(dataset_path: str):
         return ds
 
 
+
+
 def load_nli_dataset(dataset_path: str, add_instruction: bool):
     def get_prompt(premise: str, hypothesis: str) -> str:
         prompt_str = f'Premise: {premise}\n\n' \
@@ -695,6 +697,10 @@ if __name__ == '__main__':
                 dev_dataset = load_nli_dataset(dev_dataset_path, args.add_instruction)
             else:
                 dev_dataset = None
+        elif "amazon" in train_dataset_path:
+            train_dataset = datasets.load_dataset("csv", data_files=train_dataset_path)['train']
+            if dev_dataset_path:
+                dev_dataset = datasets.load_dataset("csv", data_files=dev_dataset_path)['train']
         else:
             raise NotImplementedError(train_dataset_path)
 
@@ -727,6 +733,8 @@ if __name__ == '__main__':
             eval_dataset = load_mtop_dataset(eval_dataset_path)
         elif "xnli" in eval_dataset_path:
             eval_dataset = load_nli_dataset(eval_dataset_path, args.add_instruction)
+        elif "amazon" in eval_dataset_path:
+            eval_dataset = datasets.load_dataset("csv", data_files=eval_dataset_path)['train']
         else:
             raise NotImplementedError(eval_dataset_path)
 
