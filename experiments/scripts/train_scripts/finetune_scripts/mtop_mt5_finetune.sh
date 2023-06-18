@@ -53,6 +53,12 @@ do
       mkdir -p "$serialization_dir"
     fi
 
+    metrics_file="$serialization_dir"/"metrics.json"
+    if [ ! -f "$metrics_file" ]
+    then
+      sbatch $sbatch_params -J ft_mtop experiments/scripts/train_scripts/finetune_scripts/finetune_subscript.sh
+    fi
+
     sbatch $sbatch_params -J ft_mtop experiments/scripts/train_scripts/finetune_scripts/finetune_subscript.sh
   done
 done
@@ -79,7 +85,12 @@ do
           mkdir -p "$serialization_dir"
         fi
 
-        sbatch $sbatch_params -J ft_mtop experiments/scripts/train_scripts/finetune_scripts/finetune_subscript.sh
+        metrics_file="$serialization_dir"/"metrics.json"
+        if [ ! -f "$metrics_file" ]
+        then
+          sbatch $sbatch_params -J ft_mtop experiments/scripts/train_scripts/finetune_scripts/finetune_subscript.sh
+        fi
+
       done
     done
   done
