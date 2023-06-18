@@ -28,10 +28,8 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-bash experiments/hugginface_models/eval_subscript.sh
-# sbatch -J eval_xnli experiments/hugginface_models/eval_subscript.sh
+sbatch -J eval_xnli experiments/hugginface_models/eval_subscript.sh
 
 export model_id="temp_outputs/mt5_base_xnli/en_reordered_by_hindi_""$ID"
 export output_dir="temp_outputs/mt5_base_xnli/en_reordered_by_hindi_""$ID"
-# sbatch -J eval_xnli experiments/hugginface_models/eval_subscript.sh
-bash experiments/hugginface_models/eval_subscript.sh
+sbatch -J eval_xnli experiments/hugginface_models/eval_subscript.sh
