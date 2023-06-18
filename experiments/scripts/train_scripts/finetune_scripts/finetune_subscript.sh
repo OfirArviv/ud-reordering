@@ -16,14 +16,17 @@ if [ -f "$metrics_file" ]
 then
   rm -rf "$serialization_dir"/*.th
   echo "exit: ""$metrics_file"
+  ls "$serialization_dir"
   exit 0
 fi
 
+echo "delete and re-run: ""$serialization_dir"
 rm -rf "$serialization_dir"/*
+ls "$serialization_dir"
 
-allennlp train "$PWD"/experiments/train_configs/"$config_file" --serialization-dir "$serialization_dir" --include-package experiments.allennlp_extensions --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
+# allennlp train "$PWD"/experiments/train_configs/"$config_file" --serialization-dir "$serialization_dir" --include-package experiments.allennlp_extensions --file-friendly-logging --overrides '{"pytorch_seed":'"$RANDOM"', "numpy_seed":'"$RANDOM"', "random_seed": '"$RANDOM"' }'
 
-rm -rf "$serialization_dir"/*.th
+# rm -rf "$serialization_dir"/*.th
 
 
 
