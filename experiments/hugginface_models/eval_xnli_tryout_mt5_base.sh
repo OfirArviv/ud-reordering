@@ -20,7 +20,7 @@ export eval_dataset_path="experiments/processed_datasets/xnli/standard/hindi_xnl
 # export use_lora=null
 # export use_qlora=null
 # export add_instruct=null
-export max_length = 20
+export max_length=20
 
 
 if [ ! -d "$output_dir" ]; then

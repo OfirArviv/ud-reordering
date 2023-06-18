@@ -21,7 +21,7 @@ export output_dir="temp_outputs/mt5_base_xnli/en_standard_""$ID"
 # export use_lora=null
 # export use_qlora=null
 # export add_instruct=null
-
+export max_length=1024
 
 if [ ! -d "$output_dir" ]; then
  echo "$output_dir" does not exists. Creating...

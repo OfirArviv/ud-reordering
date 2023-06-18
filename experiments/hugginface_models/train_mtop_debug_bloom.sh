@@ -14,7 +14,7 @@ export output_dir="temp_outputs/bloom_mtop_tryout/en_standard_1"
 export use_lora=1
 export use_qlora=1
 export add_instruct=1
-export max_length = 2048
+export max_length=2048
 
 if [ ! -d "$output_dir" ]; then
  echo "$output_dir" does not exists. Creating...
