@@ -753,7 +753,8 @@ if __name__ == '__main__':
                          "facebook/xglm-564M"
                          "tiiuae/falcon-7b-instruct"]
     model_list_seq2seq = ["google/flan-t5-xxl",
-                          "google/mt5-base"]
+                          "google/mt5-base",
+                          "google/flan-ul2"]
 
     if args.which == "train":
         train_model_sub_command(args)
