@@ -18,7 +18,7 @@ export PYTHONPATH=$PYTHONPATH:.
 
 export expected_models_count="$COUNT"
 
-count_arr=( 100 )
+count_arr=( 100 300 500 )
 languages=(hindi thai french spanish german)
 
 for lang in "${languages[@]}"
