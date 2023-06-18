@@ -15,6 +15,7 @@ export HOME
 
 export action="train"
 export model_id="google/mt5-base"
+export max_length=200
 
 
 export train_dataset_path="experiments/processed_datasets/amazon_reviews/standard/english_amazon_reviews_train.csv"
