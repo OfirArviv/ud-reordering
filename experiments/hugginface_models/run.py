@@ -530,15 +530,18 @@ def load_mtop_dataset(dataset_path: str):
         return ds
 
 
-def load_nli_dataset(dataset_path: str):
+def load_nli_dataset(dataset_path: str, add_instruction: bool):
     def get_prompt(premise: str, hypothesis: str) -> str:
-        return f'In the Natural Language Inference (NLI) task, given a premise and an hypothesis, ' \
-               f'the goal is to determine the logical relationship between the premise and the hypothesis. ' \
-               f'Please label the logical relationship between the premise and the hypothesis as ' \
-               f'either "entailment", "contradiction", or "neutral".\n\n' \
-               f'Premise: {premise}\n\n' \
-               f'Hypothesis: {hypothesis}\n\n' \
-               f'Label: '
+        prompt_str = f'Premise: {premise}\n\n' \
+                    f'Hypothesis: {hypothesis}\n\n' \
+                    f'Label: '
+        if add_instruction:
+            instruct_str = f'In the Natural Language Inference (NLI) task, given a premise and an hypothesis, ' \
+                           f'the goal is to determine the logical relationship between the premise and the hypothesis. ' \
+                           f'Please label the logical relationship between the premise and the hypothesis as ' \
+                           f'either "entailment", "contradiction", or "neutral".\n\n'
+            prompt_str = f'{instruct_str}{prompt_str}'
+        return prompt_str
 
     label_id_to_str = {
         0: "entailment",
@@ -639,20 +642,23 @@ if __name__ == '__main__':
 
     if args.which == "train":
         set_seed(args.seed)
+
+        model_id = args.model_id
+        is_seq2seq_model = model_id in model_list_seq2seq
+
         train_dataset_path = args.train_dataset_path
         dev_dataset_path = args.dev_dataset_path
+        add_instruction = (not is_seq2seq_model) or ("flan" in model_id)
         if "mtop" in train_dataset_path:
             train_dataset = load_mtop_dataset(train_dataset_path)
             dev_dataset = load_mtop_dataset(dev_dataset_path)
         elif "xnli" in train_dataset_path:
-            train_dataset = load_nli_dataset(train_dataset_path)
-            dev_dataset = load_nli_dataset(dev_dataset_path)
+            train_dataset = load_nli_dataset(train_dataset_path, add_instruction)
+            dev_dataset = load_nli_dataset(dev_dataset_path, add_instruction)
         else:
             raise NotImplementedError(train_dataset_path)
 
-        model_id = args.model_id
         assert model_id in (model_list_seq2seq + model_list_causal)
-        is_seq2seq_model = model_id in model_list_seq2seq
 
         logger.info(f'\n\n!!!!!!!!!! Training model !!!!!!!!!!\n\n'
                     f'model id: {model_id}\n'
