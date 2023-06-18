@@ -18,7 +18,7 @@ export model_id="google/mt5-base"
 
 
 export train_dataset_path="experiments/processed_datasets/xnli/english_reordered_by_thai/english_xnli_train_reordered_by_thai_HUJI.csv"
-# export dev_dataset_path="experiments/processed_datasets/xnli/english_reordered_by_thai/english_xnli_eval_reordered_by_thai_HUJI.csv"
+export dev_dataset_path="experiments/processed_datasets/xnli/english_reordered_by_thai/english_xnli_eval_reordered_by_thai_HUJI.csv"
 export output_dir="temp_outputs/mt5_base_xnli/en_reordered_by_thai_""$ID"
 # export use_lora=null
 # export use_qlora=null
