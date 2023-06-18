@@ -38,7 +38,6 @@ def get_amazon_review_dataset(lang: str, split: str, max_instances_count: int):
     dataset = dataset.select(range(max_instances_count))
     return dataset
 
-
 def create_amazon_review_datasets():
     dataset_main_dir = "experiments/processed_datasets/amazon_reviews"
 
@@ -47,24 +46,50 @@ def create_amazon_review_datasets():
 
     standard_datasets_dir = f'{dataset_main_dir}/standard'
     os.makedirs(standard_datasets_dir, exist_ok=True)
-    en_train.to_csv(f'{standard_datasets_dir}/english_amazon_reviews_train.csv')
-    en_eval.to_csv(f'{standard_datasets_dir}/english_amazon_reviews_eval.csv')
 
-    reorder_by_lang_list = ["hindi"]
+    en_train_dataset_path = f'{standard_datasets_dir}/english_amazon_reviews_train.csv'
+    if not os.path.exists(en_train_dataset_path):
+        en_train.to_csv(en_train_dataset_path)
+    en_eval_dataset_path = f'{standard_datasets_dir}/english_amazon_reviews_eval.csv'
+    if not os.path.exists(en_eval_dataset_path):
+        en_eval.to_csv(en_eval_dataset_path)
+
+    reorder_by_lang_list = ["japanese", "spanish"]
     reorder_algo_list = [UdReorderingAlgo.ReorderAlgo.HUJI]
-    for reorder_by_lang, reorder_algo in zip(reorder_by_lang_list, reorder_algo_list):
-        split_dict = {
-            "train": en_train.map(
-                lambda examples: reorder_simple_seq2seq_dataset(examples, reorder_by_lang, reorder_algo),
-                batched=True),
-            "eval": en_eval.map(
-                lambda examples: reorder_simple_seq2seq_dataset(examples, reorder_by_lang, reorder_algo),
-                batched=True)
-        }
+    for reorder_by_lang, reorder_algo in itertools.product(reorder_by_lang_list, reorder_algo_list):
         reordered_datasets_dir = f'{dataset_main_dir}/english_reordered_by_{reorder_by_lang}'
-        for split in [split_dict.keys()]:
+        os.makedirs(reordered_datasets_dir, exist_ok=True)
+
+        ds_split_dict = {"train": en_train,
+                         "eval": en_eval}
+
+        for split, dataset in ds_split_dict.items():
             reordered_dataset_path = f'{reordered_datasets_dir}/english_amazon_reviews_{split}_reordered_by_{reorder_by_lang}_{reorder_algo.name}.csv'
-            split_dict[split].to_csv(reordered_dataset_path)
+            if not os.path.exists(reordered_dataset_path):
+                reordered_dataset = dataset.map(
+                    lambda examples: reorder_simple_seq2seq_dataset(examples, reorder_by_lang, reorder_algo),
+                    batched=True)
+
+                reordered_dataset.to_csv(reordered_dataset_path)
+
+    for lang in reorder_by_lang_list:
+        lang_code_mapping = {
+            "japanese": "ja",
+            "spanish": "es"
+        }
+        train_dataset = get_amazon_review_dataset(lang_code_mapping[lang], "train", 1000)
+        test_dataset = get_amazon_review_dataset(lang_code_mapping[lang], "validation", 1000)
+
+        standard_datasets_dir = f'{dataset_main_dir}/standard'
+        os.makedirs(standard_datasets_dir, exist_ok=True)
+
+        train_dataset_path = f'{standard_datasets_dir}/{lang}_amazon_reviews_train.csv'
+        if not os.path.exists(train_dataset_path):
+            train_dataset.to_csv(train_dataset_path)
+        test_dataset_path = f'{standard_datasets_dir}/{lang}_amazon_reviews_test.csv'
+        if not os.path.exists(test_dataset_path):
+            test_dataset.to_csv(test_dataset_path)
+
 
 
 # endregion
@@ -217,4 +242,5 @@ from trankit import Pipeline
 # initialize a pipeline for English
 p = Pipeline('english')
 # create_amazon_review_datasets()
-create_xnli_datasets()
+# create_xnli_datasets()
+create_amazon_review_datasets()
