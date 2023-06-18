@@ -35,11 +35,16 @@ if [ "$max_length" ]
    extra_params="$extra_params"" --max-length"" $max_length"
 fi
 
-if [ "$dev_dataset_path" ]
+if [ "$eval_dataset_path" ]
  then
-   extra_params="$extra_params"" --dev-dataset-path ""$dev_dataset_path"
+   extra_params="$extra_params"" --eval-dataset-path ""$eval_dataset_path"
 fi
 
-python "$PWD"/experiments/hugginface_models/run.py train --model-id  "$model_id" --train-dataset-path "$train_dataset_path" --dev-dataset-path "$dev_dataset_path" --output-dir "$output_dir" --seed "$RANDOM" $extra_params
+if [ "$test_dataset_path" ]
+ then
+   extra_params="$extra_params"" --test-dataset-path ""$test_dataset_path"
+fi
+
+python "$PWD"/experiments/hugginface_models/run.py train --model-id  "$model_id" --train-dataset-path "$train_dataset_path"  --output-dir "$output_dir" --seed "$RANDOM" $extra_params
 
 

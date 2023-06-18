@@ -22,13 +22,13 @@ def train():
 
     is_seq2seq_model = True
 
-    # train_dataset = train_dataset.select(range(100))
-    # dev_dataset = train_dataset
+    train_dataset = train_dataset.select(range(100))
+    dev_dataset = train_dataset
 
     train_model(model_id,
                 is_seq2seq_model,
                 train_dataset,
-                None,
+                dev_dataset,
                 output_dir,
                 train_with_lora=True,
                 train_in_4_bit=False,

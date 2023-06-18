@@ -1,5 +1,6 @@
 import argparse
 import csv
+import glob
 import os
 import sys
 
@@ -294,16 +295,23 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
 
     return eval_func
 
+def _delete_checkpoints(output_dir: str):
+    logger = logging.get_logger()
+    directories = glob.glob(f'{output_dir}/checkpoint*')
+    for d in directories:
+        logger.warning(f'deleting directory {d}!')
+        os.removedirs(d)
 
 def train_model(model_id: str,
                 is_seq2seq_model: bool,
                 train_dataset: Dataset,
                 eval_dataset: Optional[Dataset],
+                test_dataset: Optional[Dataset],
+                max_length: int,
                 output_dir: str,
                 train_in_4_bit: bool,
                 train_with_lora: bool,
-                cache_dir: str,
-                max_length: int
+                cache_dir: str
                 ):
     logger = logging.get_logger()
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
@@ -330,6 +338,10 @@ def train_model(model_id: str,
         eval_dataset = eval_dataset.map(
             lambda examples: preprocess_func(examples, tokenizer, "text", "label", max_length),
             batched=True, remove_columns=eval_dataset.column_names)
+    if test_dataset:
+        test_dataset = test_dataset.map(
+            lambda examples: preprocess_func(examples, tokenizer, "text", "label", max_length),
+            batched=True, remove_columns=test_dataset.column_names)
 
     # endregion
 
@@ -366,7 +378,7 @@ def train_model(model_id: str,
         config = LoraConfig(
             r=16,
             lora_alpha=32,
-            target_modules=["q_proj", "v_proj"] if "xglm" in model_id else None,  # for xglm
+            target_modules=["q_proj", "v_proj"] if "xglm" in model_id else None,
             lora_dropout=0.05,
             bias="none",
             task_type=task_type
@@ -388,24 +400,27 @@ def train_model(model_id: str,
         num_train_epochs=20,
         per_device_train_batch_size=4 if "base" in model_id else 1,
         per_device_eval_batch_size=4 if "base" in model_id else 1,
+
         logging_strategy='epoch',
-        evaluation_strategy="no" if "base" in model_id else 'epoch',
+        evaluation_strategy='epoch' if eval_dataset else "no",
         save_strategy='epoch',
         save_total_limit=2,
-        load_best_model_at_end=False if "base" in model_id else True,
-        metric_for_best_model=None if "base" in model_id else "exact_match",
+        load_best_model_at_end=eval_dataset is not None,
+        metric_for_best_model="exact_match" if eval_dataset else None,
+
         predict_with_generate=True,
         generation_max_length=max_length + 10,
         generation_num_beams=1,
+
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
         gradient_accumulation_steps=4 if "base" in model_id else 16,
         eval_accumulation_steps=1,
-        use_mps_device=device.type == "mps",
         optim="paged_adamw_8bit" if train_in_4_bit else "adamw_hf",
         lr_scheduler_type="linear",
         learning_rate=3e5,  # 2e-4 if train_in_4_bit else 3e-5,
         warmup_steps=2,
+        use_mps_device=device.type == "mps",
         report_to="none"
     )
 
@@ -417,8 +432,8 @@ def train_model(model_id: str,
         eval_dataset=eval_dataset,
         tokenizer=tokenizer,
         data_collator=data_collator,
-        compute_metrics=get_eval_func(tokenizer, "exact_match") if eval_dataset else None,
-        # callbacks=[EarlyStoppingCallback(early_stopping_patience=5)] if eval_dataset else [],
+        compute_metrics=get_eval_func(tokenizer, "exact_match"),
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)] if eval_dataset else [],
     )
 
     checkpoint = get_last_checkpoint(output_dir)
@@ -429,9 +444,9 @@ def train_model(model_id: str,
     metrics = train_result.metrics
     metrics.update(get_memory_metrics('train'))
 
-    if eval_dataset:
-        dev_metrics = trainer.evaluate(eval_dataset)
-        metrics.update(dev_metrics)
+    if test_dataset:
+        test_metrics = trainer.evaluate(test_dataset, metric_key_prefix="test")
+        metrics.update(test_metrics)
 
     # TODO: Why do we need that?
     trainer.log_metrics("train", metrics)
@@ -440,18 +455,22 @@ def train_model(model_id: str,
     #  TODO: Why do we need that? It saves the best model and so we can delete the checkpoint
     #     trainer.save_model()  # Saves the tokenizer too for easy upload
     # TODO: Why do we need that?
+    trainer.save_model()
     trainer.save_state()
+
+    _delete_checkpoints(output_dir)
+
 
 
 def evaluate_model(model_id: str,
                    is_seq2seq_model: bool,
+                   eval_dataset: Dataset,
+                   max_length: int,
+                   label: str,
+                   output_dir: str,
                    train_in_4_bit: bool,
                    train_with_lora: bool,
-                   eval_dataset: Dataset,
-                   output_dir: str,
                    cache_dir: str,
-                   label: str,
-                   max_length: int
                    ):
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
     logger = logging.get_logger()
@@ -461,7 +480,6 @@ def evaluate_model(model_id: str,
 
     # TODO: remove in the future and just save the best model to the main dir
     model_id = get_last_checkpoint(model_id)
-    logger.info(model_id)
     assert model_id is not None
 
     if train_with_lora:
@@ -543,28 +561,28 @@ def evaluate_model(model_id: str,
 
     pred_output = trainer.predict(eval_dataset)
     metrics = pred_output.metrics
-    metrics.update(get_memory_metrics('test'))
-
-
+    metrics.update(get_memory_metrics(f'test_{label}'))
 
     predictions = pred_output.predictions
-    decoded_predictions = tokenizer.batch_decode(predictions, skip_special_tokens=True)
-    logger.info(decoded_predictions)
+    # decoded_predictions = tokenizer.batch_decode(predictions, skip_special_tokens=True)
+    # logger.info(decoded_predictions)
 
     # TODO: Why do we need that?
     trainer.log_metrics(f'test_{label}', metrics)
     trainer.save_metrics(f'test_{label}', metrics)
 
 
-def load_mtop_dataset(dataset_path: str):
+# region dataset loading
+def load_mtop_dataset(dataset_path: str, add_instruction: bool):
     with open(dataset_path, "r", encoding='utf-8') as f:
         rows = list(csv.reader(f, delimiter='\t', quoting=csv.QUOTE_MINIMAL))
         dataset_dict = {
-            "text": [f'Parse the following sentence: {r[0]} Answer: ' for r in rows],
+            "text": [f'Parse the following sentence: {r[0]} Answer: ' if add_instruction else r[0] for r in rows],
             "label": [r[1] for r in rows]
         }
         ds = Dataset.from_dict(dataset_dict)
         return ds
+
 
 def load_nli_dataset(dataset_path: str, add_instruction: bool):
     def get_prompt(premise: str, hypothesis: str) -> str:
@@ -597,6 +615,7 @@ def load_nli_dataset(dataset_path: str, add_instruction: bool):
 
     return dataset
 
+# endregion
 
 def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
     dataset_name = "cardiffnlp/tweet_sentiment_multilingual"
@@ -625,6 +644,64 @@ def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
     exit()
 
 
+def load_custom_dataset(dataset_path: str, add_instruction: bool):
+    if "mtop" in dataset_path:
+        dataset = load_mtop_dataset(dataset_path, add_instruction)
+    elif "xnli" in dataset_path:
+        dataset = load_nli_dataset(dataset_path, add_instruction)
+    elif "amazon" in dataset_path:
+        dataset = datasets.load_dataset("csv", data_files=dataset_path)['train']
+    else:
+        raise NotImplementedError(dataset_path)
+
+    return dataset
+
+def train_model_sub_command(args):
+    set_seed(args.seed)
+
+    model_id = args.model_id
+    assert model_id in (model_list_seq2seq + model_list_causal)
+    is_seq2seq_model = model_id in model_list_seq2seq
+
+    train_dataset = load_custom_dataset(args.train_dataset_path, args.add_instruction)
+    eval_dataset = load_custom_dataset(args.eval_dataset_path, args.add_instruction) if args.eval_dataset_path else None
+    test_dataset = load_custom_dataset(args.test_dataset_path, args.add_instruction) if args.test_dataset_path else None
+
+    logger.info(f'\n\n!!!!!!!!!! Training model !!!!!!!!!!\n\n'
+                f'{args}\n\n'
+                f'!!!!!!!!!!!!!!!!!\n\n')
+
+    train_model(model_id=model_id,
+                is_seq2seq_model=is_seq2seq_model,
+                train_dataset=train_dataset,
+                eval_dataset=eval_dataset,
+                test_dataset=test_dataset,
+                max_length=args.max_length,
+                output_dir=args.output_dir,
+                train_with_lora=args.lora,
+                train_in_4_bit=args.qlora,
+                cache_dir=cache_dir,
+               )
+
+
+def evaluate_model_sub_command(args):
+    eval_dataset = load_custom_dataset(args.eval_dataset_path, args.add_instruction)
+    label = f'{os.path.basename(args.eval_dataset_path)}'
+
+    logger.info(f'\n\n!!!!!!!!!! Evaluating model !!!!!!!!!!\n\n'
+                f'{args}\n\n'
+                f'!!!!!!!!!!!!!!!!!\n\n')
+
+    evaluate_model(model_id=args.model_id,
+                   is_seq2seq_model=args.seq2seq,
+                   eval_dataset=eval_dataset,
+                   max_length=args.max_length,
+                   label=label,
+                   output_dir=args.output_dir,
+                   train_with_lora=args.lora,
+                   train_in_4_bit=args.qlora,
+                   cache_dir=cache_dir)
+
 if __name__ == '__main__':
     logger = logging.get_logger()
     logger.setLevel(logging.INFO)
@@ -639,35 +716,29 @@ if __name__ == '__main__':
     # region argparser
 
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(help='sub-command help')
+    parser.add_argument('--model-id', required=True, type=str)
+    parser.add_argument('--output-dir', required=True, type=str)
+    parser.add_argument("--lora", action="store_true", default=False)
+    parser.add_argument("--qlora", action="store_true", default=False)
+    parser.add_argument("--add-instruction", action="store_true", default=False)
+    parser.add_argument('--max-length', required=False, type=int, default=1024)
+    parser.add_argument('--cache-dir', required=False, type=str, default=None)
 
+    subparsers = parser.add_subparsers(help='sub-command help')
     # region Train argparser
     parser_train = subparsers.add_parser('train')
     parser_train.set_defaults(which='train')
-    parser_train.add_argument('--model-id', required=True, type=str)
     parser_train.add_argument('--train-dataset-path', required=True, type=str)
-    parser_train.add_argument('--dev-dataset-path', required=False, type=str)
-    parser_train.add_argument('--output-dir', required=True, type=str)
-    parser_train.add_argument("--lora", action="store_true", default=False)
-    parser_train.add_argument("--qlora", action="store_true", default=False)
-    parser_train.add_argument("--add-instruction", action="store_true", default=False)
-    parser_train.add_argument('--seed', required=True, type=int)
-    parser_train.add_argument('--max-length', required=False, type=int, default=1024)
-    parser_train.add_argument('--cache-dir', required=False, type=str, default=None)
+    parser_train.add_argument('--eval-dataset-path', required=False, type=str)
+    parser_train.add_argument('--test-dataset-path', required=False, type=str)
     # endregion
 
     # region Eval argparser
     parser_eval = subparsers.add_parser('evaluate')
     parser_eval.set_defaults(which='evaluate')
-    parser_eval.add_argument('--model-id', required=True, type=str)
     parser_eval.add_argument('--eval-dataset-path', required=True, type=str)
-    parser_eval.add_argument('--output-dir', required=True, type=str)
     parser_eval.add_argument('--seq2seq', action="store_true", default=False)
-    parser_eval.add_argument("--lora", action="store_true", default=False)
-    parser_eval.add_argument("--qlora", action="store_true", default=False)
-    parser_eval.add_argument("--add-instruction", action="store_true", default=False)
-    parser_eval.add_argument('--max-length', required=False, type=int, default=248)
-    parser_eval.add_argument('--cache-dir', required=False, type=str, default=None)
+
     # endregion
     args = parser.parse_args()
 
@@ -681,86 +752,8 @@ if __name__ == '__main__':
                           "google/mt5-base"]
 
     if args.which == "train":
-        set_seed(args.seed)
-
-        model_id = args.model_id
-        is_seq2seq_model = model_id in model_list_seq2seq
-
-        train_dataset_path = args.train_dataset_path
-        dev_dataset_path = args.dev_dataset_path
-        if "mtop" in train_dataset_path:
-            train_dataset = load_mtop_dataset(train_dataset_path)
-            if dev_dataset_path:
-                dev_dataset = load_mtop_dataset(dev_dataset_path)
-            else:
-                dev_dataset = None
-        elif "xnli" in train_dataset_path:
-            train_dataset = load_nli_dataset(train_dataset_path, args.add_instruction)
-            if dev_dataset_path:
-                dev_dataset = load_nli_dataset(dev_dataset_path, args.add_instruction)
-            else:
-                dev_dataset = None
-        elif "amazon" in train_dataset_path:
-            train_dataset = datasets.load_dataset("csv", data_files=train_dataset_path)['train']
-            if dev_dataset_path:
-                dev_dataset = datasets.load_dataset("csv", data_files=dev_dataset_path)['train']
-        else:
-            raise NotImplementedError(train_dataset_path)
-
-        assert model_id in (model_list_seq2seq + model_list_causal)
-
-        logger.info(f'\n\n!!!!!!!!!! Training model !!!!!!!!!!\n\n'
-                    f'model id: {model_id}\n'
-                    f'train dataset path: {train_dataset_path}\n'
-                    f'dev dataset path: {dev_dataset_path}\n'
-                    f'output dir: {args.output_dir}\n'
-                    f'train with lora: {args.lora}\n'
-                    f'train with qlora: {args.qlora}\n'
-                    f'max length: {args.max_length}\n'
-                    f'add instruction: {args.add_instruction}\n'
-                    f'cache dir: {cache_dir}\n'
-                    f'!!!!!!!!!!!!!!!!!\n\n')
-        train_model(model_id,
-                    is_seq2seq_model,
-                    train_dataset,
-                    dev_dataset,
-                    args.output_dir,
-                    train_with_lora=args.lora,
-                    train_in_4_bit=args.qlora,
-                    cache_dir=cache_dir,
-                    max_length=args.max_length)
+        train_model_sub_command(args)
 
     if args.which == "evaluate":
-        eval_dataset_path = args.eval_dataset_path
-        if "mtop" in eval_dataset_path:
-            eval_dataset = load_mtop_dataset(eval_dataset_path)
-        elif "xnli" in eval_dataset_path:
-            eval_dataset = load_nli_dataset(eval_dataset_path, args.add_instruction)
-        elif "amazon" in eval_dataset_path:
-            eval_dataset = datasets.load_dataset("csv", data_files=eval_dataset_path)['train']
-        else:
-            raise NotImplementedError(eval_dataset_path)
+        evaluate_model_sub_command(args)
 
-        label = f'{os.path.basename(eval_dataset_path)}'
-
-        logger.info(f'\n\n!!!!!!!!!! Evaluating model !!!!!!!!!!\n\n'
-                    f'model id: {args.model_id}\n'
-                    f'eval dataset path: {eval_dataset_path}\n'
-                    f'output dir: {args.output_dir}\n'
-                    f'using lora: {args.lora}\n'
-                    f'using qlora: {args.qlora}\n'
-                    f'max length: {args.max_length}\n'
-                    f'add instruction: {args.add_instruction}\n'
-                    f'cache dir: {cache_dir}\n'
-                    f'!!!!!!!!!!!!!!!!!\n\n')
-        evaluate_model(model_id=args.model_id,
-                       is_seq2seq_model=args.seq2seq,
-                       train_with_lora=args.lora,
-                       train_in_4_bit=args.qlora,
-                       eval_dataset=eval_dataset,
-                       output_dir=args.output_dir,
-                       cache_dir=cache_dir,
-                       label=label,
-                       max_length=args.max_length)
-
-## add to training test dataset with the dev dataset
