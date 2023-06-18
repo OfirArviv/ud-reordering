@@ -431,13 +431,12 @@ def evaluate_model(model_id: str,
         assert train_with_lora
 
     # TODO: remove in the future and just save the best model to the main dir
-    model_dir_path = get_last_checkpoint(model_id)
-    logger.info(model_dir_path)
-    return
-    assert model_dir_path is not None
+    model_id = get_last_checkpoint(model_id)
+    logger.info(model_id)
+    assert model_id is not None
 
     if train_with_lora:
-        peft_model_name_or_path = model_dir_path
+        peft_model_name_or_path = model_id
         peft_config = PeftConfig.from_pretrained(peft_model_name_or_path)
         model_id = peft_config.base_model_name_or_path
 
