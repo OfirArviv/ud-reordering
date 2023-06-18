@@ -596,7 +596,6 @@ def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
 
 
 if __name__ == '__main__':
-    print("!!!!!!!!!!!!!!!!!!!")
     logger = logging.get_logger()
     logger.setLevel(logging.INFO)
 
@@ -641,9 +640,6 @@ if __name__ == '__main__':
     parser_eval.add_argument('--cache-dir', required=False, type=str, default=None)
     # endregion
     args = parser.parse_args()
-
-    print(cache_dir)
-    print(args.which)
 
     model_list_causal = ["decapoda-research/llama-65b-hf",
                          "facebook/xglm-7.5B",
