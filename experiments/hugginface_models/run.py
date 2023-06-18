@@ -278,7 +278,8 @@ def train_model(model_id: str,
                 output_dir: str,
                 train_in_4_bit: bool,
                 train_with_lora: bool,
-                cache_dir: str
+                cache_dir: str,
+                generation_max_length: int = 1024
                 ):
     logger=logging.get_logger()
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
@@ -369,7 +370,7 @@ def train_model(model_id: str,
         load_best_model_at_end=True,
         metric_for_best_model="exact_match",
         predict_with_generate=True,
-        generation_max_length=2048,
+        generation_max_length=generation_max_length,
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
         gradient_accumulation_steps=4,
@@ -396,7 +397,7 @@ def train_model(model_id: str,
 
     checkpoint = get_last_checkpoint(output_dir)
     if checkpoint is not None:
-        logger.debug(f'_debug_ Resuming training from checkpoint: {checkpoint}')
+        logger.info(f'_debug_ Resuming training from checkpoint: {checkpoint}')
     train_result = trainer.train(resume_from_checkpoint=checkpoint)
 
     metrics = train_result.metrics
@@ -419,7 +420,8 @@ def evaluate_model(model_id: str,
                    eval_dataset: Dataset,
                    output_dir: str,
                    cache_dir: str,
-                   label: str
+                   label: str,
+                   generation_max_length: int = 1024
                    ):
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
     print(device)
@@ -487,7 +489,7 @@ def evaluate_model(model_id: str,
         output_dir=output_dir,
         per_device_eval_batch_size=4,
         predict_with_generate=True,
-        generation_max_length=2048,
+        generation_max_length=generation_max_length,
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
         eval_accumulation_steps=1,
@@ -506,13 +508,14 @@ def evaluate_model(model_id: str,
     )
 
     metrics = trainer.evaluate(eval_dataset)
+    metrics.update(get_memory_metrics('test'))
     print(metrics)
 
-    predictions = trainer.predict(eval_dataset)
-    print(predictions)
-
-    decoded_predictions = tokenizer.batch_decode(predictions)
-    print(decoded_predictions)
+    # predictions = trainer.predict(eval_dataset)
+    # print(predictions)
+    #
+    # decoded_predictions = tokenizer.batch_decode(predictions)
+    # print(decoded_predictions)
 
     # TODO: Why do we need that?
     trainer.log_metrics(f'test_{label}', metrics)
@@ -591,7 +594,7 @@ def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
 
 if __name__ == '__main__':
     logger = logging.get_logger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     if os.path.exists('/dccstor'):
         cache_dir = '/dccstor/gmc/users/ofir.arviv/transformers_cache'
@@ -614,7 +617,9 @@ if __name__ == '__main__':
     parser_train.add_argument('--output-dir', required=True, type=str)
     parser_train.add_argument("--lora", action="store_true", default=False)
     parser_train.add_argument("--qlora", action="store_true", default=False)
+    parser_train.add_argument("--add-instruction", action="store_true", default=False)
     parser_train.add_argument('--seed', required=True, type=int)
+    parser_train.add_argument('--max-length', required=False, type=int, default=1024)
     parser_train.add_argument('--cache-dir', required=False, type=str, default=None)
     # endregion
 
@@ -627,6 +632,8 @@ if __name__ == '__main__':
     parser_eval.add_argument('--seq2seq', action="store_true", default=False)
     parser_eval.add_argument("--lora", action="store_true", default=False)
     parser_eval.add_argument("--qlora", action="store_true", default=False)
+    parser_train.add_argument("--add-instruction", action="store_true", default=False)
+    parser_train.add_argument('--max-length', required=False, type=int, default=1024)
     parser_eval.add_argument('--cache-dir', required=False, type=str, default=None)
     # endregion
     args = parser.parse_args()
@@ -648,13 +655,12 @@ if __name__ == '__main__':
 
         train_dataset_path = args.train_dataset_path
         dev_dataset_path = args.dev_dataset_path
-        add_instruction = (not is_seq2seq_model) or ("flan" in model_id)
         if "mtop" in train_dataset_path:
             train_dataset = load_mtop_dataset(train_dataset_path)
             dev_dataset = load_mtop_dataset(dev_dataset_path)
         elif "xnli" in train_dataset_path:
-            train_dataset = load_nli_dataset(train_dataset_path, add_instruction)
-            dev_dataset = load_nli_dataset(dev_dataset_path, add_instruction)
+            train_dataset = load_nli_dataset(train_dataset_path, args.add_instruction)
+            dev_dataset = load_nli_dataset(dev_dataset_path, args.add_instruction)
         else:
             raise NotImplementedError(train_dataset_path)
 
@@ -667,6 +673,7 @@ if __name__ == '__main__':
                     f'output dir: {args.output_dir}\n'
                     f'train with lora: {args.lora}\n'
                     f'train with qlora: {args.qlora}\n'
+                    f'add instruction: {args.add_instruction}\n'
                     f'cache dir: {cache_dir}\n'
                     f'!!!!!!!!!!!!!!!!!\n\n')
         train_model(model_id,
@@ -676,14 +683,15 @@ if __name__ == '__main__':
                     args.output_dir,
                     train_with_lora=args.lora,
                     train_in_4_bit=args.qlora,
-                    cache_dir=cache_dir)
+                    cache_dir=cache_dir,
+                    generation_max_length=args.max_length)
 
     if args.which == "eval":
         eval_dataset_path = args.eval_dataset_path
         if "mtop" in eval_dataset_path:
             eval_dataset = load_mtop_dataset(eval_dataset_path)
         elif "xnli" in eval_dataset_path:
-            eval_dataset = load_nli_dataset(eval_dataset_path)
+            eval_dataset = load_nli_dataset(eval_dataset_path, args.add_instruction)
         else:
             raise NotImplementedError(eval_dataset_path)
 
@@ -695,6 +703,7 @@ if __name__ == '__main__':
                     f'output dir: {args.output_dir}\n'
                     f'using lora: {args.lora}\n'
                     f'using qlora: {args.qlora}\n'
+                    f'add instruction: {args.add_instruction}\n'
                     f'cache dir: {cache_dir}\n'
                     f'!!!!!!!!!!!!!!!!!\n\n')
         evaluate_model(model_id=args.model_id,
@@ -704,4 +713,5 @@ if __name__ == '__main__':
                        eval_dataset=eval_dataset,
                        output_dir=args.output_dir,
                        cache_dir=cache_dir,
-                       label=label)
+                       label=label,
+                       generation_max_length=args.max_length)
