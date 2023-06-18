@@ -621,6 +621,8 @@ if __name__ == '__main__':
 
     model_list_causal = ["decapoda-research/llama-65b-hf",
                          "facebook/xglm-7.5B",
+                         "facebook/xglm-564M",
+                         "bigscience/bloom-7b1",
                          "facebook/xglm-564M"
                          "tiiuae/falcon-7b-instruct"]
     model_list_seq2seq = ["google/flan-t5-xxl",
