@@ -573,10 +573,12 @@ def evaluate_model(model_id: str,
 
     pred_output = trainer.predict(eval_dataset)
     metrics = pred_output.metrics
+    logger.info(metrics)
     metrics.update(get_memory_metrics(f'test_{label}'))
 
     predictions = pred_output.predictions
-    # decoded_predictions = tokenizer.batch_decode(predictions, skip_special_tokens=True)
+    decoded_predictions = tokenizer.batch_decode(predictions, skip_special_tokens=True)
+    logger.info(decoded_predictions)
     # logger.info(decoded_predictions)
 
     # TODO: Why do we need that?
