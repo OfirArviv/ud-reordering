@@ -45,6 +45,6 @@ if [ "$test_dataset_path" ]
    extra_params="$extra_params"" --test-dataset-path ""$test_dataset_path"
 fi
 
-python "$PWD"/experiments/hugginface_model_experiments/src/run.py train --model-id  "$model_id" --train-dataset-path "$train_dataset_path"  --output-dir "$output_dir" --seed "$RANDOM" $extra_params
+python "$PWD"/experiments/hugginface_experiments/src/run.py train --model-id  "$model_id" --train-dataset-path "$train_dataset_path"  --output-dir "$output_dir" --seed "$RANDOM" $extra_params
 
 
