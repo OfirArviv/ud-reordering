@@ -27,10 +27,10 @@ export use_qlora=1
 export add_instruct=1
 export max_length=200
 
-
+dataset_dir="experiments/processed_datasets/mtop/non_pointer_format"
 # Vanilla model
-export train_dataset_path="experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv"
-export eval_dataset_path="experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv"
+export train_dataset_path="$dataset_dir""/standard/english_train_decoupled_format.tsv"
+export eval_dataset_path=="$dataset_dir""/standard/english_eval_decoupled_format.tsv"
 export test_dataset_path=$eval_dataset_path
 
 export output_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
@@ -40,7 +40,7 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch $sbatch_params -J xglm_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript.sh
+# sbatch $sbatch_params -J xglm_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript.sh
 
 
 # Reordered Models
