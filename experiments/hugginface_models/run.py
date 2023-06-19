@@ -320,8 +320,8 @@ def train_model(model_id: str,
                 cache_dir: str
                 ):
     # TODO: revisit
-    if eval_dataset and len(eval_dataset) > 300:
-        eval_dataset = eval_dataset.select(range(300))
+    if eval_dataset and len(eval_dataset) > 200:
+        eval_dataset = eval_dataset.select(range(200))
 
     logger = logging.get_logger()
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
