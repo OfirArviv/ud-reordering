@@ -667,7 +667,11 @@ def load_custom_dataset(dataset_path: str, add_instruction: bool):
     if "mtop" in dataset_path:
         dataset = load_mtop_dataset(dataset_path, add_instruction)
     elif "xnli" in dataset_path:
+
         dataset = load_nli_dataset(dataset_path, add_instruction)
+        logger.info("!!!")
+        logger.info(dataset)
+        logger.info("!!!")
     elif "amazon" in dataset_path:
         dataset = datasets.load_dataset("csv", data_files=dataset_path)['train']
     else:
