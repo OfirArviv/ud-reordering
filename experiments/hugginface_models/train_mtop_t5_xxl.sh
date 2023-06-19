@@ -35,8 +35,8 @@ export add_instruct=1
 dataset_dir=experiments/processed_datasets/mtop/non_pointer_format/
 # Standard Order Model
 export train_dataset_path="$dataset_dir"/standard/english_train_decoupled_format.tsv
-export test_dataset_path="$dataset_dir"/standard/english_eval_decoupled_format.tsv
-# export eval_data_path=
+export eval_dataset_path="$dataset_dir"/standard/english_eval_decoupled_format.tsv
+# export test_data_path=
 
 export output_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
 if [ ! -d "$output_dir" ]; then
@@ -46,7 +46,7 @@ fi
 
 
 sbatch $sbatch_params -J f_t5_mtop experiments/hugginface_models/run_subscript.sh
-
+ exit 0
 # Reordered Models
 combined_postfixes=("_combined")
 # french spanish german
