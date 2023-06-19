@@ -45,8 +45,8 @@ sbatch $sbatch_params -J xglm_mtop experiments/hugginface_model_experiments/scri
 
 # Reordered Models
 combined_postfixes=("_combined")
-# hindi thai french spanish german
-languages=(hindi thai french spanish german)
+# hindi thai french spanish german japanese tamil turkish
+languages=(hindi thai tamil)
 algo_arr=( HUJI )
 for combined_postfix in "${combined_postfixes[@]}"
 do
