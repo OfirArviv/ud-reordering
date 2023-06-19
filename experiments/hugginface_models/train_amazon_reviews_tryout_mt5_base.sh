@@ -13,6 +13,13 @@ TMP=$TMPDIR
 TEMP=$TMPDIR
 export HOME
 
+if [ "$KILLABLE" ]
+ then
+   sbatch_params="--killable --requeue"
+  else
+    sbatch_params=""
+fi
+
 export model_id="google/mt5-base"
 export max_length=200
 
@@ -29,7 +36,7 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch -J hf_sent experiments/hugginface_models/run_subscript.sh
+sbatch $sbatch_params  -J hf_sent experiments/hugginface_models/run_subscript.sh
 
 export train_dataset_path="experiments/processed_datasets/amazon_reviews/english_reordered_by_japanese/english_amazon_reviews_train_reordered_by_japanese_HUJI.csv"
 export test_dataset_path="experiments/processed_datasets/amazon_reviews/english_reordered_by_japanese/english_amazon_reviews_eval_reordered_by_japanese_HUJI.csv"
@@ -44,7 +51,7 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch -J hf_sent experiments/hugginface_models/run_subscript.sh
+sbatch $sbatch_params  -J hf_sent experiments/hugginface_models/run_subscript.sh
 
 #export train_dataset_path="experiments/processed_datasets/amazon_reviews/english_reordered_by_spanish/english_amazon_reviews_train_reordered_by_spanish_HUJI.csv"
 #export dev_dataset_path="experiments/processed_datasets/amazon_reviews/english_reordered_by_spanish/english_amazon_reviews_eval_reordered_by_spanish_HUJI.csv"
