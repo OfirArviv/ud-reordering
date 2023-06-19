@@ -5,15 +5,15 @@ TMP=$TMPDIR
 TEMP=$TMPDIR
 export HOME
 
-export action="train"
 export model_id="facebook/xglm-7.5B"
 export train_dataset_path="experiments/processed_datasets/mtop/non_pointer_format/standard/english_train_decoupled_format.tsv"
-export dev_dataset_path="experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv"
+export eval_dataset_path="experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv"
+export test_dataset_path="experiments/processed_datasets/mtop/non_pointer_format/standard/english_eval_decoupled_format.tsv"
 export output_dir="temp_outputs/xglm_7_5_mtop/en_standard_1"
 export use_lora=1
 export use_qlora=1
 export add_instruct=1
-export max_length=300
+export max_length=200
 
 
 if [ ! -d "$output_dir" ]; then
@@ -21,4 +21,4 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch -J xglm_mtop experiments/hugginface_models/run_subscript.sh
+sbatch "--killable --requeue" -J xglm_mtop experiments/hugginface_models/run_subscript.sh
