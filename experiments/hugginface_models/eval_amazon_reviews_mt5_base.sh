@@ -29,8 +29,8 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch --killable --requeue -J eval_xnli experiments/hugginface_models/eval_subscript.sh
+sbatch --killable --requeue -J eval_amz experiments/hugginface_models/eval_subscript.sh
 
 export model_id="temp_outputs/mt5_base_amazon_reviews/en_reordered_by_japanese_""$ID"
 export output_dir="temp_outputs/mt5_base_amazon_reviews/en_reordered_by_japanese_""$ID"
-sbatch --killable --requeue -J eval_xnli experiments/hugginface_models/eval_subscript.sh
+sbatch --killable --requeue -J eval_amz experiments/hugginface_models/eval_subscript.sh
