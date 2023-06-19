@@ -419,7 +419,7 @@ def train_model(model_id: str,
 
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
-        gradient_accumulation_steps=4 if "base" in model_id else 16,
+        gradient_accumulation_steps=4, # if "base" in model_id else 16,
         eval_accumulation_steps=1,
         optim="paged_adamw_8bit" if train_in_4_bit else "adamw_hf",
         lr_scheduler_type="linear",
@@ -485,7 +485,7 @@ def evaluate_model(model_id: str,
 
     # TODO: remove in the future and just save the best model to the main dir
     # model_id = get_last_checkpoint(model_id)
-    # assert model_id is not None
+    #     assert model_id is not None
 
     if train_with_lora:
         peft_model_name_or_path = model_id
