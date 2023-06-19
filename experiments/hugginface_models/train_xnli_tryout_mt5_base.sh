@@ -37,7 +37,7 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch -J $sbatch_params  hf_xnli experiments/hugginface_models/run_subscript.sh
+sbatch $sbatch_params -J hf_xnli experiments/hugginface_models/run_subscript.sh
 
 exit 0
 
@@ -54,7 +54,7 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch -J  $sbatch_params  hf_xnli experiments/hugginface_models/run_subscript.sh
+sbatch $sbatch_params  -J  hf_xnli experiments/hugginface_models/run_subscript.sh
 
 export train_dataset_path="experiments/processed_datasets/xnli/english_reordered_by_hindi/english_xnli_train_reordered_by_hindi_HUJI.csv"
 export dev_dataset_path="experiments/processed_datasets/xnli/english_reordered_by_hindi/english_xnli_eval_reordered_by_hindi_HUJI.csv"
@@ -68,4 +68,4 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch -J  $sbatch_params  hf_xnli experiments/hugginface_models/run_subscript.sh
+sbatch $sbatch_params  -J  hf_xnli experiments/hugginface_models/run_subscript.sh
