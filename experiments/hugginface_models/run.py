@@ -218,6 +218,8 @@ def tokenize_dataset(examples: Dataset, tokenizer: PreTrainedTokenizerBase,
         "labels": []
     }
 
+    print("1")
+
     tokenized_inputs = tokenizer(examples[text_column])
     with tokenizer.as_target_tokenizer():
         tokenized_labels = tokenizer(examples[label_column])
@@ -230,7 +232,7 @@ def tokenize_dataset(examples: Dataset, tokenizer: PreTrainedTokenizerBase,
         if len(tok_inpt_ids) < max_length and len(tok_lbl_ids) < max_length:
             model_inputs['input_ids'].append(tok_inpt_ids)
             model_inputs['attention_mask'].append(inpt_mask)
-            model_inputs['labels'].append(inpt_mask)
+            model_inputs['labels'].append(tok_lbl_ids)
 
     return model_inputs
 
@@ -482,8 +484,8 @@ def evaluate_model(model_id: str,
         assert train_with_lora
 
     # TODO: remove in the future and just save the best model to the main dir
-    model_id = get_last_checkpoint(model_id)
-    assert model_id is not None
+    # model_id = get_last_checkpoint(model_id)
+    # assert model_id is not None
 
     if train_with_lora:
         peft_model_name_or_path = model_id
