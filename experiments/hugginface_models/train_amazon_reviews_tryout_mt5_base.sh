@@ -25,6 +25,7 @@ export max_length=200
 
 
 export train_dataset_path="experiments/processed_datasets/amazon_reviews/standard/english_amazon_reviews_train.csv"
+export eval_dataset_path="experiments/processed_datasets/amazon_reviews/standard/english_amazon_reviews_eval.csv"
 export test_dataset_path="experiments/processed_datasets/amazon_reviews/standard/english_amazon_reviews_eval.csv"
 export output_dir="temp_outputs/mt5_base_amazon_reviews/en_standard_""$ID"
 # export use_lora=null
@@ -39,6 +40,7 @@ fi
 sbatch $sbatch_params  -J hf_sent experiments/hugginface_models/run_subscript.sh
 
 export train_dataset_path="experiments/processed_datasets/amazon_reviews/english_reordered_by_japanese/english_amazon_reviews_train_reordered_by_japanese_HUJI.csv"
+export eval_dataset_path="experiments/processed_datasets/amazon_reviews/english_reordered_by_japanese/english_amazon_reviews_eval_reordered_by_japanese_HUJI.csv"
 export test_dataset_path="experiments/processed_datasets/amazon_reviews/english_reordered_by_japanese/english_amazon_reviews_eval_reordered_by_japanese_HUJI.csv"
 export output_dir="temp_outputs/mt5_base_amazon_reviews/en_reordered_by_japanese_""$ID"
 # export use_lora=null
