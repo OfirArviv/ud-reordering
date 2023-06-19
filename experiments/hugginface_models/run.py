@@ -537,9 +537,13 @@ def evaluate_model(model_id: str,
     else:
         preprocess_func = preprocess_dataset_for_causal_lm
 
+    logger.info(eval_dataset)
     eval_dataset = eval_dataset.map(
         lambda examples: preprocess_func(examples, tokenizer, "text", "label", max_length),
         batched=True, remove_columns=eval_dataset.column_names)
+
+    logger.info(eval_dataset)
+
 
     # endregion
 
