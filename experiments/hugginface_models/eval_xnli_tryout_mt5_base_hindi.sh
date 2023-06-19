@@ -14,9 +14,9 @@ TEMP=$TMPDIR
 export HOME
 
 export action="train"
-export model_id="temp_outputs/mt5_base_xnli/en_standard_""$ID"
-export output_dir="temp_outputs/mt5_base_xnli/en_standard_""$ID"
-export eval_dataset_path="experiments/processed_datasets/xnli/standard/hindi_xnli_test_2.csv"
+export model_id="temp_outputs/mt5_base_xnli/en_reordered_by_thai_""$ID"
+export output_dir="temp_outputs/mt5_base_xnli/en_reordered_by_thai_""$ID"
+export eval_dataset_path="experiments/processed_datasets/xnli/standard/hindi_xnli_test.csv"
 # export use_lora=null
 # export use_qlora=null
 # export add_instruct=null
