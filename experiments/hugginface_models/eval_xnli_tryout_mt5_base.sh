@@ -33,4 +33,4 @@ sbatch --killable --requeue -J eval_xnli experiments/hugginface_models/eval_subs
 
 export model_id="temp_outputs/mt5_base_xnli/en_reordered_by_thai_""$ID"
 export output_dir="temp_outputs/mt5_base_xnli/en_reordered_by_thai_""$ID"
-sbatch --killable --requeue -J eval_xnli experiments/hugginface_models/eval_subscript.sh
+# sbatch --killable --requeue -J eval_xnli experiments/hugginface_models/eval_subscript.sh
