@@ -21,4 +21,4 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch "--killable --requeue" -J xglm_mtop experiments/hugginface_models/run_subscript.sh
+sbatch --killable --requeue -J xglm_mtop experiments/hugginface_models/run_subscript.sh
