@@ -35,7 +35,7 @@ do
     export examples_count="$examples_count"
     export model_dir="$DIR"/finetuned/english_standard_finetuned_"$lang"_"$examples_count"/
 
-    sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/eval_subscript.sh
+    sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/finetune_evaluation/eval_subscript_ft.sh
   done
 done
 
@@ -53,7 +53,7 @@ do
       do
         export examples_count="$examples_count"
         export model_dir="$DIR"/finetuned/english_reordered_by_"$lang"_"$algo""$combined_postfix"_finetuned_"$examples_count"/
-        sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/eval_subscript.sh
+        sbatch $sbatch_params -J eval_mtop experiments/scripts/evaluate_scripts/finetune_evaluation/eval_subscript_ft.sh
       done
     done
   done
