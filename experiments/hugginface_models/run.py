@@ -2,6 +2,7 @@ import argparse
 import csv
 import glob
 import os
+import shutil
 import sys
 
 import datasets
@@ -218,8 +219,6 @@ def tokenize_dataset(examples: Dataset, tokenizer: PreTrainedTokenizerBase,
         "labels": []
     }
 
-    print("1")
-
     tokenized_inputs = tokenizer(examples[text_column])
     with tokenizer.as_target_tokenizer():
         tokenized_labels = tokenizer(examples[label_column])
@@ -283,6 +282,7 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
     def eval_func(eval_preds: EvalPrediction):
         preds = eval_preds.predictions
         labels = eval_preds.label_ids
+        preds = np.where(preds != -100, preds, tokenizer.pad_token_id)
         decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)
         labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
         decoded_labels = tokenizer.batch_decode(labels.tolist(), skip_special_tokens=True)
@@ -302,10 +302,11 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
 
 def _delete_checkpoints(output_dir: str):
     logger = logging.get_logger()
-    directories = glob.glob(f'{output_dir}/checkpoint*')
-    for d in directories:
-        logger.warning(f'deleting directory {d}!')
-        os.removedirs(d)
+    checkpoint_files = glob.glob(f'{output_dir}/checkpoint*/*')
+    for f in checkpoint_files:
+        logger.warning(f'deleting file {f}!')
+        if not f.endswith("json"):
+            os.remove(f)
 
 def train_model(model_id: str,
                 is_seq2seq_model: bool,
@@ -318,6 +319,10 @@ def train_model(model_id: str,
                 train_with_lora: bool,
                 cache_dir: str
                 ):
+    # TODO: revisit
+    if eval_dataset and len(eval_dataset) > 300:
+        eval_dataset = eval_dataset.select(range(300))
+
     logger = logging.get_logger()
     device = torch.device("mps" if torch.backends.mps.is_available() else 0 if torch.cuda.is_available() else "cpu")
 
@@ -397,8 +402,8 @@ def train_model(model_id: str,
     data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer,
                                            model=model,
                                            padding=True,
-                                           # label_pad_token_id=tokenizer.eos_token_id,
-                                           label_pad_token_id=-100)
+                                           label_pad_token_id=tokenizer.eos_token_id if is_seq2seq_model else -100
+                                           )
 
     training_args = Seq2SeqTrainingArguments(
         output_dir=output_dir,
@@ -423,7 +428,7 @@ def train_model(model_id: str,
         eval_accumulation_steps=1,
         optim="paged_adamw_8bit" if train_in_4_bit else "adamw_hf",
         lr_scheduler_type="linear",
-        learning_rate=3e5,  # 2e-4 if train_in_4_bit else 3e-5,
+        learning_rate=3e-5,  # 2e-4 if train_in_4_bit else 3e-5,
         warmup_steps=2,
         use_mps_device=device.type == "mps",
         report_to="none"
@@ -446,6 +451,10 @@ def train_model(model_id: str,
         logger.info(f'_debug_ Resuming training from checkpoint: {checkpoint}')
     train_result = trainer.train(resume_from_checkpoint=checkpoint)
 
+    # this needs to be before the save_metrics. As otherwise it will overwrite them
+    trainer.save_model()
+    trainer.save_state()
+
     metrics = train_result.metrics
     metrics.update(get_memory_metrics('train'))
 
@@ -460,8 +469,6 @@ def train_model(model_id: str,
     #  TODO: Why do we need that? It saves the best model and so we can delete the checkpoint
     #     trainer.save_model()  # Saves the tokenizer too for easy upload
     # TODO: Why do we need that?
-    trainer.save_model()
-    trainer.save_state()
 
     _delete_checkpoints(output_dir)
 
