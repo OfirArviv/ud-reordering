@@ -55,6 +55,8 @@ def get_lang_from_filename(filename: str):
         return "telugu"
     elif "bangali" in filename:
         return "bengali"
+    elif "spanish" in filename:
+        return "spanish"
     elif filename.startswith("_"):
         return "_"
     else:
