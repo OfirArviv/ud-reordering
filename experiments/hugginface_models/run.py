@@ -573,6 +573,7 @@ def evaluate_model(model_id: str,
 
     pred_output = trainer.predict(eval_dataset)
     metrics = pred_output.metrics
+    logger.info(pred_output)
     logger.info(metrics)
     metrics.update(get_memory_metrics(f'test_{label}'))
 
