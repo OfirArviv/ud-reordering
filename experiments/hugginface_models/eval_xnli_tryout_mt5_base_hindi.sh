@@ -28,5 +28,5 @@ if [ ! -d "$output_dir" ]; then
  echo "$output_dir" does not exists. Creating...
  mkdir -p "$output_dir"
 fi
-
-sbatch --killable --requeue -J eval_xnli experiments/hugginface_models/eval_subscript.sh
+ bash experiments/hugginface_models/eval_subscript.sh
+#sbatch --killable --requeue -J eval_xnli experiments/hugginface_models/eval_subscript.sh
