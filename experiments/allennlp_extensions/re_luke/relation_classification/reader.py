@@ -118,7 +118,7 @@ class RelationClassificationReader(DatasetReader):
         data_list = list(self.parser(file_path))
         if self._max_examples is not None:
             assert len(data_list) >= self._max_examples
-            shuffle(data_list)
+            # shuffle(data_list)
 
         for data in data_list:
             if self._max_examples is not None and self._processed_examples > self._max_examples:
