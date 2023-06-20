@@ -46,8 +46,8 @@ sbatch $sbatch_params -J amz_rev experiments/hugginface_experiments/scripts/trai
 
 # Reordered Models
 combined_postfixes=("_combined")
-# chinese
-languages=( hindi japanese spanish)
+# chinese spanish
+languages=( hindi japanese )
 algo_arr=( HUJI )
 for combined_postfix in "${combined_postfixes[@]}"
 do
