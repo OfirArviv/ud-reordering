@@ -415,7 +415,7 @@ def train_model(model_id: str,
         output_dir=output_dir,
         num_train_epochs=20,
         per_device_train_batch_size=4 ,# if "base" in model_id else 1,
-        per_device_eval_batch_size=4 ,#if  "base" in model_id else 1,
+        per_device_eval_batch_size=1 ,#if  "base" in model_id else 1,
 
         logging_strategy='epoch',
         evaluation_strategy='epoch' if eval_dataset else "no",
