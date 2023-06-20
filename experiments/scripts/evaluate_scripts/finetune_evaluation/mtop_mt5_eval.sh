@@ -22,7 +22,7 @@ if [ "$KILLABLE" ]
 fi
 
 
-export test_dir="experiments/processed_datasets/mtop/non_pointer_format/standard/"
+export test_dir="experiments/processed_datasets/mtop/non_pointer_format/few_shot_test/"
 export output_dir=$OUTPUT_DIR
 
 count_arr=( 500)

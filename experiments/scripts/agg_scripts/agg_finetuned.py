@@ -59,6 +59,12 @@ def get_lang_from_filename(filename: str):
         return "bengali"
     elif "spanish" in filename:
         return "spanish"
+    elif "german" in filename:
+        return "german"
+    elif "french" in filename:
+        return "french"
+    elif "thai" in filename:
+        return "thai"
     elif filename.startswith("_"):
         return "_"
     else:
@@ -71,7 +77,10 @@ def split_models_by_example_count(path_list: List):
     path_dict = defaultdict(list)
     for path in path_list:
         example_count=path.split("_")[-1].strip("/").strip("\\")
-        path_dict[example_count].append(path)
+        if example_count not in ["100", "300"]:
+            continue
+        if "spanish" not in path:
+            path_dict[example_count].append(path)
 
     return path_dict
 
@@ -85,8 +94,8 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
 
     main_output_dir = output_dir
 
-    for sample_size, path_list in model_dict_by_size:
-        output_dir = f'{output_dir}/sample_count_{sample_size}'
+    for sample_size, path_list in model_dict_by_size.items():
+        output_dir = f'{main_output_dir}/sample_count_{sample_size}'
         model_type = path_list
 
         model_count = None
