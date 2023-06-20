@@ -25,7 +25,7 @@ fi
 export test_dir="experiments/processed_datasets/mtop/non_pointer_format/standard/"
 export output_dir=$OUTPUT_DIR
 
-count_arr=( 100 200 300)
+count_arr=( 500)
 languages=(hindi thai french spanish german)
 
 for lang in "${languages[@]}"
