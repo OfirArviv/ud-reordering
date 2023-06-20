@@ -12,7 +12,8 @@ import evaluate
 import numpy as np
 import torch
 from datasets import Dataset, load_dataset
-from peft import LoraConfig, TaskType, get_peft_model, prepare_model_for_kbit_training, PeftConfig, PeftModel
+from peft import LoraConfig, TaskType, get_peft_model, prepare_model_for_kbit_training, PeftConfig, PeftModel, \
+    prepare_model_for_int8_training
 from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedTokenizerBase, \
     EvalPrediction, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
     EarlyStoppingCallback, BitsAndBytesConfig, set_seed, AutoModelForSeq2SeqLM, Seq2SeqTrainer, GenerationConfig
@@ -316,6 +317,7 @@ def train_model(model_id: str,
                 max_length: int,
                 output_dir: str,
                 train_in_4_bit: bool,
+                train_in_8_bit: bool,
                 train_with_lora: bool,
                 cache_dir: str
                 ):
@@ -330,6 +332,8 @@ def train_model(model_id: str,
 
     if train_in_4_bit:
         assert train_with_lora
+        assert not train_in_8_bit
+
 
     # region tokenizer and dataset preparation
     tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir=cache_dir)
@@ -371,7 +375,8 @@ def train_model(model_id: str,
         "quantization_config": bnb_config,
         "cache_dir": cache_dir,
         "trust_remote_code": True,
-        "torch_dtype": torch.float16 if train_in_4_bit else None
+        "torch_dtype": torch.float16 if train_in_4_bit else None,
+        "load_in_8bit": train_in_8_bit
     }
 
     if is_seq2seq_model:
@@ -379,7 +384,7 @@ def train_model(model_id: str,
     else:
         model = AutoModelForCausalLM.from_pretrained(**model_loading_args)
 
-    if train_in_4_bit:
+    if train_in_4_bit or train_in_8_bit:
         model.gradient_checkpointing_enable()
         model = prepare_model_for_kbit_training(model)
 
@@ -693,6 +698,7 @@ def train_model_sub_command(args):
                 output_dir=args.output_dir,
                 train_with_lora=args.lora,
                 train_in_4_bit=args.qlora,
+                train_in_8_bit=args.train_8_bits,
                 cache_dir=cache_dir,
                )
 
@@ -733,6 +739,7 @@ if __name__ == '__main__':
         input_parser.add_argument('--output-dir', required=True, type=str)
         input_parser.add_argument("--lora", action="store_true", default=False)
         input_parser.add_argument("--qlora", action="store_true", default=False)
+        input_parser.add_argument("--train-8-bits", action="store_true", default=False)
         input_parser.add_argument("--add-instruction", action="store_true", default=False)
         input_parser.add_argument('--max-length', required=False, type=int, default=1024)
         input_parser.add_argument('--cache-dir', required=False, type=str, default=None)
