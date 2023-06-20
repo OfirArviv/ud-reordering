@@ -42,7 +42,6 @@ fi
 
 sbatch $sbatch_params -J xglm_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript.sh
 
-exit 0
 # Reordered Models
 combined_postfixes=("_combined")
 # hindi thai french spanish german japanese tamil turkish
