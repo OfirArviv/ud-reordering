@@ -28,6 +28,16 @@ export output_dir=$OUTPUT_DIR
 count_arr=( 100 200 300)
 languages=(korean russian)
 
+export model_dir="experiments_results/evaluation/tacred_finetuned/english_reordered_by_korean_RASOOLINI_combined_finetuned_300"
+sbatch $sbatch_params -J eval_tacred experiments/scripts/evaluate_scripts/eval_subscript.sh
+
+export_model_dir="experiments_results/evaluation/tacred_finetuned/english_reordered_by_korean_HUJI_combined_finetuned_200"
+sbatch $sbatch_params -J eval_tacred experiments/scripts/evaluate_scripts/eval_subscript.sh
+
+exit 0
+
+
+
 for lang in "${languages[@]}"
 do
   for examples_count in "${count_arr[@]}"

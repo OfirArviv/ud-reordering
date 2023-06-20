@@ -150,6 +150,9 @@ def run_agg_evaluation(main_models_dir: str, output_dir: str):
                     agg_data = json.load(f)
 
                 for metric_k, v in agg_data.items():
+                    if ":" in metric_k:
+                        continue
+
                     if metric_k == "model_count":
                         if model_count is None:
                             model_count = v
