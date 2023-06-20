@@ -1,0 +1,7 @@
+{
+    "model_count": 5,
+    "em_accuracy_mean": 0.5587936046511628,
+    "em_accuracy_std": 0.010438333784459174,
+    "loss_mean": 0.0,
+    "loss_std": 0.0
+}
