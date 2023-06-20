@@ -450,7 +450,7 @@ def train_model(model_id: str,
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=get_eval_func(tokenizer, "exact_match"),
-        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)] if eval_dataset else [],
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)] if eval_dataset and not train_in_4_bit else [],
     )
 
     checkpoint = get_last_checkpoint(output_dir)
