@@ -67,7 +67,7 @@ do
         mkdir -p "$output_dir"
       fi
 
-      sbatch $sbatch_params -J xglm_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript.sh
+      sbatch $sbatch_params -J amz_rev experiments/hugginface_experiments/scripts/train_scripts/train_subscript.sh
 
     done
   done

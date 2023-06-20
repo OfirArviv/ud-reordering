@@ -77,7 +77,7 @@ def split_models_by_example_count(path_list: List):
     path_dict = defaultdict(list)
     for path in path_list:
         example_count=path.split("_")[-1].strip("/").strip("\\")
-        if example_count not in ["100", "300"]:
+        if example_count not in ["100", "200", "300"]:
             continue
         if "spanish" not in path:
             path_dict[example_count].append(path)
