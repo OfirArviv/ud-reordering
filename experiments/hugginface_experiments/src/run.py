@@ -428,7 +428,7 @@ def train_model(model_id: str,
         eval_accumulation_steps=1,
         optim="paged_adamw_8bit" if train_in_4_bit else "adamw_hf",
         lr_scheduler_type="linear",
-        learning_rate=3e-5,  # 2e-4 if train_in_4_bit else 3e-5,
+        learning_rate= 2e-4 if train_in_4_bit else 3e-5,
         warmup_steps=2,
         use_mps_device=device.type == "mps",
         report_to="none"
