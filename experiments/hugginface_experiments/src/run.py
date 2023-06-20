@@ -301,6 +301,7 @@ def get_eval_func(tokenizer: PreTrainedTokenizerBase, metric_id: str) -> Callabl
 
     return eval_func
 
+
 def _delete_checkpoints(output_dir: str):
     logger = logging.get_logger()
     checkpoint_files = glob.glob(f'{output_dir}/checkpoint*/*')
@@ -308,6 +309,7 @@ def _delete_checkpoints(output_dir: str):
         logger.warning(f'deleting file {f}!')
         if not f.endswith("json"):
             os.remove(f)
+
 
 def train_model(model_id: str,
                 is_seq2seq_model: bool,
@@ -333,7 +335,6 @@ def train_model(model_id: str,
     if train_in_4_bit:
         assert train_with_lora
         assert not train_in_8_bit
-
 
     # region tokenizer and dataset preparation
     tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir=cache_dir)
@@ -363,9 +364,9 @@ def train_model(model_id: str,
     if train_in_4_bit:
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
-            # bnb_4bit_use_double_quant=True,
+            bnb_4bit_use_double_quant=True,
             bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.bfloat16
+            bnb_4bit_compute_dtype=torch.float16
         )
     else:
         bnb_config = None
@@ -414,8 +415,8 @@ def train_model(model_id: str,
     training_args = Seq2SeqTrainingArguments(
         output_dir=output_dir,
         num_train_epochs=20,
-        per_device_train_batch_size=4 ,# if "base" in model_id else 1,
-        per_device_eval_batch_size=1 ,#if  "base" in model_id else 1,
+        per_device_train_batch_size=4,  # if "base" in model_id else 1,
+        per_device_eval_batch_size=1 if train_in_8_bit else 4,  # if  "base" in model_id else 1,
 
         logging_strategy='epoch',
         evaluation_strategy='epoch' if eval_dataset else "no",
@@ -430,11 +431,11 @@ def train_model(model_id: str,
 
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
-        gradient_accumulation_steps=4, # if "base" in model_id else 16,
+        gradient_accumulation_steps=4,  # if "base" in model_id else 16,
         eval_accumulation_steps=1,
         optim="paged_adamw_8bit" if (train_in_4_bit or train_in_8_bit) else "adamw_hf",
         lr_scheduler_type="linear",
-        learning_rate= 2e-4 if train_in_4_bit else 3e-5,
+        learning_rate=3e-5,  # 2e-4 if train_in_4_bit else 3e-5,
         warmup_steps=2,
         use_mps_device=device.type == "mps",
         report_to="none"
@@ -477,7 +478,6 @@ def train_model(model_id: str,
     # TODO: Why do we need that?
 
     _delete_checkpoints(output_dir)
-
 
 
 def evaluate_model(model_id: str,
@@ -559,7 +559,7 @@ def evaluate_model(model_id: str,
         output_dir=output_dir,
         per_device_eval_batch_size=4,
         predict_with_generate=True,
-        generation_max_length=max_length+10,
+        generation_max_length=max_length + 10,
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
         eval_accumulation_steps=1,
@@ -633,6 +633,7 @@ def load_nli_dataset(dataset_path: str, add_instruction: bool):
 
     return dataset
 
+
 # endregion
 
 def debug_run(model_id: str, is_seq2seq: bool, cache_dir: str):
@@ -674,6 +675,7 @@ def load_custom_dataset(dataset_path: str, add_instruction: bool):
 
     return dataset
 
+
 def train_model_sub_command(args):
     set_seed(args.seed)
 
@@ -700,7 +702,7 @@ def train_model_sub_command(args):
                 train_in_4_bit=args.qlora,
                 train_in_8_bit=args.train_8_bits,
                 cache_dir=cache_dir,
-               )
+                )
 
 
 def evaluate_model_sub_command(args):
@@ -721,6 +723,7 @@ def evaluate_model_sub_command(args):
                    train_in_4_bit=args.qlora,
                    cache_dir=cache_dir)
 
+
 if __name__ == '__main__':
     logger = logging.get_logger()
     logger.setLevel(logging.INFO)
@@ -731,6 +734,7 @@ if __name__ == '__main__':
         cache_dir = '/cs/labs/oabend/ofir.arviv/transformers_cache'
     else:
         cache_dir = None
+
 
     # region argparser
 
@@ -743,6 +747,7 @@ if __name__ == '__main__':
         input_parser.add_argument("--add-instruction", action="store_true", default=False)
         input_parser.add_argument('--max-length', required=False, type=int, default=1024)
         input_parser.add_argument('--cache-dir', required=False, type=str, default=None)
+
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='sub-command help')
@@ -781,4 +786,3 @@ if __name__ == '__main__':
 
     if args.which == "evaluate":
         evaluate_model_sub_command(args)
-
