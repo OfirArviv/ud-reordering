@@ -30,7 +30,7 @@ export max_length=200
 dataset_dir="experiments/processed_datasets/mtop/non_pointer_format"
 # Vanilla model
 export train_dataset_path="$dataset_dir""/standard/english_train_decoupled_format.tsv"
-export eval_dataset_path=="$dataset_dir""/standard/english_eval_decoupled_format.tsv"
+export eval_dataset_path="$dataset_dir""/standard/english_eval_decoupled_format.tsv"
 export test_dataset_path=$eval_dataset_path
 
 export output_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
