@@ -370,7 +370,8 @@ def train_model(model_id: str,
         "pretrained_model_name_or_path": model_id,
         "quantization_config": bnb_config,
         "cache_dir": cache_dir,
-        "trust_remote_code": True
+        "trust_remote_code": True,
+        "torch_dtype": torch.float16 if train_in_4_bit else None
     }
 
     if is_seq2seq_model:
