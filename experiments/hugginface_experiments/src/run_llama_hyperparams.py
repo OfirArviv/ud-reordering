@@ -377,9 +377,9 @@ def train_model(model_id: str,
         "quantization_config": bnb_config,
         "cache_dir": cache_dir,
         "trust_remote_code": True,
-        "torch_dtype": torch.bfloat16 if (train_in_4_bit or train_in_8_bit) else None,
-        "load_in_8bit": train_in_8_bit,
-        "device_map": "auto"
+        # "torch_dtype": torch.bfloat16 if (train_in_4_bit or train_in_8_bit) else None,
+        # "load_in_8bit": train_in_8_bit,
+        # "device_map": "auto"
     }
 
     if is_seq2seq_model:
@@ -422,9 +422,10 @@ def train_model(model_id: str,
         per_device_train_batch_size= 1 if train_in_8_bit else 4,  # if "base" in model_id else 1,
         per_device_eval_batch_size= 1 if train_in_8_bit else 4,  # if  "base" in model_id else 1,
 
-        logging_strategy='epoch',
-        evaluation_strategy='epoch' if eval_dataset else "no",
-        save_strategy='epoch',
+        logging_strategy='steps',
+        evaluation_strategy='steps' if eval_dataset else "no",
+        save_strategy='steps',
+        logging_steps=500,
         save_total_limit=2,
         load_best_model_at_end=eval_dataset is not None,
         metric_for_best_model="exact_match" if eval_dataset else None,
@@ -439,7 +440,7 @@ def train_model(model_id: str,
         eval_accumulation_steps=1,
         optim="paged_adamw_32bit",
         lr_scheduler_type="constant",
-        learning_rate=3e-5,  # 2e-4 if train_in_4_bit else 3e-5,
+        learning_rate=2e-4,  # 2e-4 if train_in_4_bit else 3e-5,
         report_to="none",
         max_grad_norm=0.3,
         warmup_ratio=0.03
