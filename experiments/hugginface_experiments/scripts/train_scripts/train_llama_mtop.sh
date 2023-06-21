@@ -36,7 +36,7 @@ export test_dataset_path=$eval_dataset_path
 
 
 export exp_fname="run_llama.py"
-export output_dir="$DIR"/"llama/"
+export output_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
 
 if [ ! -d "$output_dir" ]; then
  echo "$output_dir" does not exists. Creating...
