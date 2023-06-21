@@ -21,7 +21,7 @@ if [ "$KILLABLE" ]
     sbatch_params=""
 fi
 
-export model_id="openlm-research/open_llama_13b"
+export model_id="decapoda-research/llama-13b-hf"
 export use_lora=1
 export use_qlora=1
 export add_instruct=1
@@ -43,7 +43,7 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch $sbatch_params -J exp1 experiments/hugginface_experiments/scripts/train_scripts/train_subscript_4bit_experiments.sh
+sbatch $sbatch_params -J llama experiments/hugginface_experiments/scripts/train_scripts/train_subscript_4bit_experiments.sh
 
 
 
