@@ -27,6 +27,9 @@ export use_qlora=1
 export add_instruct=1
 export max_length=200
 
+
+export exp_fname="run_llama_hyperparams_lr_3e5.py"
+
 dataset_dir="experiments/processed_datasets/mtop/non_pointer_format"
 # Vanilla model
 export train_dataset_path="$dataset_dir""/standard/english_train_decoupled_format.tsv"
@@ -40,12 +43,12 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch $sbatch_params -J xglm_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript.sh
+sbatch $sbatch_params -J xglm_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript_4bit_experiments.sh
 
 # Reordered Models
 combined_postfixes=("_combined")
 # hindi thai french spanish german japanese tamil turkish
-languages=(hindi thai tamil)
+languages=(hindi thai tamil turkish)
 algo_arr=( HUJI )
 for combined_postfix in "${combined_postfixes[@]}"
 do
@@ -65,7 +68,7 @@ do
         mkdir -p "$output_dir"
       fi
 
-      sbatch $sbatch_params -J xglm_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript.sh
+      sbatch $sbatch_params -J xglm_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript_4bit_experiments.sh
 
     done
   done
