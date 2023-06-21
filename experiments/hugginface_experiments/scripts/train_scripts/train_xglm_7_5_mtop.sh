@@ -40,7 +40,7 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch $sbatch_params -J xglm_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript.sh
+sbatch $sbatch_params -J xglm4_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript.sh
 
 # Reordered Models
 combined_postfixes=("_combined")
@@ -65,7 +65,7 @@ do
         mkdir -p "$output_dir"
       fi
 
-      sbatch $sbatch_params -J xglm_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript.sh
+      sbatch $sbatch_params -J xglm4_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript.sh
 
     done
   done
