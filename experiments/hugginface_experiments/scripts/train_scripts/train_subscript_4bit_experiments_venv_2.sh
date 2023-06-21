@@ -9,7 +9,7 @@ TMP=$TMPDIR
 TEMP=$TMPDIR
 export HOME
 
-. ../venv_hf_2/bin/activate
+. ../venv_hf_3/bin/activate
 
 module load cuda/11.7
 export PYTHONPATH=.:$PYTHONPATH
