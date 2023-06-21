@@ -458,6 +458,7 @@ def train_model(model_id: str,
     )
 
     checkpoint = get_last_checkpoint(output_dir)
+    logger.info(f'_debug_checkpoints: {checkpoint}')
     if checkpoint is not None:
         logger.info(f'_debug_ Resuming training from checkpoint: {checkpoint}')
     train_result = trainer.train(resume_from_checkpoint=checkpoint)
