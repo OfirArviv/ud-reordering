@@ -35,7 +35,7 @@ export test_dataset_path=$eval_dataset_path
 
 
 
-export exp_fname="run_llama_hyperparams.py"
+export exp_fname="run_llama.py"
 export output_dir="$DIR"/"llama/"
 
 if [ ! -d "$output_dir" ]; then
