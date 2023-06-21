@@ -35,6 +35,18 @@ export test_dataset_path=$eval_dataset_path
 
 
 
+export exp_fname="run_llama_hyperparams_lr_3e5.py"
+export output_dir="$DIR"/"llama_3e5/"
+
+if [ ! -d "$output_dir" ]; then
+ echo "$output_dir" does not exists. Creating...
+ mkdir -p "$output_dir"
+fi
+
+sbatch $sbatch_params -J exp_ experiments/hugginface_experiments/scripts/train_scripts/train_subscript_4bit_experiments.sh
+
+exit 0
+
 export exp_fname="run_4bit_exp_1_fp4_std_lr_1e4.py"
 export output_dir="$DIR"/"exp1/"
 
