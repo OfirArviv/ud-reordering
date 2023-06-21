@@ -770,7 +770,8 @@ if __name__ == '__main__':
                          "facebook/xglm-564M",
                          "bigscience/bloom-7b1",
                          "facebook/xglm-564M"
-                         "tiiuae/falcon-7b-instruct"]
+                         "tiiuae/falcon-7b-instruct",
+                         "openlm-research/open_llama_13b"]
     model_list_seq2seq = ["google/flan-t5-xxl",
                           "google/mt5-base",
                           "google/flan-ul2"]
