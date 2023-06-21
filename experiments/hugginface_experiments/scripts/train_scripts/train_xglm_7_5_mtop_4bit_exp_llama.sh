@@ -43,7 +43,7 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch $sbatch_params -J exp1 experiments/hugginface_experiments/scripts/train_scripts/train_subscript_4bit_experiments.sh
+sbatch $sbatch_params -J exp_llama experiments/hugginface_experiments/scripts/train_scripts/train_subscript_4bit_experiments.sh
 
 
 
