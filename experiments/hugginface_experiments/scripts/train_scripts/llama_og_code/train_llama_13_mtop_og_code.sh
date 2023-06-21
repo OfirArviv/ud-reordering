@@ -35,7 +35,7 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch $sbatch_params -J llama_mtop experiments/hugginface_experiments/scripts/train_scripts/llama_og_code/train_subscript_llama.sh
+sbatch $sbatch_params -J og experiments/hugginface_experiments/scripts/train_scripts/llama_og_code/train_subscript_llama.sh
 
 exit 0
 # Reordered Models
