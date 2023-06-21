@@ -94,8 +94,8 @@ def train(train_dataset_path: str, eval_dataset_path: str, output_path: str):
 
 
     # model_name = "ybelkada/falcon-7b-sharded-bf16"
-    # model_name = "openlm-research/open_llama_13b"
-    model_name="decapoda-research/llama-13b-hf"
+    model_name = "openlm-research/open_llama_13b"
+    # model_name="decapoda-research/llama-13b-hf"
 
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
