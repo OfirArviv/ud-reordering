@@ -239,8 +239,6 @@ def tokenize_dataset(examples: Dataset, tokenizer: PreTrainedTokenizerBase,
 
 def preprocess_dataset_for_causal_lm(examples: Dataset, tokenizer: PreTrainedTokenizerBase,
                                      text_column: str, label_column: str, max_length: int):
-    if tokenizer.pad_token_id is None:
-        tokenizer.pad_token_id = tokenizer.eos_token_id
     batch_size = len(examples[text_column])
     inputs = [f'{x}' for x in examples[text_column]]
     targets = [f'{x}' for x in examples[label_column]]
@@ -336,8 +334,8 @@ def train_model(model_id: str,
 
     # region tokenizer and dataset preparation
     tokenizer = LlamaTokenizer.from_pretrained(model_id, cache_dir=cache_dir)
-    tokenizer.pad_token = tokenizer.eos_token
     tokenizer.bos_token_id = 1
+    tokenizer.pad_token_id = tokenizer.eos_token_id
 
     preprocess_func = preprocess_dataset_for_causal_lm
 
@@ -401,12 +399,12 @@ def train_model(model_id: str,
     data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer,
                                            model=model,
                                            padding=True,
-                                           label_pad_token_id=tokenizer.eos_token_id if is_seq2seq_model else -100
+                                           label_pad_token_id=-100
                                            )
 
     training_args = Seq2SeqTrainingArguments(
         output_dir=output_dir,
-        num_train_epochs= 20,
+        num_train_epochs= 5,
         per_device_train_batch_size=  4,  # if "base" in model_id else 1,
         per_device_eval_batch_size= 4,  # if  "base" in model_id else 1,
 
