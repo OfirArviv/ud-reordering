@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ARGPARSE_DESCRIPTION="Sample script description"      # this is optional
-source /cs/labs/oabend/ofir.arviv/argparse.bash || exit 1
+source /cs/labs/oabend/ofir.arviv/argparse.bash
 argparse "$@" <<EOF || exit 1
 parser.add_argument('-d', '--dir', required=True)
 parser.add_argument('-i', '--model-idx', required=False)
