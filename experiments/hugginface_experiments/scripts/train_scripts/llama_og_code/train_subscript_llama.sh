@@ -15,6 +15,6 @@ module load cuda/11.7
 export PYTHONPATH=.:$PYTHONPATH
 
 
-python "$PWD"/experiments/hugginface_experiments/scripts/train_scripts/llama_og_code/train_llama_13_mtop_og_code.sh train --train-dataset-path "$train_dataset_path"  --output-dir "$output_dir" --eval-dataset-path "$eval_dataset_path"
+python "$PWD"/experiments/hugginface_experiments/src/train_llama.py train --train-dataset-path "$train_dataset_path"  --output-dir "$output_dir" --eval-dataset-path "$eval_dataset_path"
 
 
