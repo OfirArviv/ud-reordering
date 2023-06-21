@@ -404,8 +404,8 @@ def train_model(model_id: str,
 
     training_args = Seq2SeqTrainingArguments(
         output_dir=output_dir,
-        num_train_epochs= 5,
-        per_device_train_batch_size=  4,  # if "base" in model_id else 1,
+        num_train_epochs=10,
+        per_device_train_batch_size=8,  # if "base" in model_id else 1,
         per_device_eval_batch_size= 4,  # if  "base" in model_id else 1,
 
         logging_strategy='epoch',
@@ -421,11 +421,11 @@ def train_model(model_id: str,
 
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         fp16=True,
-        gradient_accumulation_steps= 4,  # if "base" in model_id else 16,
+        gradient_accumulation_steps= 2,  # if "base" in model_id else 16,
         eval_accumulation_steps=1,
         optim="paged_adamw_32bit",
         lr_scheduler_type="constant",
-        learning_rate=2e-4,  # 2e-4 if train_in_4_bit else 3e-5,
+        learning_rate=3e-5,#2e-4,  # 2e-4 if train_in_4_bit else 3e-5,
         warmup_ratio = 0.03,
         max_grad_norm=0.3,
 
