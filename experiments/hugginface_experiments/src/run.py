@@ -414,7 +414,7 @@ def train_model(model_id: str,
 
     training_args = Seq2SeqTrainingArguments(
         output_dir=output_dir,
-        num_train_epochs=5,
+        num_train_epochs=5 if train_in_8_bit else 20,
         per_device_train_batch_size= 1 if train_in_8_bit else 4,  # if "base" in model_id else 1,
         per_device_eval_batch_size= 1 if train_in_8_bit else 4,  # if  "base" in model_id else 1,
 
