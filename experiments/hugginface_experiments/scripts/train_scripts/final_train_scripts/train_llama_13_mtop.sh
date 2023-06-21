@@ -43,12 +43,12 @@ if [ ! -d "$output_dir" ]; then
  mkdir -p "$output_dir"
 fi
 
-sbatch $sbatch_params -J llama_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript_4bit_experiments.sh
+# sbatch $sbatch_params -J llama_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript_4bit_experiments.sh
 
 # Reordered Models
 combined_postfixes=("_combined")
 # hindi thai french spanish german japanese tamil turkish
-languages=( russian hungarain )
+languages=( hungarian ) # russian
 algo_arr=( HUJI )
 for combined_postfix in "${combined_postfixes[@]}"
 do
