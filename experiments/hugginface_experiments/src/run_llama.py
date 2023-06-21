@@ -448,6 +448,10 @@ def train_model(model_id: str,
     checkpoint = get_last_checkpoint(output_dir)
     if checkpoint is not None:
         logger.info(f'_debug_ Resuming training from checkpoint: {checkpoint}')
+
+    for name, module in trainer.model.named_modules():
+        if "norm" in name:
+            module = module.to(torch.float32)
     train_result = trainer.train(resume_from_checkpoint=checkpoint)
 
     # this needs to be before the save_metrics. As otherwise it will overwrite them
