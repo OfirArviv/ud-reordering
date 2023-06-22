@@ -419,8 +419,8 @@ def train_model(model_id: str,
     training_args = Seq2SeqTrainingArguments(
         output_dir=output_dir,
         num_train_epochs=5 if train_in_8_bit else 20,
-        per_device_train_batch_size= 1 if train_in_8_bit else 4,  # if "base" in model_id else 1,
-        per_device_eval_batch_size= 1 if train_in_8_bit else 4,  # if  "base" in model_id else 1,
+        per_device_train_batch_size= 4 if train_in_8_bit else 4,  # if "base" in model_id else 1,
+        per_device_eval_batch_size= 4 if train_in_8_bit else 4,  # if  "base" in model_id else 1,
 
         logging_strategy='epoch',
         evaluation_strategy='epoch' if eval_dataset else "no",
@@ -435,7 +435,7 @@ def train_model(model_id: str,
 
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
         # fp16=device != "mps",
-        gradient_accumulation_steps=16 if train_in_8_bit else 4,  # if "base" in model_id else 16,
+        gradient_accumulation_steps=4 if train_in_8_bit else 4,  # if "base" in model_id else 16,
         eval_accumulation_steps=1,
         optim="paged_adamw_8bit" if (train_in_4_bit or train_in_8_bit) else "adamw_hf",
         lr_scheduler_type="linear",
