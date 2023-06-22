@@ -464,8 +464,10 @@ def train_model(model_id: str,
     checkpoint = get_last_checkpoint(output_dir)
     logger.info(f'_debug_checkpoints: {checkpoint}')
     if checkpoint is not None:
-        logger.info(f'_debug_ Resuming training from checkpoint: {checkpoint}')
-    train_result = trainer.train(resume_from_checkpoint=checkpoint)
+        _delete_checkpoints(output_dir)
+        # logger.info(f'_debug_ Resuming training from checkpoint: {checkpoint}')
+    # train_result = trainer.train(resume_from_checkpoint=checkpoint)
+    train_result = trainer.train()
 
     # this needs to be before the save_metrics. As otherwise it will overwrite them
     trainer.save_model()
