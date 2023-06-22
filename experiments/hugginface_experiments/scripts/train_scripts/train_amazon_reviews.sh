@@ -30,9 +30,9 @@ export max_length=200
 dataset_dir="experiments/processed_datasets/amazon_reviews/"
 
 # Vanilla model
-export train_dataset_path="$dataset_dir""/standard/english_amazon_reviews_train.csv"
+export train_dataset_path="$dataset_dir""/standard/english_amazon_reviews_train.tsv"
 # export eval_dataset_path=
-export test_dataset_path="$dataset_dir""/standard/english_amazon_reviews_eval.csv"
+export test_dataset_path="$dataset_dir""/standard/english_amazon_reviews_eval.tsv"
 
 export output_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
 
@@ -56,9 +56,9 @@ do
     subdir=english_reordered_by_"$lang"
     for algo in "${algo_arr[@]}"
     do
-      export train_dataset_path="$dataset_dir"/"$subdir"/english_amazon_reviews_train_reordered_by_"$lang"_"$algo""$combined_postfix".csv
+      export train_dataset_path="$dataset_dir"/"$subdir"/english_amazon_reviews_train_reordered_by_"$lang"_"$algo""$combined_postfix".tsv
       # export eval_dataset_path=
-      export test_dataset_path="$dataset_dir"/"$subdir"/english_amazon_reviews_eval_reordered_by_"$lang"_"$algo""$combined_postfix".csv
+      export test_dataset_path="$dataset_dir"/"$subdir"/english_amazon_reviews_eval_reordered_by_"$lang"_"$algo""$combined_postfix".tsv
 
       export output_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
 
