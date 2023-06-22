@@ -46,7 +46,7 @@ fi
 
 sbatch $sbatch_params -J llama_mtop experiments/hugginface_experiments/scripts/train_scripts/train_subscript_4bit_experiments.sh
 
-exit()
+exit 0
 
 # Reordered Models
 combined_postfixes=("_combined")
