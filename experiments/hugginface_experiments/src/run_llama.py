@@ -335,7 +335,8 @@ def train_model(model_id: str,
     # region tokenizer and dataset preparation
     tokenizer = LlamaTokenizer.from_pretrained(model_id, cache_dir=cache_dir)
     tokenizer.bos_token_id = 1
-    tokenizer.pad_token_id = tokenizer.eos_token_id
+    tokenizer.pad_token_id = tokenizer.bos_token_id
+    tokenizer.padding_side ="left"
 
     preprocess_func = preprocess_dataset_for_causal_lm
 
