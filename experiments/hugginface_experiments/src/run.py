@@ -343,7 +343,7 @@ def train_model(model_id: str,
     else:
         tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir=cache_dir)
     # tokenizer.bos_token_id = 1
-    if tokenizer.pad_token_id is None:
+    if tokenizer.pad_token_id is None or tokenizer.pad_token_id < 0:
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
     if is_seq2seq_model:
