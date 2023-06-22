@@ -395,7 +395,7 @@ def train_model(model_id: str,
         task_type = TaskType.SEQ_2_SEQ_LM if is_seq2seq_model else TaskType.CAUSAL_LM
 
         config = LoraConfig(
-            r=16,
+            r=8 if train_in_8_bit else 16,
             lora_alpha=32,
             target_modules=["q_proj", "v_proj"] if "xglm" in model_id else None,
             lora_dropout=0.05,
