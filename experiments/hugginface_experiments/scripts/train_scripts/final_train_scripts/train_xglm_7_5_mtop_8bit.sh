@@ -34,8 +34,8 @@ export exp_fname="run.py"
 dataset_dir="experiments/processed_datasets/mtop/non_pointer_format"
 # Vanilla model
 export train_dataset_path="$dataset_dir""/standard/english_train_decoupled_format.tsv"
-export eval_dataset_path="$dataset_dir""/standard/english_eval_decoupled_format.tsv"
-export test_dataset_path=$eval_dataset_path
+# export eval_dataset_path=
+export test_dataset_path="$dataset_dir""/standard/english_eval_decoupled_format.tsv"
 
 export output_dir="$DIR"/english_standard/model_"$MODEL_IDX"/
 
@@ -59,8 +59,8 @@ do
     for algo in "${algo_arr[@]}"
     do
       export train_dataset_path="$dataset_dir"/"$subdir"/english_train_decoupled_format_reordered_by_"$lang"_"$algo""$combined_postfix".tsv
-      export eval_dataset_path="$dataset_dir"/"$subdir"/english_eval_decoupled_format_reordered_by_"$lang"_"$algo""$combined_postfix".tsv
-      export test_dataset_path=$eval_dataset_path
+      # export eval_dataset_path=
+      export test_dataset_path="$dataset_dir"/"$subdir"/english_eval_decoupled_format_reordered_by_"$lang"_"$algo""$combined_postfix".tsv
 
       export output_dir="$DIR"/english_reordered_by_"$lang"_"$algo""$combined_postfix"/model_"$MODEL_IDX"/
 
