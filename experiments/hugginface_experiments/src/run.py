@@ -16,7 +16,8 @@ from peft import LoraConfig, TaskType, get_peft_model, prepare_model_for_kbit_tr
     prepare_model_for_int8_training
 from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedTokenizerBase, \
     EvalPrediction, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq, \
-    EarlyStoppingCallback, BitsAndBytesConfig, set_seed, AutoModelForSeq2SeqLM, Seq2SeqTrainer, GenerationConfig
+    EarlyStoppingCallback, BitsAndBytesConfig, set_seed, AutoModelForSeq2SeqLM, Seq2SeqTrainer, GenerationConfig, \
+    LlamaTokenizer
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import logging
 
@@ -337,7 +338,10 @@ def train_model(model_id: str,
         assert not train_in_8_bit
 
     # region tokenizer and dataset preparation
-    tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir=cache_dir)
+    if "llama" in model_id:
+        tokenizer = LlamaTokenizer.from_pretrained(model_id, cache_dir=cache_dir)
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir=cache_dir)
     # tokenizer.bos_token_id = 1
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
