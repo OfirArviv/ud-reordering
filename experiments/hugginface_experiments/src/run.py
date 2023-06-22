@@ -502,8 +502,8 @@ def evaluate_model(model_id: str,
         assert train_with_lora
 
     # TODO: remove in the future and just save the best model to the main dir
-    # model_id = get_last_checkpoint(model_id)
-    #     assert model_id is not None
+    model_id = get_last_checkpoint(model_id)
+    assert model_id is not None
 
     if train_with_lora:
         peft_model_name_or_path = model_id
@@ -566,7 +566,7 @@ def evaluate_model(model_id: str,
         predict_with_generate=True,
         generation_max_length=max_length + 10,
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
-        # fp16=device != "mps",
+        fp16=device != "mps",
         eval_accumulation_steps=1,
         use_mps_device=device.type == "mps",
         report_to="none"
@@ -674,7 +674,7 @@ def load_custom_dataset(dataset_path: str, add_instruction: bool):
     elif "xnli" in dataset_path:
         dataset = load_nli_dataset(dataset_path, add_instruction)
     elif "amazon" in dataset_path:
-        dataset = datasets.load_dataset("csv", data_files=dataset_path)['train']
+        dataset = datasets.load_dataset("csv", data_files=dataset_path, sep='\t')['train']
     else:
         raise NotImplementedError(dataset_path)
 
