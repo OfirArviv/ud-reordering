@@ -338,7 +338,7 @@ def train_model(model_id: str,
 
     # region tokenizer and dataset preparation
     tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir=cache_dir)
-    tokenizer.bos_token_id = 1
+    # tokenizer.bos_token_id = 1
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
@@ -379,7 +379,7 @@ def train_model(model_id: str,
         "trust_remote_code": True,
         "torch_dtype": torch.bfloat16 if (train_in_4_bit or train_in_8_bit) else None,
         "load_in_8bit": train_in_8_bit,
-        "device_map": "auto"
+        # "device_map": "auto"
     }
 
     if is_seq2seq_model:
@@ -434,7 +434,7 @@ def train_model(model_id: str,
         generation_num_beams=1,
 
         # TODO: Why we cannot do fp16 with Lora? (The loss is 0)
-        fp16=device != "mps",
+        # fp16=device != "mps",
         gradient_accumulation_steps=16 if train_in_8_bit else 4,  # if "base" in model_id else 16,
         eval_accumulation_steps=1,
         optim="paged_adamw_8bit" if (train_in_4_bit or train_in_8_bit) else "adamw_hf",
