@@ -47,7 +47,7 @@ fi
 
 if [ "$train_8_bits" ]
  then
-   extra_params="$extra_params"" --train-8-bits "
+   extra_params="$extra_params"" --train-8-bits"
 fi
 
 python "$PWD"/experiments/hugginface_experiments/src/"$exp_fname" train --model-id  "$model_id" --train-dataset-path "$train_dataset_path"  --output-dir "$output_dir" --seed "$RANDOM" $extra_params
