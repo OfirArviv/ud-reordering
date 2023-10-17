@@ -39,11 +39,11 @@ if [ "$KILLABLE" ]
     sbatch_params=""
 fi
 
-sbatch $sbatch_params -J train_ud experiments/scripts/train_scripts/train_subscript.sh
+# sbatch $sbatch_params -J train_ud experiments/scripts/train_scripts/train_subscript.sh
 
 # Reordered Models
 combined_postfixes=("" "_combined")
-languages=(arabic turkish indonesian) #arabic irish turkish french german hindi korean persian spanish thai)
+languages=("thai_part-1") #arabic irish turkish french german hindi korean persian spanish thai indonesian)
 algo_arr=(HUJI RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
 do
