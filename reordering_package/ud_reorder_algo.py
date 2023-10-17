@@ -61,7 +61,9 @@ class UdReorderingAlgo:
             "russian": f'{_estimates_dir}/ru_gsd-ud-train.conllu.estimates.json',
             "irish": f'{_estimates_dir}/ga_idt-ud-train.conllu.estimates.json',
             "telugu": f'{_estimates_dir}/te_mtg-ud-train.conllu.estimates.json',
-            "tamil": f'{_estimates_dir}/ta_ttb-ud-train.conllu.estimates.json'
+            "tamil": f'{_estimates_dir}/ta_ttb-ud-train.conllu.estimates.json',
+            "chinese": f'{_estimates_dir}/zh_gsd-ud-train.conllu.estimates.json',
+            "hungarian": f'{_estimates_dir}/hu_szeged-ud-train.conllu.estimates.json'
         }
 
         _direction_dir = "reordering_package/rasoolini_ud_reorder/data"
@@ -85,7 +87,8 @@ class UdReorderingAlgo:
             "russian": f'{_direction_dir}/ru_gsd-ud-train.conllu.right_direction_prop.json',
             "irish": f'{_direction_dir}/ga_idt-ud-train.conllu.right_direction_prop.json',
             "telugu": f'{_direction_dir}/te_mtg-ud-train.conllu.right_direction_prop.json',
-            "tamil": f'{_direction_dir}/ta_ttb-ud-train.conllu.right_direction_prop.json'
+            "tamil": f'{_direction_dir}/ta_ttb-ud-train.conllu.right_direction_prop.json',
+            "hungarian": f'{_direction_dir}/hu_szeged-ud-train.conllu.right_direction_prop.json'
         }
 
 
