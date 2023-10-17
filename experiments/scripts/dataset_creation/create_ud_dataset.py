@@ -8,8 +8,6 @@ from tqdm import tqdm
 
 from reordering_package.huji_ud_reordering import UDLib
 from reordering_package.ud_reorder_algo import UdReorderingAlgo
-
-
 def conllu_to_UDLib_format(input_tree: conllu.TokenList) -> UDLib.UDTree:
     input_tree_str = input_tree.serialize()
     assert input_tree_str[-1] == "\n"
@@ -137,6 +135,27 @@ def copy_standard_datasets():
             shutil.copyfile(f_path, output_path)
 
 
+
+def create_split_thai_dataset():
+    conllu_file_path = "experiments/datasets/ud/ud-treebanks-v2.10/UD_Thai-PUD/th_pud-ud-test.conllu"
+    with open(conllu_file_path, "r", encoding='utf-8') as input_file:
+        treebank_list = list(tqdm(conllu.parse_incr(input_file)))
+
+    part_1_treebank_list = treebank_list[:500]
+    part_2_treebank_list = treebank_list[500:]
+
+    output_dir = "experiments/processed_datasets/ud/conllu_format/thai_split/"
+    with open(f'{output_dir}/th_pud-ud-test_part-1.conllu', 'w', encoding='utf-8') as f:
+        for t in part_1_treebank_list:
+            tree_str = t.serialize()
+            f.write(tree_str)
+
+    with open(f'{output_dir}/th_pud-ud-test_part-2.conllu', 'w', encoding='utf-8') as f:
+        for t in part_2_treebank_list:
+            tree_str = t.serialize()
+            f.write(tree_str)
+
+
 def create_ud_vocab():
     conllu_dataset_root_dir = "experiments/processed_datasets/ud/conllu_format/standard/"
     dep_id_set = set()
@@ -161,6 +180,7 @@ def create_ud_vocab():
 
 
 if __name__ == "__main__":
-    copy_standard_datasets()
-    #create_ud_vocab()
+    create_split_thai_dataset()
+    # copy_standard_datasets()
+    # create_ud_vocab()
     # create_reordered_datasets_script()
