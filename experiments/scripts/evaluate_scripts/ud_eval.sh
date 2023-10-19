@@ -29,7 +29,7 @@ sbatch $sbatch_params -J eval_ud experiments/scripts/evaluate_scripts/eval_subsc
 
 # Reordered Models
 combined_postfixes=("" "_combined")
-languages=(irish arabic french german hindi korean persian spanish thai)
+languages=("thai_part-1") #irish arabic french german hindi korean persian spanish
 algo_arr=(HUJI RASOOLINI)
 for combined_postfix in "${combined_postfixes[@]}"
 do
